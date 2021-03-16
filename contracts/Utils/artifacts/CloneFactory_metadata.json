@@ -1,0 +1,45 @@
+{
+	"compiler": {
+		"version": "0.7.6+commit.7338295f"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"localhost/HODL Network/our-contracts/contracts/Utils/CloneFactory.sol": "CloneFactory"
+		},
+		"evmVersion": "istanbul",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"localhost/HODL Network/our-contracts/contracts/Utils/CloneFactory.sol": {
+			"keccak256": "0xb98bbb1d9f5def991a0dd2124874973eed92171b2e6fdb956381b89ae72632ca",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://fe0f2d3e74388dda5d0e82dd96ce559c18f44f966a39d1b8c4cb821d78558705",
+				"dweb:/ipfs/Qma1qQU9hZaZRuP8pv8Z4ZyJ2czfFuC8Nt3A6FNvFXitEL"
+			]
+		}
+	},
+	"version": 1
+}
