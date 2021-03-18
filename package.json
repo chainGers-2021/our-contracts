@@ -1,0 +1,28 @@
+{
+  "name": "our-contracts",
+  "version": "1.0.0",
+  "description": "UserA = 100, pool.deposit(_factoryAddress) UserB = 100, pool.deposit(_factoryAddress) UserC = 100, pool.deposit(_factoryAddress)",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo 'nothing'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chainGers-2021/our-contracts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chainGers-2021/our-contracts/issues"
+  },
+  "homepage": "https://github.com/chainGers-2021/our-contracts#readme",
+  "dependencies": {
+    "@aave/protocol-v2": "^1.0.1",
+    "@openzeppelin/contracts": "^3.4.1",
+    "hardhat": "^2.1.1",
+    "web3": "^1.3.4"
+  }
+}

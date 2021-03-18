@@ -6,7 +6,7 @@ pragma solidity >=0.6.0;
  * @author Chinmay Vemuri
  */
  
-contract ERC20_Pool
+contract PrivatePool
 {
     address public owner;
     address public token;
@@ -27,5 +27,4 @@ contract ERC20_Pool
         targetPrice = _targetPrice;
         publicKey = _publicKey;
     }
-    
 }
