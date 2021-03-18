@@ -2,16 +2,16 @@
 pragma solidity >=0.6.0;
 
 import "../Utils/CloneFactory.sol";
-import "../Pools/ERC20_Pool.sol";
+import "../Pools/PrivatePool.sol";
 
 /***
  * Factory Contract for creating private pools
  * @author Chinmay Vemuri
  */
 
-contract PoolFactory is CloneFactory
+contract Factory is CloneFactory
 {
-    address immutable admin;
+    address admin;
     address public implementation;
     mapping(string => address) public poolNames;
     mapping(address => address) public tokenAndaTokenAddress;
@@ -28,7 +28,7 @@ contract PoolFactory is CloneFactory
     }
     
     
-    constructor(address _implementation)
+    constructor(address _implementation) public
     {
         admin = msg.sender;
         implementation = _implementation;
@@ -54,12 +54,10 @@ contract PoolFactory is CloneFactory
         // Add another condition that _targetPrice must be greater than the present price ?
         
         address newPool = createClone(implementation);
-        ERC20_Pool(newPool).init(msg.sender, _token, _poolName, _targetPrice, _publicKey);
+        PrivatePool(newPool).init(msg.sender, _token, _poolName, _targetPrice, _publicKey);
         poolNames[_poolName] = newPool;
         
         emit newPoolCreated(address(newPool), msg.sender, _token, _poolName, _targetPrice);
     }
-    
-    
 }
  
