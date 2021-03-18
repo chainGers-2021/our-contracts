@@ -47,14 +47,14 @@ contract Factory is CloneFactory
         emit newTokenAdded(_token, _aToken);
     }
     
-    function createPool(address _token, string calldata _poolName, uint256 _targetPrice, bytes32 _publicKey) external
+    function createPool(address _token, string calldata _poolName, uint256 _targetPrice, address _accountAddress) external
     {
         require(tokenAndaTokenAddress[_token] != address(0), "Invalid token address !");
         require(poolNames[_poolName] == address(0), "Pool name already taken !");
         // Add another condition that _targetPrice must be greater than the present price ?
         
         address newPool = createClone(implementation);
-        PrivatePool(newPool).init(msg.sender, _token, _poolName, _targetPrice, _publicKey);
+        PrivatePool(newPool).init(msg.sender, _token, _poolName, _targetPrice, _accountAddress);
         poolNames[_poolName] = newPool;
         
         emit newPoolCreated(address(newPool), msg.sender, _token, _poolName, _targetPrice);

@@ -10,14 +10,14 @@ contract PrivatePool
 {
     address public owner;
     address public token;
-    bytes32 publicKey; // Necessary for inviting people
+    address public accountAddress; // Necessary for inviting people
     string public poolName;
-    uint256 targetPrice;
-    bool initialized;
+    uint256 public targetPrice;
+    bool public initialized;
     
     mapping(address => uint256) userDeposits;
     
-    function init(address _owner, address _token, string calldata _poolName, uint256 _targetPrice, bytes32 _publicKey) external
+    function init(address _owner, address _token, string calldata _poolName, uint256 _targetPrice, address _accountAddress) external
     {
         require(!initialized, "Pool already initialized !");
         
@@ -25,6 +25,11 @@ contract PrivatePool
         token = _token;
         poolName = _poolName;
         targetPrice = _targetPrice;
-        publicKey = _publicKey;
+        accountAddress = _accountAddress;
+    }
+
+    function verify(bytes32 _messageHash, uint8 v, bytes32 r, bytes32 s) external view returns(bool) 
+    {
+        return ecrecover(_messageHash, v, r, s) == accountAddress;
     }
 }
