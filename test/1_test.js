@@ -2,6 +2,7 @@
 const assert = require("assert");
 const Web3 = require("web3");
 const hre = require("hardhat");
+const truffleAssert = require("truffle-assertions");
 const web3 = new Web3(hre.network.provider);
 
 let privatePoolDeployedAddress;
@@ -60,11 +61,27 @@ describe("Deposit", async function () {
 
     // Send the hashMessage of the signObject along with the r, s and v values of the signObject.
     await verificationContract.methods.verify(signObject.messageHash, signObject.v, signObject.r, signObject.s)
-      .call()
-      .then((reply) => {
-        // If successfully verifies should print 'true'.
-        console.log("Verification function returns: ", reply);
-      });
+      .send({ from: admin });
 
+    // This should return true as admin has been verfied.
+    await verificationContract.methods.verified(admin)
+    .call()
+    .then((reply) => {
+      console.log("Admin verified: ", reply);
+    });
+
+    // Checks if unauthorized access takes place and reverts.
+    await truffleAssert.reverts(
+      verificationContract.methods.verify(signObject.messageHash, signObject.v, signObject.r, signObject.s)
+      .send({ from: user1 }),
+      "Unauthorized access: Reusing signature"
+    ); 
+
+    // This should return false as user1 tried to get unauthorized access.
+    await verificationContract.methods.verified(user1)
+    .call()
+    .then((reply) => {
+      console.log("User1 verified: ", reply);
+    });
   });
 });
