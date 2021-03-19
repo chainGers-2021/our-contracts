@@ -6,13 +6,18 @@ const truffleAssert = require("truffle-assertions");
 const web3 = new Web3(hre.network.provider);
 
 let privatePoolDeployedAddress;
+let linkTokenAddress;
+let aLinkTokenAddress;
 
 beforeEach(async () => {
   accounts = await web3.eth.getAccounts();
   admin = accounts[0];
   user1 = accounts[1];
   user2 = accounts[2];
+  user3 = accounts[3];
 
+  linkTokenAddress = web3.eth.accounts.create().address; // Change this.
+  aLinkTokenAddress = web3.eth.accounts.create().address; // Change this.
   // Deploying PrivatePool
   compiledPrivatePool = await hre.artifacts.readArtifact("PrivatePool");
   await new web3.eth.Contract((await compiledPrivatePool).abi)
@@ -33,13 +38,16 @@ beforeEach(async () => {
     .send({
       from: admin,
     });
+
+  await factory.methods.addTokenAddress(linkTokenAddress, aLinkTokenAddress)
+    .send({ from: admin });
   // console.log(factory.options.address);
 
   // Comptroller deploy
 });
 
-describe("Deposit", async function () {
-  it("Verifies a user's invitation", async function () {
+describe("Verification Process", async function () {
+  it("Verifies a user's invitation in verification contract", async function () {
 
     // Create a new account. It returns an account address and its corresponding privateKey.
     newAccountData = await web3.eth.accounts.create();
@@ -84,4 +92,36 @@ describe("Deposit", async function () {
       console.log("User1 verified: ", reply);
     });
   });
+
+  it.only("Verifies user in a private pool", async () =>{
+    // Create a new account. It returns an account address and its corresponding privateKey.
+    newAccountData = await web3.eth.accounts.create();
+    
+    // Create a new pool.
+    await factory.methods.createPool(linkTokenAddress, "TEST", 1000000000, newAccountData.address)
+      .send({ from: user1 });
+    privatePool = await factory.methods.poolNames("TEST").call();
+    console.log("New private pool address: ", privatePool);
+    
+    // Generate a random string. This string is signed using the privateKey.
+    randomHexString = await web3.utils.randomHex(32);
+    signObject = await web3.eth.accounts.sign(randomHexString, newAccountData.privateKey);
+
+    // Send the hashMessage of the signObject along with the r, s and v values of the signObject to the private pool via factory contract.
+    await factory.methods.factoryVerify("TEST", signObject.messageHash, signObject.v, signObject.r, signObject.s)
+      .send({ from: user2 });
+
+    await factory.methods.getVerifiedStatus("TEST")
+      .call({ from: user2 })
+      .then((result) => {
+        console.log("User2 is verified: ", result);
+      });
+
+    await factory.methods.getVerifiedStatus("TEST")
+      .call({from: user3})
+      .then((result) => {
+        console.log("User3 is verified: ", result);
+      });
+  });
+
 });

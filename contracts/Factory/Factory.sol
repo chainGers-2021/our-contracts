@@ -19,8 +19,11 @@ contract Factory is CloneFactory
     
     event newTokenAdded(address _token, address _aToken);
     event newPoolCreated(address _poolAddress, address indexed _owner, address indexed _token, string _poolName, uint256 _targetPrice);
-    
-    
+    event verified(address _sender, address indexed _pool);
+    event unVerified(address _sender, address indexed _pool);
+
+
+
     modifier onlyAdmin
     {
         require(msg.sender == admin, "Only admin can use this function !");
@@ -58,6 +61,20 @@ contract Factory is CloneFactory
         poolNames[_poolName] = newPool;
         
         emit newPoolCreated(address(newPool), msg.sender, _token, _poolName, _targetPrice);
+    }
+
+    function factoryVerify(string calldata _poolName, bytes32 _messageHash, uint8 v, bytes32 r, bytes32 s) external
+    {
+        if(PrivatePool(poolNames[_poolName]).poolVerify(msg.sender, _messageHash, v, r, s))
+            emit verified(msg.sender, poolNames[_poolName]);
+        else
+            emit unVerified(msg.sender, poolNames[_poolName]);
+    }
+
+    // Functions for testing
+    function getVerifiedStatus(string calldata _poolName) external view returns(bool)
+    {
+        return PrivatePool(poolNames[_poolName]).verified(msg.sender);
     }
 }
  
