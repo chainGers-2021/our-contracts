@@ -1,9 +1,8 @@
-artifacts/
+*artifacts*
 cache/
 
 # Created by .ignore support plugin (hsz.mobi)
 ### VisualStudioCode template
-
 .metadata
 tmp/
 *.tmp
