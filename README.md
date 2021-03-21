@@ -1,4 +1,28 @@
 # our-contracts
+## How to run?
+## Installation
+ - `yarn`
+## Custom shorthands:
+ - `yarn c`: compile
+ - `yarn t`: test on default network
+ - `yarn l`: test on local hardhat node
+ - `yarn k`: test on kovan network
+## hh shorthands:
+ - `hh compile`: compile 
+ - `hh test`: test on default network
+ - `hh test --network kovan`
+ - `hh test --network hardhat`
+
+## Description
+ - Deposit process(test)
+   - deposit erc20 to Comptroller
+
+ - Validate user
+ - Deposit ERC20 to Comptroller
+ - Comptroller `deposit()` to `AAVE Lending Pool`
+ - Amount quote is given to private pools
+
+## Logs
 UserA = 100, pool.deposit(_factoryAddress)
 UserB = 100, pool.deposit(_factoryAddress)
 UserC = 100, pool.deposit(_factoryAddress)
@@ -14,32 +38,3 @@ Interest = 89
 )
 
 (totalDeposited/currentBalance)
-
-
-## How to run?
- - `hh compile`
- - `hh test`
- - `hh test --network kovan`
- - `hh test --network hardhat`
-
-## Description
- - Deposit process(test)
-   - deposit erc20 to Comptroller
-
- - Validate user
- - Deposit ERC20 to Comptroller
- - Comptroller `deposit()` to `AAVE Lending Pool`
- - Amount quote is given to private pools
-
-
-Pool890(_privateKey)
-
-
-(100, 0)
-
-(100%5 = 0)
-
-100 <= contract
-
-
-0 <= user
