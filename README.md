@@ -7,6 +7,7 @@
  - `yarn t`: test on default network
  - `yarn l`: test on local hardhat node
  - `yarn k`: test on kovan network
+ - `yarn 1`: task 1 on kovan network
 ## hh shorthands:
  - `hh compile`: compile 
  - `hh test`: test on default network
