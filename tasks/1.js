@@ -28,7 +28,7 @@ async function test() {
   await token.methods
     .approve(pool, allowLimit)
     .send({ from: myAccount })
-    .then((tx) => console.log(tx));
+    .then(console.log);
 
   lendingPool = new web3.eth.Contract(compiledILendingPool.abi, pool);
 
@@ -36,8 +36,21 @@ async function test() {
   await lendingPool.methods
     .deposit(tokenAddr, allowLimit, myAccount, 0)
     .send({ from: myAccount })
-    .then((tx) => {
-      console.log(tx);
-    });
+    .then(console.log);
+
+  inf = (10 ** 20).toString();
+  aToken = new web3.eth.Contract(tokenABI, aTokenAddr);
+
+  // Approving aToken
+  await aToken.methods
+    .approve(pool, inf)
+    .send({ from: myAccount })
+    .then(console.log);
+
+  // Asking pool to with draw
+  await lendingPool.methods
+    .withdraw(tokenAddr, inf, myAccount)
+    .send({ from: myAccount })
+    .then(console.log);
 }
 module.exports = { test };
