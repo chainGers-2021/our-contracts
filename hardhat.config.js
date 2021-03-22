@@ -1,11 +1,14 @@
-const { test } = require("./tasks/1");
+const { test1 } = require("./tasks/1");
+const { test2 } = require("./tasks/2");
 require("@nomiclabs/hardhat-web3");
 
-
 task("task1", "does positive work for me.").setAction(async () => {
-  await test();
+  await test1();
 });
 
+task("task2", "does some more positive work for me.").setAction(async () => {
+  await test2();
+});
 
 // Configurations
 module.exports = {

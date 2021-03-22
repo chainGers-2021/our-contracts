@@ -8,6 +8,7 @@
   },
   "scripts": {
     "1": "hh task1 --network kovan",
+    "2": "hh task2 --network kovan",
     "c": "hh compile",
     "t": "hh test",
     "l": "hh test --network hardhat",
