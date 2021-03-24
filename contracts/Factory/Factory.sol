@@ -6,14 +6,14 @@ import "../Pools/PrivatePool.sol";
 
 /***
  * Factory Contract for creating private pools
+ * @dev Check if biconomy doesn't require such a factory-child pattern for Forward payments
  * @author Chinmay Vemuri
  */
-
 contract Factory is CloneFactory
 {
     address admin;
     address public implementation;
-    mapping(string => address) public poolNames;
+    mapping(string => uint256[2]) public poolNames;
     mapping(address => address) public tokenAndaTokenAddress;
     
     
@@ -30,7 +30,8 @@ contract Factory is CloneFactory
         _;
     }
     
-    
+
+
     constructor(address _implementation) public
     {
         admin = msg.sender;
@@ -58,7 +59,8 @@ contract Factory is CloneFactory
         
         address newPool = createClone(implementation);
         PrivatePool(newPool).init(msg.sender, _token, _poolName, _targetPrice, _accountAddress);
-        poolNames[_poolName] = newPool;
+        poolNames[_poolName][0] = newPool; // Pool address
+        poolName[_poolName][1] = _token; // Token address
         
         emit newPoolCreated(address(newPool), msg.sender, _token, _poolName, _targetPrice);
     }
@@ -71,10 +73,19 @@ contract Factory is CloneFactory
             emit unVerified(msg.sender, poolNames[_poolName]);
     }
 
+    function deposit(string calldata _poolName, address _tokenAddr) external 
+    {
+        pool = PrivatePool(poolNames[_poolName][0]);
+        require(pool.verified(msg.sender), "Sender not verified !");
+        
+    }
+
     // Functions for testing
     function getVerifiedStatus(string calldata _poolName) external view returns(bool)
     {
         return PrivatePool(poolNames[_poolName]).verified(msg.sender);
     }
+
+
 }
  

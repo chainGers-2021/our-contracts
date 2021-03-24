@@ -19,6 +19,7 @@ module.exports = {
       url: "https://kovan.infura.io/v3/19b85f951b5a4440923fa8f61eb27245",
       accounts: [
         "10aa5daadb05af6110e6446518b2c90e514b6b19fd11b8107d731ca6d3e8c7bb",
+        "d736eccc140e5923b2bbeff47f49dd82557f0a0b8680a2ed74bd2e6ba626ebf1"
       ],
     },
   },

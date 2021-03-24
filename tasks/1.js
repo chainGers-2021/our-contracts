@@ -8,7 +8,7 @@ const pool = "0xE0fBa4Fc209b4948668006B2bE61711b7f465bAe";
 const compiledILendingPool = require("@aave/protocol-v2/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json");
 const compiledIScaledBalanceToken = require("@aave/protocol-v2/artifacts/contracts/interfaces/IScaledBalanceToken.sol/IScaledBalanceToken.json");
 
-async function test() {
+async function test1() {
   const myAccount = (await web3.eth.getAccounts())[0];
   console.log("Account address: ", myAccount);
   console.log("Ether balance: ", await web3.eth.getBalance(myAccount));
@@ -49,8 +49,8 @@ async function test() {
 
   // Asking pool to with draw
   await lendingPool.methods
-    .withdraw(tokenAddr, inf, myAccount)
+    .withdraw(tokenAddr, allowLimit, myAccount)
     .send({ from: myAccount })
     .then(console.log);
 }
-module.exports = { test };
+module.exports = { test1 };
