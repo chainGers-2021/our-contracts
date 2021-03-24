@@ -1,4 +1,4 @@
-pragma solidity ^0.7.6;
+pragma solidity >=0.6.0;
 
 
 contract Factory
@@ -11,7 +11,7 @@ contract Factory
     mapping(uint => Pools) poolId;
     uint8 public id = 0;
     
-    constructor()
+    constructor() public
     {
         Pools storage newPool = poolId[id++];
         

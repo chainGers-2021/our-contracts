@@ -1,34 +1,26 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity >=0.6.0;
+pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {
-    ECDSA
-} from "@openzeppelin/contracts/cryptography/ECDSA.sol";
-import {
-    IERC20
-} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
-
-import {
-    ILendingPool,
-    ILendingPoolAddressesProvider
-} from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { ECDSA } from "@openzeppelin/contracts/cryptography/ECDSA.sol";
+import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
 import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
 
 /***
  * Factory Contract for creating private pools
- * @dev Check if biconomy doesn't require such a factory-child pattern for Forward payments
  * @author Chinmay Vemuri
+ * Optimizations to be done:
+ * 1) Store index instead of the address of the token in a pool
  */
 
-contract PrivatePool is Ownable {
+contract PoolFactory is Ownable {
     using ECDSA for bytes32;
     using SafeMath for uint256;
 
-    address lendingPoolAddressProvider =
-        address("0x88757f2f99175387aB4C6a4b3067c77A695b0349");
+    address lendingPool = 0xE0fBa4Fc209b4948668006B2bE61711b7f465bAe;
     mapping(address => address) public tokenAndaTokenAddress;
 
     struct Pool {
@@ -100,6 +92,7 @@ contract PrivatePool is Ownable {
 
         Pool storage newPool = poolNames[_poolName];
 
+        newPool.poolName = _poolName;
         newPool.owner = msg.sender;
         newPool.token = _token;
         newPool.accountAddress = _accountAddress;
@@ -156,16 +149,19 @@ contract PrivatePool is Ownable {
     // Complete this
     function depositERC20(string calldata _poolName, uint256 _amount) external {
         Pool storage pool = poolNames[_poolName];
+        ERC20 token = ERC20(pool.token);
         require(pool.verified[msg.sender], "Sender not verified !");
 
         // Checking if user has allowed this contract to spend
         require(
-            _amount <= IERC20(pool.token).allowance(msg.sender, address(this)),
+            _amount <= token.allowance(msg.sender, address(this)),
             "Amount exceeds allowance limit !"
         );
+
         // Transfering tokens into this account
+        
         require(
-            IERC20(pool.token).transferFrom(
+            token.transferFrom(
                 msg.sender,
                 address(this),
                 _amount
@@ -173,19 +169,32 @@ contract PrivatePool is Ownable {
         );
 
         // Transfering into Lending Pool
-        IERC20(pool.token).approve(address(this), _amount);
+        require(IERC20(pool.token).approve(address(this), _amount), "Approval failed");
+        ILendingPool(lendingPool).deposit( pool.token, _amount, address(this), 0);
 
-        ILendingPool(ILendingPoolAddressesProvider.getLendingPool()).deposit(
-            pool.token,
-            _amount,
-            address(this),
-            0
-        );
+        // uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(pool.token).liquidityIndex;
+        // pool.userDeposits[msg.sender] = (_amount.mul(10**27)).div(liquidityIndex);
     }
 
     // Functions for testing
-    // function getVerifiedStatus(string calldata _poolName) external view returns(bool)
-    // {
-    //     return PrivatePool(poolNames[_poolName]).verified(msg.sender);
-    // }
+    function getVerifiedStatus(string calldata _poolName) external view returns(bool)
+    {
+        Pool storage pool = poolNames[_poolName];
+        return pool.verified[msg.sender];
+    }
+
+    function verifyPool(string calldata _poolName) external view returns(bool)
+    {
+        Pool memory pool = poolNames[_poolName];
+        if(keccak256(abi.encode(pool.poolName)) == keccak256(abi.encode(_poolName)))
+            return true;
+        else
+            return false;
+    }
+
+    function getUserDeposit(string calldata _poolName) external view returns(uint256)
+    {
+        Pool storage pool = poolNames[_poolName];
+        return pool.userDeposits[msg.sender];
+    }
 }
