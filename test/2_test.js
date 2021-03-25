@@ -39,11 +39,10 @@ beforeEach(async () => {
 
 
     // Deploying Factory
-    compiledFactoryV2 = await hre.artifacts.readArtifact("PoolFactory");
+    compiledFactoryV2 = await hre.artifacts.readArtifact("PrivatePools");
     factoryV2 = await new web3.eth.Contract((await compiledFactoryV2).abi)
         .deploy({
             data: (await compiledFactoryV2).bytecode,
-            // arguments: [lendingPoolAddressProvider],
         })
         .send({
             from: admin,
@@ -51,14 +50,14 @@ beforeEach(async () => {
     
     console.log("Deploy at:", factoryV2.options.address);
 
-    await factoryV2.methods.addTokenAddress(linkTokenAddress, aLinkTokenAddress)
+    await factoryV2.methods.addTokenData("LINK", linkTokenAddress, aLinkTokenAddress, "0x396c5E36DD0a0F5a5D33dae44368D4193f69a1F0", 8)
         .send({ from: admin });
 
-
+    // Creating a account address and corresponding private key for a new pool
     newAccountData = await web3.eth.accounts.create();
 
     // Create a new pool.
-    await factoryV2.methods.createPool(linkTokenAddress, "TEST", 50, newAccountData.address)
+    await factoryV2.methods.createPool("LINK", "TEST", 50, newAccountData.address)
         .send({ from: admin });
 
     console.log("Pool exists: ", await factoryV2.methods.verifyPool("TEST").call());
@@ -118,18 +117,17 @@ describe("Deposit process", async function () {
         .then((tx) => console.log("depositERC20(): ", tx.gasUsed));
 
         _aToken = new web3.eth.Contract(compiledIScaledBalanceToken.abi, aLinkTokenAddress);
+
         // Scaled balance
         await _aToken.methods.scaledBalanceOf(factoryV2.options.address)
         .call()
         .then(a => { console.log("Scaled balance: ", a);});
 
-
-
         await factoryV2.methods.getUserDeposit("TEST").call({ from: user })
         .then(tx=>console.log("Deposit amount: ", tx));
 
-        await factoryV2.methods.priceFeedData("0x396c5E36DD0a0F5a5D33dae44368D4193f69a1F0").call()
-        .then(tx=>console.log("Price feed: ", tx));
+        // await factoryV2.methods.priceFeedData("0x396c5E36DD0a0F5a5D33dae44368D4193f69a1F0").call()
+        // .then(result=>console.log("Price feed results: ", result));
     });
 
 });
