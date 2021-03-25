@@ -20,7 +20,7 @@ import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
  * 1) Store index instead of the address of the token in a pool
  */
 
-contract PoolFactory is Ownable {
+contract PrivatePools is Ownable {
     using ECDSA for bytes32;
     using SafeMath for uint256;
 
