@@ -4,10 +4,14 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ECDSA } from "@openzeppelin/contracts/cryptography/ECDSA.sol";
 import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
 import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
+
+import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
+
+
 
 /***
  * Factory Contract for creating private pools
@@ -20,7 +24,11 @@ contract PoolFactory is Ownable {
     using ECDSA for bytes32;
     using SafeMath for uint256;
 
-    address lendingPool = 0xE0fBa4Fc209b4948668006B2bE61711b7f465bAe;
+    // address priceFeedAddress;
+    // address lendingPoolAddressProviderAdddress;
+    address lendingPoolAddressProviderAdddress = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
+    address priceFeedAddress = 0x396c5E36DD0a0F5a5D33dae44368D4193f69a1F0;
+
     mapping(address => address) public tokenAndaTokenAddress;
 
     struct Pool {
@@ -60,10 +68,11 @@ contract PoolFactory is Ownable {
         _;
     }
 
-    // constructor() public
-    // {
-    //     admin = msg.sender;
-    // }
+    constructor() public
+    {
+        // admin = msg.sender;
+
+    }
 
     function addTokenAddress(address _token, address _aToken)
         external
@@ -149,31 +158,36 @@ contract PoolFactory is Ownable {
     // Complete this
     function depositERC20(string calldata _poolName, uint256 _amount) external {
         Pool storage pool = poolNames[_poolName];
-        ERC20 token = ERC20(pool.token);
         require(pool.verified[msg.sender], "Sender not verified !");
 
+        // ERC20 token = ERC20(pool.token);
+        IERC20 token = IERC20(pool.token);
         // Checking if user has allowed this contract to spend
         require(
             _amount <= token.allowance(msg.sender, address(this)),
             "Amount exceeds allowance limit !"
         );
 
-        // Transfering tokens into this account
         
+        // Transfering tokens into this account
         require(
             token.transferFrom(
                 msg.sender,
                 address(this),
                 _amount
-            ) == true
+            ),
+            "Unable to transferFrom() to the contract."
         );
+        address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProviderAdddress).getLendingPool();
+
 
         // Transfering into Lending Pool
-        require(IERC20(pool.token).approve(address(this), _amount), "Approval failed");
+        require(token.approve(lendingPool, _amount), "Approval failed");
+
         ILendingPool(lendingPool).deposit( pool.token, _amount, address(this), 0);
 
-        // uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(pool.token).liquidityIndex;
-        // pool.userDeposits[msg.sender] = (_amount.mul(10**27)).div(liquidityIndex);
+        uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(pool.token).liquidityIndex;
+        pool.userDeposits[msg.sender] += (_amount.mul(10**27)).div(liquidityIndex);
     }
 
     // Functions for testing
@@ -196,5 +210,17 @@ contract PoolFactory is Ownable {
     {
         Pool storage pool = poolNames[_poolName];
         return pool.userDeposits[msg.sender];
+    }
+
+    // make it internal
+    function priceFeedData(address _aggregatorAddress) public view returns(int){
+        (
+            uint80 roundID, 
+            int price,
+            uint startedAt,
+            uint timeStamp,
+            uint80 answeredInRound
+        ) = AggregatorV3Interface(_aggregatorAddress).latestRoundData();
+        return price;
     }
 }
