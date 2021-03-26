@@ -29,14 +29,17 @@ beforeEach(async () => {
     aTokenAllowLimit = BigInt(0.003 * inWei);
     uintMax = BigInt(2 ** 256 - 1);
 
-    // await aLinkTokenAddress.methods
-    // .balanceOf(admin)
-    // .call()
-    // .then((res) => {
-    //   console.log("Admin ERC20 balance: ", res);
-    //   currentBalance = res;
-    // });
+    aLinkTokenAddressContract = new web3.eth.Contract(tokenABI, aLinkTokenAddress);
 
+    await aLinkTokenAddressContract.methods
+    .balanceOf(admin)
+    .call()
+    .then((res) => {
+      console.log("Admin ERC20 balance: ", res);
+      currentBalance = res;
+    });
+
+    // process.exit(0);
 
     // Deploying Factory
     compiledFactoryV2 = await hre.artifacts.readArtifact("PrivatePools");
@@ -114,9 +117,25 @@ describe("Deposit process", async function () {
         .send({ from: user })
         .then((tx) => console.log("Approve1: ", tx.gasUsed));
         
+        await aLinkTokenAddressContract.methods
+        .balanceOf(user)
+        .call()
+        .then((res) => {
+            console.log("User ERC20 balance before deposit: ", res);
+            currentBalance = res;
+        });
+
         await factoryV2.methods.depositERC20("TEST", sendAmount1)
         .send({ from: user, gas: 10**7 })
         .then((tx) => console.log("depositERC20(): ", tx.gasUsed));
+        
+        await aLinkTokenAddressContract.methods
+        .balanceOf(user)
+        .call()
+        .then((res) => {
+            console.log("User ERC20 balance after deposit: ", res);
+            currentBalance = res;
+        });
 
         _aToken = new web3.eth.Contract(compiledIScaledBalanceToken.abi, aLinkTokenAddress);
 
@@ -129,7 +148,7 @@ describe("Deposit process", async function () {
         .then(tx=>console.log("Deposit amount: ", tx));
 
         await factoryV2.methods.withdrawERC20("TEST", 0)
-        .send({ from: user })
+        .send({ from: user, gas: 10**7 })
         .then((tx)=>console.log("withdrawERC20: ", tx.gasUsed));
 
         await _aToken.methods.scaledBalanceOf(factoryV2.options.address)
@@ -138,6 +157,14 @@ describe("Deposit process", async function () {
 
         await factoryV2.methods.getUserDeposit("TEST").call({ from: user })
         .then(tx=>console.log("Deposit amount: ", tx));
+
+        await aLinkTokenAddressContract.methods
+        .balanceOf(user)
+        .call()
+        .then((res) => {
+            console.log("User ERC20 balance after withdraw: ", res);
+            currentBalance = res;
+        });
     });
 
 });

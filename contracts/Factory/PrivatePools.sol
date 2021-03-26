@@ -238,7 +238,6 @@ contract PrivatePools is Ownable {
         TokenData storage poolTokenData = tokenData[pool.symbol];
         IERC20 aToken = IERC20(poolTokenData.aToken);
         address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-        uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
 
         require(
             pool.userDeposits[msg.sender] >= _amount,
@@ -252,9 +251,10 @@ contract PrivatePools is Ownable {
 
         if(_amount == 0)
         {
+            uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
             uint256 aTokenAmount = ((pool.userScaledDeposits[msg.sender]).mul(liquidityIndex)).div(10**27);
             pool.poolAmount = pool.poolAmount.sub(pool.userDeposits[msg.sender]);
-            pool.poolScaledAmount = pool.poolScaledAmount.sub(aTokenAmount);
+            pool.poolScaledAmount = pool.poolScaledAmount.sub(pool.userScaledDeposits[msg.sender]);
             pool.userDeposits[msg.sender] = 0;
             pool.userScaledDeposits[msg.sender] = 0;
 
