@@ -85,7 +85,6 @@ async function test2() {
   console.log("scaledBalance*liquidityIndex: ", val1);
   console.log("Current balance: ", val2);
 
-  process.exit(0);
 
   // Approving pool to spend ERC20
   await token.methods

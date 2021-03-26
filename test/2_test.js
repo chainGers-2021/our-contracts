@@ -49,6 +49,8 @@ beforeEach(async () => {
         })
     
     console.log("Deploy at:", factoryV2.options.address);
+    // console.log("Admin address is owner address: ", admin === await factoryV2.methods.checkOwner().call());
+    // console.log("User address is owner address: ", user === await factoryV2.methods.checkOwner().call());
 
     await factoryV2.methods.addTokenData("LINK", linkTokenAddress, aLinkTokenAddress, "0x396c5E36DD0a0F5a5D33dae44368D4193f69a1F0", 8)
         .send({ from: admin });
@@ -126,8 +128,16 @@ describe("Deposit process", async function () {
         await factoryV2.methods.getUserDeposit("TEST").call({ from: user })
         .then(tx=>console.log("Deposit amount: ", tx));
 
-        // await factoryV2.methods.priceFeedData("0x396c5E36DD0a0F5a5D33dae44368D4193f69a1F0").call()
-        // .then(result=>console.log("Price feed results: ", result));
+        await factoryV2.methods.withdrawERC20("TEST", 0)
+        .send({ from: user })
+        .then((tx)=>console.log("withdrawERC20: ", tx.gasUsed));
+
+        await _aToken.methods.scaledBalanceOf(factoryV2.options.address)
+        .call()
+        .then(a => { console.log("Scaled balance: ", a);});
+
+        await factoryV2.methods.getUserDeposit("TEST").call({ from: user })
+        .then(tx=>console.log("Deposit amount: ", tx));
     });
 
 });

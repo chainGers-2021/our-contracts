@@ -15,19 +15,8 @@ import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
  * @author Chinmay Vemuri
  * Optimizations to be done:
  * 1) Store index instead of the address of the token in a pool
+ * 2) Use try/catch for deposit and withdraw functions.
  */
-
-struct Pool {
-    string poolName;
-    string symbol;
-    address owner;
-    address accountAddress;
-    uint256 targetPrice;
-    bool active;
-    mapping(address => bool) verified;
-    mapping(bytes => bool) signatures;
-    mapping(address => uint256) userDeposits;
-}
 
 struct TokenData {
     string symbol;
@@ -37,10 +26,25 @@ struct TokenData {
     uint8 decimals;
 }
 
+struct Pool {
+    string poolName;
+    string symbol;
+    bool active;
+    address owner;
+    address accountAddress;
+    uint256 targetPrice;
+    uint256 poolAmount;
+    uint256 poolScaledAmount;
+    uint256 rewardAmount;
+    mapping(address => bool) verified;
+    mapping(bytes => bool) signatures;
+    mapping(address => uint256) userDeposits;
+    mapping(address => uint256) userScaledDeposits;
+}
+
 contract PrivatePools is Ownable {
     using ECDSA for bytes32;
     using SafeMath for uint256;
-    using SafeMath for int256;
 
     address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
     mapping(string => TokenData) public tokenData;
@@ -48,8 +52,10 @@ contract PrivatePools is Ownable {
 
     event newTokenAdded(string _symbol, address _token, address _aToken);
     event verified(string indexed _poolName, address _sender);
-    event newDeposit(string indexed _poolName, address _sender, uint256 _amount);
-    event totalDeposit(string indexed _poolNames, address _sender, uint256 _amount);
+    event newDeposit(string indexed _poolName, address indexed _sender, uint256 _amount);
+    event totalUserDeposit(string indexed _poolName, address indexed _sender, uint256 _amount);
+    event totalPoolDeposit(string indexed _poolName, uint256 _amount);
+    event newWithdrawal(string indexed _poolName, address indexed _sender, uint256 _amount);
     event newPoolCreated(
         string indexed _poolName,
         address indexed _owner,
@@ -59,35 +65,25 @@ contract PrivatePools is Ownable {
 
 
 
-    modifier onlyVerified(string calldata _poolName) 
-    {
-        require(
-            poolNames[_poolName].verified[msg.sender],
-            "Sender not verified !"
-        );
-        _;
-    }
-
     modifier checkAccess(string calldata _poolName)
-    {
-        require(
-            poolNames[_poolName].verified[msg.sender],
-            "Sender not verified !"
-        );
-        require(
-            poolNames[_poolName].active, 
-            "Pool not active !"
-        );
-        _;
-    }
-
-    modifier changeActive(string calldata _poolName)
     {
         Pool storage pool = poolNames[_poolName];
         TokenData storage token = tokenData[pool.symbol];
 
-        if(pool.targetPrice <= uint256(priceFeedData(token.priceFeed)).div(10**uint256(token.decimals)))
-            pool.active = false;
+        require(
+            poolNames[_poolName].verified[msg.sender],
+            "Sender not verified !"
+        );
+
+        if( 
+            pool.active && 
+            pool.targetPrice.mul(10**uint256(token.decimals)) <= uint256(priceFeedData(token.priceFeed))
+        ) { pool.active = false; }
+            
+        require(
+            poolNames[_poolName].active, 
+            "Pool not active !"
+        );
         _;
     }
 
@@ -187,16 +183,10 @@ contract PrivatePools is Ownable {
     function depositERC20(
         string calldata _poolName, 
         uint256 _amount
-    ) external changeActive(_poolName) checkAccess(_poolName)
+    ) external checkAccess(_poolName)
     {
         Pool storage pool = poolNames[_poolName];
         TokenData storage poolTokenData = tokenData[pool.symbol];
-
-        require(
-            pool.verified[msg.sender], 
-            "Sender not verified !"
-        );
-
         IERC20 token = IERC20(poolTokenData.token);
 
         // Checking if user has allowed this contract to spend
@@ -213,9 +203,10 @@ contract PrivatePools is Ownable {
 
         address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
 
-        // Transfering into Lending Pool
+        // Approving lendingPool for amount transfer
         require(token.approve(lendingPool, _amount), "Approval failed !");
 
+        // Depositing user amount to the lendingPool
         ILendingPool(lendingPool).deposit(
             poolTokenData.token,
             _amount,
@@ -223,19 +214,73 @@ contract PrivatePools is Ownable {
             0
         );
 
+        // Dealing with scaledBalances here.
         uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
-        pool.userDeposits[msg.sender] += (_amount.mul(10**27)).div(liquidityIndex);
+        uint256 newUserScaledDeposit = (_amount.mul(10**27)).div(liquidityIndex);
+
+        pool.userDeposits[msg.sender] = pool.userDeposits[msg.sender].add(_amount);
+        pool.poolAmount = pool.poolAmount.add(_amount);
+        pool.userScaledDeposits[msg.sender] = pool.userScaledDeposits[msg.sender].add(newUserScaledDeposit);
+        pool.poolScaledAmount = pool.poolScaledAmount.add(newUserScaledDeposit);
 
         emit newDeposit(_poolName, msg.sender, _amount);
-        emit totalDeposit(_poolName, msg.sender, pool.userDeposits[msg.sender]);
+        emit totalUserDeposit(_poolName, msg.sender, pool.userDeposits[msg.sender]);
+        emit totalPoolDeposit(_poolName, pool.poolAmount);
     }
 
+    /// @dev Implement this function for partial amount withdrawal. 
+    function withdrawERC20(
+        string calldata _poolName,
+        uint256 _amount
+    ) external checkAccess(_poolName)
+    {
+        Pool storage pool = poolNames[_poolName];
+        TokenData storage poolTokenData = tokenData[pool.symbol];
+        IERC20 aToken = IERC20(poolTokenData.aToken);
+        address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
+        uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
+
+        require(
+            pool.userDeposits[msg.sender] >= _amount,
+            "Amount exceeds user deposit amount !"
+        );
+        // Approving aToken pool
+        require(
+            aToken.approve(lendingPool, _amount),
+            "aToken approval failed !"
+        );
+
+        if(_amount == 0)
+        {
+            uint256 aTokenAmount = ((pool.userScaledDeposits[msg.sender]).mul(liquidityIndex)).div(10**27);
+            pool.poolAmount = pool.poolAmount.sub(pool.userDeposits[msg.sender]);
+            pool.poolScaledAmount = pool.poolScaledAmount.sub(aTokenAmount);
+            pool.userDeposits[msg.sender] = 0;
+            pool.userScaledDeposits[msg.sender] = 0;
+
+            ILendingPool(lendingPool).withdraw(
+                poolTokenData.token, 
+                aTokenAmount, 
+                msg.sender
+            );
+
+            emit newWithdrawal(_poolName, msg.sender, aTokenAmount);
+            emit totalUserDeposit(_poolName, msg.sender, pool.userDeposits[msg.sender]);
+            emit totalPoolDeposit(_poolName, pool.poolAmount);
+        }
+        
+    }
 
     // Functions for testing
     function getVerifiedStatus(string calldata _poolName) external view returns (bool)
     {
         Pool storage pool = poolNames[_poolName];
         return pool.verified[msg.sender];
+    }
+
+    function checkOwner() external view returns(address)
+    {
+        return owner();
     }
 
     function verifyPool(string calldata _poolName) external view returns (bool)
