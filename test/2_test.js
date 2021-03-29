@@ -24,9 +24,9 @@ beforeEach(async () => {
     console.log("Ether balance of user: ", await web3.eth.getBalance(user));
 
     tokenAllowLimit = BigInt(100 * inWei);
-    sendAmount1 = BigInt(0.001 * inWei);
-    sendAmount2 = BigInt(0.002 * inWei);
-    aTokenAllowLimit = BigInt(0.003 * inWei);
+    sendAmount1 = BigInt(1 * inWei);
+    sendAmount2 = BigInt(0.001 * inWei);
+    aTokenAllowLimit = BigInt(1 * inWei);
     uintMax = BigInt(2 ** 256 - 1);
 
     aLinkTokenAddressContract = new web3.eth.Contract(tokenABI, aLinkTokenAddress);
@@ -51,22 +51,28 @@ beforeEach(async () => {
             from: admin,
         })
     
-    console.log("Deploy at:", factoryV2.options.address);
+    console.log("Deployed at:", factoryV2.options.address);
     // console.log("Admin address is owner address: ", admin === await factoryV2.methods.checkOwner().call());
     // console.log("User address is owner address: ", user === await factoryV2.methods.checkOwner().call());
 
     await factoryV2.methods.addTokenData("LINK", linkTokenAddress, aLinkTokenAddress, "0x396c5E36DD0a0F5a5D33dae44368D4193f69a1F0", 8)
-        .send({ from: admin });
-
+        .send({ from: admin })
+        .then(tx=>console.log(tx));
     // Creating a account address and corresponding private key for a new pool
     newAccountData = await web3.eth.accounts.create();
-
+    // console.log("Pool exists: ", await factoryV2.methods.verifyPool("TEST").call());
+    // await factoryV2.methods.isPoolEmpty("TEST").call()
+    // .then(tx=>console.log("Pool name: ", tx));
     // Create a new pool.
-    await factoryV2.methods.createPool("LINK", "TEST", 50, newAccountData.address)
-        .send({ from: admin });
+    await factoryV2.methods.createPool("LINK", "TEST", 1000, newAccountData.address)
+        .send({ from: admin, gas: 10**7 })
 
     console.log("Pool exists: ", await factoryV2.methods.verifyPool("TEST").call());
+    
+    // await factoryV2.methods.isPoolEmpty("TEST").call()
+    //     .then(tx=>console.log("Pool name: ", tx));
 
+    // process.exit(0);
     // Generate a random string. This string is signed using the privateKey.
     randomHexString = await web3.utils.randomHex(32);
     signObject = await web3.eth.accounts.sign(randomHexString, newAccountData.privateKey);
@@ -122,7 +128,6 @@ describe("Deposit process", async function () {
         .call()
         .then((res) => {
             console.log("User ERC20 balance before deposit: ", res);
-            currentBalance = res;
         });
 
         await factoryV2.methods.depositERC20("TEST", sendAmount1)
@@ -134,7 +139,7 @@ describe("Deposit process", async function () {
         .call()
         .then((res) => {
             console.log("User ERC20 balance after deposit: ", res);
-            currentBalance = res;
+
         });
 
         _aToken = new web3.eth.Contract(compiledIScaledBalanceToken.abi, aLinkTokenAddress);
@@ -144,19 +149,42 @@ describe("Deposit process", async function () {
         .call()
         .then(a => { console.log("Scaled balance: ", a);});
 
-        await factoryV2.methods.getUserDeposit("TEST").call({ from: user })
-        .then(tx=>console.log("Deposit amount: ", tx));
+        let userScaled;
+        await factoryV2.methods.getUserScaledDeposit("TEST").call({ from: user })
+        .then((tx)=>{
+            console.log("Scaled Balance from contract: ", tx);
+            userScaled = tx;
+        }); 
+        
+        await factoryV2.methods.getUserScaledBalance("TEST").call({ from: user })
+        .then((tx)=>{ 
+            console.log("aToken amount from contract: ", tx);
+        });
+        
+        await factoryV2.methods.getReserveData("TEST").call()
+        .then((tx)=>{
+            console.log("Liquidity index before withdrawal: ", tx[0]);
+            console.log("Reserve normalized income: ", tx[1]);
+            console.log("aToken amount to be withdrawn (LI): ", (tx[0]*userScaled)/10**27);
+            console.log("aToken amount to be withdrawn (RNI): ", (tx[1]*userScaled)/10**27);
+        });
+
+        
+        // await factoryV2.methods.getReserveNormalizedIncome("TEST").call()
+        // .then(tx=> console.log("Reserve normalized income: ", tx));
 
         await factoryV2.methods.withdrawERC20("TEST", 0)
-        .send({ from: user, gas: 10**7 })
-        .then((tx)=>console.log("withdrawERC20: ", tx.gasUsed));
+        .send({ from: user, gas: 10**7 });
 
         await _aToken.methods.scaledBalanceOf(factoryV2.options.address)
         .call()
-        .then(a => { console.log("Scaled balance: ", a);});
+        .then(a => { console.log("Scaled balance after withdrawal: ", a);});
 
-        await factoryV2.methods.getUserDeposit("TEST").call({ from: user })
-        .then(tx=>console.log("Deposit amount: ", tx));
+        await factoryV2.methods.getUserScaledDeposit("TEST").call({ from: user })
+        .then(tx=>console.log("User scaled balance after withdrawal: ", tx));
+
+        await factoryV2.methods.getPoolScaledAmount("TEST").call()
+        .then(tx=>console.log("Pool scaled amount: ", tx));
 
         await aLinkTokenAddressContract.methods
         .balanceOf(user)
@@ -165,6 +193,15 @@ describe("Deposit process", async function () {
             console.log("User ERC20 balance after withdraw: ", res);
             currentBalance = res;
         });
+
+        await aLinkTokenAddressContract.methods
+        .balanceOf(factoryV2.options.address)
+        .call()
+        .then((res) => {
+            console.log("Contract ERC20 balance after withdraw: ", res);
+            currentBalance = res;
+        });
+
     });
 
 });

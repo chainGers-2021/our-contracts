@@ -9,5 +9,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 contract DonationPool is Ownable
 {
-    
+    mapping(address => bool) public recipients;
+    // mapping()
 }
