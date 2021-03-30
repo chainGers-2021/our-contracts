@@ -3,12 +3,13 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
+import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ECDSA} from "@openzeppelin/contracts/cryptography/ECDSA.sol";
+import { ECDSA } from "@openzeppelin/contracts/cryptography/ECDSA.sol";
 import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
 import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
+import { Datatypes } from '../Utils/Datatypes.sol';
 
 /***
  * Factory Contract for creating private pools
@@ -18,49 +19,17 @@ import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
  * 2) Use try/catch for deposit and withdraw functions.
  */
 
-struct TokenData {
-    string symbol;
-    address token;
-    address aToken;
-    address priceFeed;
-    uint8 decimals;
-    uint256 nominalFeeScaledAmount; // Increases or decreases every time a deposit or withdrawal is made.
-}
-
-struct Pool {
-    string poolName;
-    string symbol;
-    bool active;
-    address owner;
-    address accountAddress;
-    uint256 targetPrice;
-    // uint256 poolAmount; 
-    uint256 poolScaledAmount;
-    uint256 rewardScaledAmount;
-    mapping(address => bool) verified;
-    mapping(bytes => bool) signatures;
-    // mapping(address => uint256) userDeposits; 
-    mapping(address => uint256) userScaledDeposits;
-}
-
 contract PrivatePools is Ownable {
     using ECDSA for bytes32;
     using SafeMath for uint256;
+    using Datatypes for *;
+
 
     address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
     uint256 constant NGO_FEE_PER = 100; // Fee percentage (basis points) given to NGOs.
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
-    mapping(string => TokenData) public tokenData;
-    mapping(string => Pool) public poolNames;
-
-    event newTokenAdded(string _symbol, address _token, address _aToken);
-    event newPoolCreated(string indexed _poolName, address indexed _owner, string symbol, uint256 _targetPrice, uint256 _timeStamp);
-    event verified(string indexed _poolName, address _sender, uint256 _timeStamp);
-    event newDeposit(string indexed _poolName, address indexed _sender, uint256 _amount, uint256 _timeStamp);
-    event totalUserScaledDeposit(string indexed _poolName, address indexed _sender, uint256 _amount, uint256 _timestamp);
-    event totalPoolScaledDeposit(string indexed _poolName, uint256 _amount, uint256 _timestamp);
-    event newWithdrawal(string indexed _poolName, address indexed _sender, uint256 _amount, uint256 _timeStamp);
-
+    mapping(string => Datatypes.TokenData) public tokenData;
+    mapping(string => Datatypes.Pool) public poolNames;
 
 
     modifier checkAccess(string calldata _poolName)
@@ -89,17 +58,19 @@ contract PrivatePools is Ownable {
         _;
     }
 
+    modifier onlyComptroller
+    {
+        require(
+            msg.sender == comptrollerContract,
+            "Unauthorized access"
+        );
+        _;
+    }
 
 
     function priceFeedData(address _aggregatorAddress) internal view returns (int256)
     {
-        (
-            uint80 roundID,
-            int256 price,
-            uint256 startedAt,
-            uint256 timeStamp,
-            uint80 answeredInRound
-        ) = AggregatorV3Interface(_aggregatorAddress).latestRoundData();
+        ( , int256 price, , , ) = AggregatorV3Interface(_aggregatorAddress).latestRoundData();
 
         return price;
     }
@@ -195,72 +166,42 @@ contract PrivatePools is Ownable {
         pool.signatures[_signature] = true;
     }
 
-    function depositERC20(
+    function deposit(
         string calldata _poolName, 
-        uint256 _amount
+        uint256 _scaledAmount,
+        string calldata _tokenSymbol
     ) external checkAccess(_poolName)
     {
         Pool storage pool = poolNames[_poolName];
-        TokenData storage poolTokenData = tokenData[pool.symbol];
-        IERC20 token = IERC20(poolTokenData.token);
-        address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-
-        // Checking if user has allowed this contract to spend
-        require(
-            _amount <= token.allowance(msg.sender, address(this)),
-            "Amount exceeds allowance limit !"
-        );
-        // Transfering tokens into this contract
-        require(
-            token.transferFrom(msg.sender, address(this), _amount),
-            "Unable to transfer tokens to contract !"
-        );
-        // Approving lendingPool for amount transfer
-        require(
-            token.approve(lendingPool, _amount), 
-            "Approval failed !"
-        );
         
-        // Depositing user amount to the lendingPool
-        ILendingPool(lendingPool).deposit(
-            poolTokenData.token,
-            _amount,
-            address(this),
-            0
+        require(
+            keccak256(abi.encode(_tokenSymbol)) == keccak256(abi.encode(pool.symbol)),
+            "Deposit token doesn't match pool token !"
         );
 
-        // Dealing with scaledBalances here.
-        // uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
-        // uint256 newUserScaledDeposit = (_amount.mul(10**27)).div(liquidityIndex);
-        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
-        uint newUserScaledDeposit = (_amount.mul(10**27)).div(reserveNormalizedIncome);
+        pool.userScaledDeposits[msg.sender] = pool.userScaledDeposits[msg.sender].add(_scaledAmount);
+        pool.poolScaledAmount = pool.poolScaledAmount.add(_scaledAmount);
 
-        // pool.userDeposits[msg.sender] = pool.userDeposits[msg.sender].add(_amount);
-        // pool.poolAmount = pool.poolAmount.add(_amount);
-        pool.userScaledDeposits[msg.sender] = pool.userScaledDeposits[msg.sender].add(newUserScaledDeposit);
-        pool.poolScaledAmount = pool.poolScaledAmount.add(newUserScaledDeposit);
-
-        emit newDeposit(_poolName, msg.sender, _amount, block.timestamp);
+        emit newDeposit(_poolName, msg.sender, _scaledAmount, block.timestamp);
         emit totalUserScaledDeposit(_poolName, msg.sender, pool.userScaledDeposits[msg.sender], block.timestamp);
         emit totalPoolScaledDeposit(_poolName, pool.poolScaledAmount, block.timestamp);
     }
 
     /// @dev Implement this function for partial amount withdrawal. 
-    function withdrawERC20(
+    function withdraw(
         string calldata _poolName,
-        uint256 _amount
-    ) external checkAccess(_poolName)
+        uint256 _amount,
+        string _tokenSymbol
+    ) external checkAccess(_poolName) returns(uint256, bool)
     {
         Pool storage pool = poolNames[_poolName];
-        // TokenData storage poolTokenData = tokenData[pool.symbol];
-        // IERC20 aToken = IERC20(poolTokenData.aToken);
-        address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
+        // address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
         // uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
-        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(tokenData[pool.symbol].token);
+        // uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(tokenData[pool.symbol].token);
         // uint256 aTokenAmount;
 
         require(
-            (pool.userScaledDeposits[msg.sender].mul(reserveNormalizedIncome)).div(10**27) >= _amount,
+            pool.userScaledDeposits[msg.sender] >= _amount,
             "Amount exceeds user's reward amount !"
         );
         // Approving aToken pool
@@ -268,7 +209,6 @@ contract PrivatePools is Ownable {
             IERC20(tokenData[pool.symbol].aToken).approve(lendingPool, _amount),
             "aToken approval failed !"
         );
-
         /**
          * Reward = UD*RA/PD
          * RA = RA - Reward
@@ -277,8 +217,7 @@ contract PrivatePools is Ownable {
          * RA = RA + poolRewardAmount
          * nominalFee = withdrawalFeeAmount - poolReward
         */
-        (_amount != 0)? _amount = (_amount.mul(10**27)).div(reserveNormalizedIncome): 
-                        _amount = pool.userScaledDeposits[msg.sender];
+        (_amount == 0)? _amount = pool.userScaledDeposits[msg.sender]:_amount;
         
         uint256 rewardScaledAmount = (_amount.mul(pool.rewardScaledAmount)).div(pool.poolScaledAmount);
         pool.rewardScaledAmount = pool.rewardScaledAmount.sub(rewardScaledAmount);
@@ -287,24 +226,19 @@ contract PrivatePools is Ownable {
 
         if(pool.active)
         {
-            uint256 withdrawalFeeAmount = ((_amount.add(rewardScaledAmount))
-                                            .mul(NGO_FEE_PER + REWARD_FEE_PER))
-                                            .div(10**4);
-            _amount = _amount.sub(withdrawalFeeAmount);
-            uint256 poolRewardAmount = (withdrawalFeeAmount.mul(4)).div(5);
-            pool.rewardScaledAmount = pool.rewardScaledAmount.add(poolRewardAmount);
-            tokenData[pool.symbol].nominalFeeScaledAmount = tokenData[pool.symbol].nominalFeeScaledAmount.add(withdrawalFeeAmount.sub(poolRewardAmount));
-        }
+            uint256 withdrawalFeeAmount = (
+                (_amount.add(rewardScaledAmount))
+                .mul(REWARD_FEE_PER)).div(10**4);
 
-        ILendingPool(lendingPool).withdraw(
-            tokenData[pool.symbol].token, 
-            (_amount.mul(reserveNormalizedIncome)).div(10**27), 
-            msg.sender
-        );
+            _amount = _amount.sub(withdrawalFeeAmount);
+            pool.rewardScaledAmount = pool.rewardScaledAmount.add(withdrawalFeeAmount);
+        }
 
         emit newWithdrawal(_poolName, msg.sender, (_amount.mul(reserveNormalizedIncome)).div(10**27), block.timestamp);
         emit totalUserScaledDeposit(_poolName, msg.sender, pool.userScaledDeposits[msg.sender], block.timestamp);
-        emit totalPoolScaledDeposit(_poolName, pool.poolScaledAmount, block.timestamp);   
+        emit totalPoolScaledDeposit(_poolName, pool.poolScaledAmount, block.timestamp); 
+
+        return ((_amount.mul(reserveNormalizedIncome)).div(10**27), pool.active);  
     }
 
     // Functions for testing
