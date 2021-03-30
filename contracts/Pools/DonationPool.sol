@@ -5,10 +5,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /***
  * Donation pool for charities/NGOs to withdraw donations
- * @author Chinmay Vemuri 
+ * @author Chinmay Vemuri
  */
-contract DonationPool is Ownable
-{
+contract DonationPool is Ownable {
     mapping(address => bool) public recipients;
     // mapping()
 }
