@@ -1,7 +1,6 @@
 *artifacts*
 cache/
 *.txt
-*.lock
 
 # Created by .ignore support plugin (hsz.mobi)
 ### VisualStudioCode template
