@@ -52,5 +52,5 @@ interface IPools {
         string calldata _tokenSymbol
     ) external;
 
-    function withdraw(string calldata _poolName, uint256 _amount) external;
+    function withdraw(string calldata _poolName, uint256 _amount) external returns(uint256, bool);
 }
