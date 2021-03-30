@@ -30,6 +30,7 @@
     "@openzeppelin/contracts": "^3.4.1",
     "@truffle/hdwallet-provider": "^1.2.2",
     "dotenv": "^8.2.0",
+    "erc1155-nft-token-and-holder": "https://github.com/chainGers-2021/ERC1155-holder-distributor.git",
     "hardhat": "^2.1.1",
     "hardhat-shorthand": "^1.0.0",
     "truffle-assertions": "^0.9.2",

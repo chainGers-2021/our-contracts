@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity >=0.6.0;
 
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
@@ -21,24 +21,25 @@ contract Comptroller is Ownable
 	address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
 	mapping(string => Datatypes.TokenData) public tokenData;
 
-	event newTokenAdded(string _symbol, address _token, address _aToken);
+    event newTokenAdded(string _symbol, address _token, address _aToken);
 
-	constructor(address _donationPoolContract, address _privatePoolsContract) public
-	{
-		donationPoolContract = _donationPoolContract;
-		privatePoolsContract = _privatePoolsContract;
-	}
+    constructor(address _donationPoolContract, address _privatePoolsContract)
+        public
+    {
+        donationPoolContract = _donationPoolContract;
+        privatePoolsContract = _privatePoolsContract;
+    }
 
-	function addTokenData(
+    function addTokenData(
         string calldata _symbol,
-        address _token, 
-        address _aToken, 
+        address _token,
+        address _aToken,
         address _priceFeed,
         uint8 _decimals
-    ) external onlyOwner
-    {
+    ) external onlyOwner {
         require(
-            keccak256(abi.encode(tokenData[_symbol].symbol)) != keccak256(abi.encode(_symbol)), 
+            keccak256(abi.encode(tokenData[_symbol].symbol)) !=
+                keccak256(abi.encode(_symbol)),
             "Token data already present !"
         );
 
@@ -79,8 +80,8 @@ contract Comptroller is Ownable
             token.approve(lendingPool, _amount), 
             "Approval failed !"
         );
-		
-		ILendingPool(lendingPool).deposit(
+
+        ILendingPool(lendingPool).deposit(
             poolTokenData.token,
             _amount,
             address(this),
@@ -138,7 +139,7 @@ contract Comptroller is Ownable
             "aToken approval failed !"
         );
 
-		// Redeeming the aTokens
+        // Redeeming the aTokens
         ILendingPool(lendingPool).withdraw(
             poolTokenData.token, 
             withdrawalAmount,

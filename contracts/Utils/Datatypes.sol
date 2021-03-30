@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity >=0.6.0;
 
-library Datatypes
-{
-    struct TokenData 
-    {
+library Datatypes {
+    struct TokenData {
         string symbol;
         address token;
         address aToken;
@@ -13,8 +11,7 @@ library Datatypes
         // uint256 nominalFeeScaledAmount; // Increases or decreases every time a deposit or withdrawal is made.
     }
 
-    struct Pool 
-    {
+    struct Pool {
         string poolName;
         string symbol;
         bool active;

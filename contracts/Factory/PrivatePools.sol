@@ -3,10 +3,13 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ECDSA } from "@openzeppelin/contracts/cryptography/ECDSA.sol";
-import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
+import {ECDSA} from "@openzeppelin/contracts/cryptography/ECDSA.sol";
+import {
+    ILendingPool,
+    ILendingPoolAddressesProvider
+} from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
 import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import { Datatypes } from '../Utils/Datatypes.sol';
@@ -25,8 +28,8 @@ contract PrivatePools is IPools, Ownable {
     using SafeMath for uint256;
     using Datatypes for *;
 
-
-    address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
+    address lendingPoolAddressProvider =
+        0x88757f2f99175387aB4C6a4b3067c77A695b0349;
     address comptrollerContract;
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
     mapping(string => Datatypes.Pool) public poolNames;
@@ -58,23 +61,22 @@ contract PrivatePools is IPools, Ownable {
         _;
     }
 
-    modifier onlyComptroller
-    {
-        require(
-            msg.sender == comptrollerContract,
-            "Unauthorized access"
-        );
+    modifier onlyComptroller {
+        require(msg.sender == comptrollerContract, "Unauthorized access");
         _;
     }
 
-    function setComptroller(address _comptroller) external onlyOwner
-    {
+    function setComptroller(address _comptroller) external onlyOwner {
         comptrollerContract = _comptroller;
     }
 
-    function priceFeedData(address _aggregatorAddress) internal view returns(int256)
+    function priceFeedData(address _aggregatorAddress)
+        internal
+        view
+        returns (int256)
     {
-        ( , int256 price, , , ) = AggregatorV3Interface(_aggregatorAddress).latestRoundData();
+        (, int256 price, , , ) =
+            AggregatorV3Interface(_aggregatorAddress).latestRoundData();
 
         return price;
     }
@@ -160,7 +162,7 @@ contract PrivatePools is IPools, Ownable {
     }
 
     function deposit(
-        string calldata _poolName, 
+        string calldata _poolName,
         uint256 _scaledAmount,
         string calldata _tokenSymbol
     ) external override checkAccess(_poolName)
@@ -168,19 +170,32 @@ contract PrivatePools is IPools, Ownable {
         Datatypes.Pool storage pool = poolNames[_poolName];
         
         require(
-            keccak256(abi.encode(_tokenSymbol)) == keccak256(abi.encode(pool.symbol)),
+            keccak256(abi.encode(_tokenSymbol)) ==
+                keccak256(abi.encode(pool.symbol)),
             "Deposit token doesn't match pool token !"
         );
 
-        pool.userScaledDeposits[msg.sender] = pool.userScaledDeposits[msg.sender].add(_scaledAmount);
+        pool.userScaledDeposits[msg.sender] = pool.userScaledDeposits[
+            msg.sender
+        ]
+            .add(_scaledAmount);
         pool.poolScaledAmount = pool.poolScaledAmount.add(_scaledAmount);
 
         emit newDeposit(_poolName, msg.sender, _scaledAmount, block.timestamp);
-        emit totalUserScaledDeposit(_poolName, msg.sender, pool.userScaledDeposits[msg.sender], block.timestamp);
-        emit totalPoolScaledDeposit(_poolName, pool.poolScaledAmount, block.timestamp);
+        emit totalUserScaledDeposit(
+            _poolName,
+            msg.sender,
+            pool.userScaledDeposits[msg.sender],
+            block.timestamp
+        );
+        emit totalPoolScaledDeposit(
+            _poolName,
+            pool.poolScaledAmount,
+            block.timestamp
+        );
     }
 
-    /// @dev Implement this function for partial amount withdrawal. 
+    /// @dev Implement this function for partial amount withdrawal.
     function withdraw(
         string calldata _poolName,
         uint256 _amount
@@ -207,27 +222,51 @@ contract PrivatePools is IPools, Ownable {
          * poolReward = withdrawalFeeAmount*4/5
          * RA = RA + poolRewardAmount
          * nominalFee = withdrawalFeeAmount - poolReward
-        */
-        (_amount == 0)? _amount = pool.userScaledDeposits[msg.sender]:_amount;
-        
-        uint256 rewardScaledAmount = (_amount.mul(pool.rewardScaledAmount)).div(pool.poolScaledAmount);
-        pool.rewardScaledAmount = pool.rewardScaledAmount.sub(rewardScaledAmount);
-        pool.poolScaledAmount = pool.poolScaledAmount.sub(_amount); // Test whether only _amount needs to be subtracted.
-        pool.userScaledDeposits[msg.sender] = pool.userScaledDeposits[msg.sender].sub(_amount);
+         */
+        (_amount == 0)
+            ? _amount = pool.userScaledDeposits[msg.sender]
+            : _amount;
 
-        if(pool.active)
-        {
-            uint256 withdrawalFeeAmount = (
-                (_amount.add(rewardScaledAmount))
-                .mul(REWARD_FEE_PER)).div(10**4);
+        uint256 rewardScaledAmount =
+            (_amount.mul(pool.rewardScaledAmount)).div(pool.poolScaledAmount);
+        pool.rewardScaledAmount = pool.rewardScaledAmount.sub(
+            rewardScaledAmount
+        );
+        pool.poolScaledAmount = pool.poolScaledAmount.sub(_amount); // Test whether only _amount needs to be subtracted.
+        pool.userScaledDeposits[msg.sender] = pool.userScaledDeposits[
+            msg.sender
+        ]
+            .sub(_amount);
+
+        if (pool.active) {
+            uint256 withdrawalFeeAmount =
+                ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER)).div(
+                    10**4
+                );
 
             _amount = _amount.sub(withdrawalFeeAmount);
-            pool.rewardScaledAmount = pool.rewardScaledAmount.add(withdrawalFeeAmount);
+            pool.rewardScaledAmount = pool.rewardScaledAmount.add(
+                withdrawalFeeAmount
+            );
         }
 
-        emit newWithdrawal(_poolName, msg.sender, (_amount.mul(reserveNormalizedIncome)).div(10**27), block.timestamp);
-        emit totalUserScaledDeposit(_poolName, msg.sender, pool.userScaledDeposits[msg.sender], block.timestamp);
-        emit totalPoolScaledDeposit(_poolName, pool.poolScaledAmount, block.timestamp); 
+        emit newWithdrawal(
+            _poolName,
+            msg.sender,
+            (_amount.mul(reserveNormalizedIncome)).div(10**27),
+            block.timestamp
+        );
+        emit totalUserScaledDeposit(
+            _poolName,
+            msg.sender,
+            pool.userScaledDeposits[msg.sender],
+            block.timestamp
+        );
+        emit totalPoolScaledDeposit(
+            _poolName,
+            pool.poolScaledAmount,
+            block.timestamp
+        );
 
         return (_amount, pool.active);  
     }
