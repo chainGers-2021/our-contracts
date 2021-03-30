@@ -26,16 +26,15 @@ contract PrivatePools is Ownable {
 
 
     address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
-    uint256 constant NGO_FEE_PER = 100; // Fee percentage (basis points) given to NGOs.
+    address comptrollerContract;
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
-    mapping(string => Datatypes.TokenData) public tokenData;
     mapping(string => Datatypes.Pool) public poolNames;
 
 
     modifier checkAccess(string calldata _poolName)
     {
-        Pool storage pool = poolNames[_poolName];
-        TokenData storage token = tokenData[pool.symbol];
+        Dataypes.Pool memory pool = poolNames[_poolName];
+        Datatypes.TokenData memory token = Comptroller(comptroller).tokenData[pool.symbol];
 
         require(
             keccak256(abi.encode(_poolName)) != keccak256(" "),
@@ -46,15 +45,15 @@ contract PrivatePools is Ownable {
             "Sender not verified !"
         );
 
-        if( 
-            pool.active && 
-            pool.targetPrice.mul(10**uint256(token.decimals)) <= uint256(priceFeedData(token.priceFeed))
-        ) { pool.active = false; }
-            
-        require(
-            poolNames[_poolName].active, 
-            "Pool not active !"
-        );
+        if (
+            pool.active &&
+            pool.targetPrice.mul(10**uint256(token.decimals)) <=
+            uint256(priceFeedData(token.priceFeed))
+        ) {
+            pool.active = false;
+        }
+
+        require(poolNames[_poolName].active, "Pool not active !");
         _;
     }
 
@@ -67,8 +66,12 @@ contract PrivatePools is Ownable {
         _;
     }
 
+    function setComptroller(address _comptroller) external onlyOwner
+    {
+        comptrollerContract = _comptroller;
+    }
 
-    function priceFeedData(address _aggregatorAddress) internal view returns (int256)
+    function priceFeedData(address _aggregatorAddress) internal view returns(int256)
     {
         ( , int256 price, , , ) = AggregatorV3Interface(_aggregatorAddress).latestRoundData();
 
@@ -77,14 +80,14 @@ contract PrivatePools is Ownable {
 
     function addTokenData(
         string calldata _symbol,
-        address _token, 
-        address _aToken, 
+        address _token,
+        address _aToken,
         address _priceFeed,
         uint8 _decimals
-    ) external onlyOwner
-    {
+    ) external onlyOwner {
         require(
-            keccak256(abi.encode(tokenData[_symbol].symbol)) != keccak256(abi.encode(_symbol)), 
+            keccak256(abi.encode(tokenData[_symbol].symbol)) !=
+                keccak256(abi.encode(_symbol)),
             "Token data already present !"
         );
 
@@ -105,8 +108,7 @@ contract PrivatePools is Ownable {
         string memory _poolName,
         uint256 _targetPrice,
         address _accountAddress
-    ) external 
-    {
+    ) external {
         TokenData storage poolToken = tokenData[_symbol];
 
         require(
@@ -118,11 +120,15 @@ contract PrivatePools is Ownable {
             "Pool name can't be empty !"
         );
         require(
-            keccak256(abi.encode(poolNames[_poolName].poolName)) != keccak256(abi.encode(_poolName)),
+            keccak256(abi.encode(poolNames[_poolName].poolName)) !=
+                keccak256(abi.encode(_poolName)),
             "Pool name already taken !"
         );
         require(
-            _targetPrice > uint256(priceFeedData(poolToken.priceFeed)).div(10**uint256(poolToken.decimals)),
+            _targetPrice >
+                uint256(priceFeedData(poolToken.priceFeed)).div(
+                    10**uint256(poolToken.decimals)
+                ),
             "Target price is lesser than current price"
         );
 
@@ -137,15 +143,20 @@ contract PrivatePools is Ownable {
         newPool.poolScaledAmount = 0;
         newPool.verified[msg.sender] = true;
 
-        emit newPoolCreated(_poolName, msg.sender, _symbol, _targetPrice, block.timestamp);
+        emit newPoolCreated(
+            _poolName,
+            msg.sender,
+            _symbol,
+            _targetPrice,
+            block.timestamp
+        );
     }
 
     function verifyPoolAccess(
         string calldata _poolName,
         bytes32 _messageHash,
         bytes calldata _signature
-    ) external 
-    {
+    ) external {
         Pool storage pool = poolNames[_poolName];
 
         require(
@@ -242,69 +253,113 @@ contract PrivatePools is Ownable {
     }
 
     // Functions for testing
-    function getVerifiedStatus(string calldata _poolName) external view returns (bool)
+    function getVerifiedStatus(string calldata _poolName)
+        external
+        view
+        returns (bool)
     {
         Pool storage pool = poolNames[_poolName];
         return pool.verified[msg.sender];
     }
 
-    function checkOwner() external view returns(address)
-    {
+    function checkOwner() external view returns (address) {
         return owner();
     }
 
-    function isPoolEmpty(string calldata _poolName) external view returns(string memory)
+    function isPoolEmpty(string calldata _poolName)
+        external
+        view
+        returns (string memory)
     {
         Pool storage pool = poolNames[_poolName];
         return pool.poolName;
     }
 
-    function verifyPool(string calldata _poolName) external view returns (bool)
+    function verifyPool(string calldata _poolName)
+        external
+        view
+        returns (bool)
     {
         Pool storage pool = poolNames[_poolName];
-        if (keccak256(abi.encode(pool.poolName)) == keccak256(abi.encode(_poolName))) 
-            return true;
-        else 
-            return false;
+        if (
+            keccak256(abi.encode(pool.poolName)) ==
+            keccak256(abi.encode(_poolName))
+        ) return true;
+        else return false;
     }
 
-    function getUserScaledDeposit(string calldata _poolName) external view returns (uint256)
+    function getUserScaledDeposit(string calldata _poolName)
+        external
+        view
+        returns (uint256)
     {
         Pool storage pool = poolNames[_poolName];
         return pool.userScaledDeposits[msg.sender];
     }
 
-    function getUserScaledBalance(string calldata _poolName) external view returns(uint256)
+    function getUserScaledBalance(string calldata _poolName)
+        external
+        view
+        returns (uint256)
     {
-        address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
+        address lendingPool =
+            ILendingPoolAddressesProvider(lendingPoolAddressProvider)
+                .getLendingPool();
         Pool storage pool = poolNames[_poolName];
         TokenData storage poolTokenData = tokenData[pool.symbol];
-        uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
-        return (pool.userScaledDeposits[msg.sender].mul(liquidityIndex)).div(10**27);
+        uint128 liquidityIndex =
+            ILendingPool(lendingPool)
+                .getReserveData(poolTokenData.token)
+                .liquidityIndex;
+        return
+            (pool.userScaledDeposits[msg.sender].mul(liquidityIndex)).div(
+                10**27
+            );
     }
 
-    function getPoolScaledAmount(string calldata _poolName) external view returns(uint256)
+    function getPoolScaledAmount(string calldata _poolName)
+        external
+        view
+        returns (uint256)
     {
         Pool storage pool = poolNames[_poolName];
         return pool.poolScaledAmount;
     }
 
-    function getLiquidityIndex(string calldata _poolName) external view returns(uint128)
+    function getLiquidityIndex(string calldata _poolName)
+        external
+        view
+        returns (uint128)
     {
         Pool storage pool = poolNames[_poolName];
         TokenData storage poolTokenData = tokenData[pool.symbol];
-        address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-        return ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
+        address lendingPool =
+            ILendingPoolAddressesProvider(lendingPoolAddressProvider)
+                .getLendingPool();
+        return
+            ILendingPool(lendingPool)
+                .getReserveData(poolTokenData.token)
+                .liquidityIndex;
     }
 
-    function getReserveData(string calldata _poolName) external view returns(uint128, uint256)
+    function getReserveData(string calldata _poolName)
+        external
+        view
+        returns (uint128, uint256)
     {
         Pool storage pool = poolNames[_poolName];
         TokenData storage poolTokenData = tokenData[pool.symbol];
-        address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-        uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
-        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
+        address lendingPool =
+            ILendingPoolAddressesProvider(lendingPoolAddressProvider)
+                .getLendingPool();
+        uint128 liquidityIndex =
+            ILendingPool(lendingPool)
+                .getReserveData(poolTokenData.token)
+                .liquidityIndex;
+        uint256 reserveNormalizedIncome =
+            ILendingPool(lendingPool).getReserveNormalizedIncome(
+                poolTokenData.token
+            );
         return (liquidityIndex, reserveNormalizedIncome);
     }
-    
 }

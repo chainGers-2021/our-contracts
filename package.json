@@ -1,8 +1,7 @@
 {
   "name": "our-contracts",
   "version": "1.0.0",
-  "description": "UserA = 100, pool.deposit(_factoryAddress) UserB = 100, pool.deposit(_factoryAddress) UserC = 100, pool.deposit(_factoryAddress)",
-  "main": "truffle-config.js",
+  "description": "Smart contracts repository",
   "directories": {
     "test": "test"
   },
@@ -18,8 +17,8 @@
     "type": "git",
     "url": "git+https://github.com/chainGers-2021/our-contracts.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "chainGers-2021",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/chainGers-2021/our-contracts/issues"
   },
@@ -30,6 +29,7 @@
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/contracts": "^3.4.1",
     "@truffle/hdwallet-provider": "^1.2.2",
+    "dotenv": "^8.2.0",
     "hardhat": "^2.1.1",
     "hardhat-shorthand": "^1.0.0",
     "truffle-assertions": "^0.9.2",

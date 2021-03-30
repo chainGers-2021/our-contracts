@@ -7,7 +7,7 @@ import '../Interfaces/IPools.sol';
 import { Datatypes } from '../Utils/Datatypes.sol';
 /***
  * Donation pool for charities/NGOs to withdraw donations
- * @author Chinmay Vemuri 
+ * @author Chinmay Vemuri
  */
 contract DonationPool is Ownable
 {
