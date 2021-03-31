@@ -6,8 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
 import '@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol';
-import '../Factory/PrivatePools.sol';
-import { Datatypes } from '../Utils/Datatypes.sol';
+import { Datatypes } from '../Libraries/Datatypes.sol';
 import './DonationPools.sol';
 import '../Factory/PrivatePools.sol';
 
@@ -23,8 +22,7 @@ contract Comptroller is Ownable
 
     event newTokenAdded(string _symbol, address _token, address _aToken);
 
-    constructor(address _donationPoolContract, address _privatePoolsContract)
-        public
+    constructor(address _donationPoolContract, address _privatePoolsContract) public
     {
         donationPoolContract = _donationPoolContract;
         privatePoolsContract = _privatePoolsContract;
@@ -99,7 +97,8 @@ contract Comptroller is Ownable
 		PrivatePools(privatePoolsContract).deposit(
 			_poolName,
 			newScaledDeposit.sub(donationAmount),
-			_tokenSymbol
+			_tokenSymbol,
+			msg.sender
 		);
 	}
 
@@ -108,23 +107,24 @@ contract Comptroller is Ownable
 		uint256 _amount
 	) external
 	{
-		Datatypes.Pool memory pool = PrivatePools(privatePoolsContract).getPoolData(_poolName);
-        Datatypes.TokenData memory poolTokenData = tokenData[pool.symbol];
-		IERC20 token = IERC20(poolTokenData.token);
+
+		uint256 withdrawalAmount = PrivatePools(privatePoolsContract).withdraw(
+			_poolName, 
+			_amount,
+			msg.sender
+		);
+
+		(,string memory tokenSymbol,bool penalty,,,,,) = PrivatePools(privatePoolsContract).poolNames(_poolName);
+        Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
 		address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
         uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
-		
-        (uint256 withdrawalAmount, bool penalty) = PrivatePools(privatePoolsContract).withdraw(
-			_poolName, 
-			(_amount.mul(10**27)).div(reserveNormalizedIncome)
-		);
 		
 		// If target price of the pool wasn't achieved, take out the donation amount too.
 		if(penalty)
 		{
 			uint256 donationAmount = DonationPools(donationPoolContract).donate(
 				withdrawalAmount,
-				pool.token
+				tokenSymbol
 			);
 
 			withdrawalAmount = withdrawalAmount.sub(donationAmount);

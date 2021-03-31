@@ -8,7 +8,6 @@ library Datatypes {
         address aToken;
         address priceFeed;
         uint8 decimals;
-        // uint256 nominalFeeScaledAmount; // Increases or decreases every time a deposit or withdrawal is made.
     }
 
     struct Pool {

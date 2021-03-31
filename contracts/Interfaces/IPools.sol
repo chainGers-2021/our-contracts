@@ -1,5 +1,8 @@
 //SPDX-License-Identifier: Unlicensed
 pragma solidity >=0.6.0;
+pragma experimental ABIEncoderV2;
+
+import { Datatypes } from '../Libraries/Datatypes.sol';
 
 interface IPools {
     event newTokenAdded(string _symbol, address _token, address _aToken);
@@ -49,8 +52,12 @@ interface IPools {
     function deposit(
         string calldata _poolName,
         uint256 _amount,
-        string calldata _tokenSymbol
+        string calldata _tokenSymbol,
+        address _sender
     ) external;
 
-    function withdraw(string calldata _poolName, uint256 _amount) external returns(uint256, bool);
+    function withdraw(
+        string calldata _poolName, 
+        uint256 _amount, 
+        address _sender) external returns(uint256);
 }

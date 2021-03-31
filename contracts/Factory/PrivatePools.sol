@@ -6,13 +6,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/cryptography/ECDSA.sol";
-import {
-    ILendingPool,
-    ILendingPoolAddressesProvider
-} from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
+import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
 import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
-import { Datatypes } from '../Utils/Datatypes.sol';
+import { Datatypes } from '../Libraries/Datatypes.sol';
+import { PoolFormulas } from '../Libraries/PoolFormulas.sol';
 import '../Pools/Comptroller.sol';
 
 /***
@@ -27,9 +25,9 @@ contract PrivatePools is IPools, Ownable {
     using ECDSA for bytes32;
     using SafeMath for uint256;
     using Datatypes for *;
+    using PoolFormulas for uint256;
 
-    address lendingPoolAddressProvider =
-        0x88757f2f99175387aB4C6a4b3067c77A695b0349;
+    address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
     address comptrollerContract;
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
     mapping(string => Datatypes.Pool) public poolNames;
@@ -37,8 +35,8 @@ contract PrivatePools is IPools, Ownable {
 
     modifier checkAccess(string calldata _poolName)
     {
-        Datatypes.Pool memory pool = poolNames[_poolName];
-        Datatypes.TokenData memory token = Comptroller(comptrollerContract).tokenData[pool.symbol];
+        Datatypes.Pool storage pool = poolNames[_poolName];
+        (,,,address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
 
         require(
             keccak256(abi.encode(_poolName)) != keccak256(" "),
@@ -51,8 +49,8 @@ contract PrivatePools is IPools, Ownable {
 
         if (
             pool.active &&
-            pool.targetPrice.mul(10**uint256(token.decimals)) <=
-            uint256(priceFeedData(token.priceFeed))
+            pool.targetPrice.mul(10**uint256(decimals)) <=
+            uint256(priceFeedData(priceFeed))
         ) {
             pool.active = false;
         }
@@ -75,15 +73,31 @@ contract PrivatePools is IPools, Ownable {
         view
         returns (int256)
     {
-        (, int256 price, , , ) =
-            AggregatorV3Interface(_aggregatorAddress).latestRoundData();
+        (, int256 price, , , ) = AggregatorV3Interface(_aggregatorAddress).latestRoundData();
 
         return price;
     }
 
-    function getPoolData(string calldata _poolName) external view returns(Datatypes.Pool memory)
+    function calculateWithdrawalAmount(
+        string calldata _poolName,
+        uint256 _amount
+    ) internal returns(uint256)
     {
-        return poolNames[_poolName];
+        uint256 rewardScaledAmount =(_amount.mul(poolNames[_poolName].rewardScaledAmount)).div(poolNames[_poolName].poolScaledAmount);
+        poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount.sub(rewardScaledAmount);
+        poolNames[_poolName].poolScaledAmount = poolNames[_poolName].poolScaledAmount.sub(_amount); // Test whether only _amount needs to be subtracted.
+        poolNames[_poolName].userScaledDeposits[msg.sender] = poolNames[_poolName].userScaledDeposits[msg.sender].sub(_amount);
+
+        if (poolNames[_poolName].active) 
+        {
+            uint256 withdrawalFeeAmount =((_amount.add(rewardScaledAmount))
+                                            .mul(REWARD_FEE_PER)).div(10**4);
+
+            _amount = _amount.sub(withdrawalFeeAmount);
+            poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount.add(withdrawalFeeAmount);
+        }
+
+        return _amount;
     }
 
     function createPool(
@@ -93,7 +107,7 @@ contract PrivatePools is IPools, Ownable {
         address _accountAddress
     ) external override 
     {
-        Datatypes.TokenData storage poolToken = Comptroller(comptrollerContract).tokenData[_symbol];
+        (,,,address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(_symbol);
 
         require(
             keccak256(abi.encode(_symbol)) != keccak256(""),
@@ -109,8 +123,8 @@ contract PrivatePools is IPools, Ownable {
         );
         require(
             _targetPrice >
-                uint256(priceFeedData(poolToken.priceFeed)).div(
-                    10**uint256(poolToken.decimals)
+                uint256(priceFeedData(priceFeed)).div(
+                    10**uint256(decimals)
                 ),
             "Target price is lesser than current price"
         );
@@ -164,7 +178,8 @@ contract PrivatePools is IPools, Ownable {
     function deposit(
         string calldata _poolName,
         uint256 _scaledAmount,
-        string calldata _tokenSymbol
+        string calldata _tokenSymbol,
+        address _sender
     ) external override checkAccess(_poolName)
     {
         Datatypes.Pool storage pool = poolNames[_poolName];
@@ -175,17 +190,14 @@ contract PrivatePools is IPools, Ownable {
             "Deposit token doesn't match pool token !"
         );
 
-        pool.userScaledDeposits[msg.sender] = pool.userScaledDeposits[
-            msg.sender
-        ]
-            .add(_scaledAmount);
+        pool.userScaledDeposits[_sender] = pool.userScaledDeposits[_sender].add(_scaledAmount);
         pool.poolScaledAmount = pool.poolScaledAmount.add(_scaledAmount);
 
-        emit newDeposit(_poolName, msg.sender, _scaledAmount, block.timestamp);
+        emit newDeposit(_poolName, _sender, _scaledAmount, block.timestamp);
         emit totalUserScaledDeposit(
             _poolName,
-            msg.sender,
-            pool.userScaledDeposits[msg.sender],
+            _sender,
+            pool.userScaledDeposits[_sender],
             block.timestamp
         );
         emit totalPoolScaledDeposit(
@@ -198,21 +210,24 @@ contract PrivatePools is IPools, Ownable {
     /// @dev Implement this function for partial amount withdrawal.
     function withdraw(
         string calldata _poolName,
-        uint256 _amount
-    ) external override checkAccess(_poolName) returns(uint256, bool)
+        uint256 _amount,
+        address _sender
+    ) external override onlyComptroller checkAccess(_poolName) returns(uint256)
     {
-        Datatypes.Pool storage pool = poolNames[_poolName];
-        Datatypes.TokenData memory poolTokenData = Comptroller(comptrollerContract).tokenData[pool.token];
-        address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
+        // Datatypes.Pool storage pool = poolNames[_poolName];
+        uint256 reserveNormalizedIncome;
 
-        // address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-        // uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
-        // uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(tokenData[pool.symbol].token);
-        // uint256 aTokenAmount;
+        {
+            (, address token,,,) = Comptroller(comptrollerContract).tokenData(poolNames[_poolName].symbol);
+            address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
+            reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(token);
+            _amount = (_amount.mul(10**27)).div(reserveNormalizedIncome);
+            (_amount == 0)? _amount = poolNames[_poolName].userScaledDeposits[_sender]: _amount;
+        }
+        
 
         require(
-            pool.userScaledDeposits[msg.sender] >= _amount,
+            poolNames[_poolName].userScaledDeposits[_sender] >= _amount,
             "Amount exceeds user's reward amount !"
         );
         /**
@@ -223,52 +238,29 @@ contract PrivatePools is IPools, Ownable {
          * RA = RA + poolRewardAmount
          * nominalFee = withdrawalFeeAmount - poolReward
          */
-        (_amount == 0)
-            ? _amount = pool.userScaledDeposits[msg.sender]
-            : _amount;
-
-        uint256 rewardScaledAmount =
-            (_amount.mul(pool.rewardScaledAmount)).div(pool.poolScaledAmount);
-        pool.rewardScaledAmount = pool.rewardScaledAmount.sub(
-            rewardScaledAmount
-        );
-        pool.poolScaledAmount = pool.poolScaledAmount.sub(_amount); // Test whether only _amount needs to be subtracted.
-        pool.userScaledDeposits[msg.sender] = pool.userScaledDeposits[
-            msg.sender
-        ]
-            .sub(_amount);
-
-        if (pool.active) {
-            uint256 withdrawalFeeAmount =
-                ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER)).div(
-                    10**4
-                );
-
-            _amount = _amount.sub(withdrawalFeeAmount);
-            pool.rewardScaledAmount = pool.rewardScaledAmount.add(
-                withdrawalFeeAmount
-            );
-        }
+        // Scaling the _amount
+        
+        _amount = calculateWithdrawalAmount(_poolName, _amount);
 
         emit newWithdrawal(
             _poolName,
-            msg.sender,
+            _sender,
             (_amount.mul(reserveNormalizedIncome)).div(10**27),
             block.timestamp
         );
         emit totalUserScaledDeposit(
             _poolName,
-            msg.sender,
-            pool.userScaledDeposits[msg.sender],
+            _sender,
+            poolNames[_poolName].userScaledDeposits[_sender],
             block.timestamp
         );
         emit totalPoolScaledDeposit(
             _poolName,
-            pool.poolScaledAmount,
+            poolNames[_poolName].poolScaledAmount,
             block.timestamp
         );
 
-        return (_amount, pool.active);  
+        return (_amount);  
     }
 
     // Functions for testing
@@ -324,8 +316,9 @@ contract PrivatePools is IPools, Ownable {
     {
         address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
         Datatypes.Pool storage pool = poolNames[_poolName];
-        Datatypes.TokenData storage poolTokenData = Comptroller(comptrollerContract).tokenData[pool.symbol];
-        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
+        (,address token,,,) = Comptroller(comptrollerContract).tokenData(pool.symbol);
+        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(token);
+        
         return (pool.userScaledDeposits[msg.sender].mul(reserveNormalizedIncome)).div(10**27);
     }
 
@@ -344,9 +337,9 @@ contract PrivatePools is IPools, Ownable {
         returns (uint128)
     {
         Datatypes.Pool storage pool = poolNames[_poolName];
-        Datatypes.TokenData storage poolTokenData = Comptroller(comptrollerContract).tokenData[pool.symbol];
+        (,address token,,,) = Comptroller(comptrollerContract).tokenData(pool.symbol);
         address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-        return ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
+        return ILendingPool(lendingPool).getReserveData(token).liquidityIndex;
     }
 
     function getReserveData(string calldata _poolName)
@@ -355,10 +348,10 @@ contract PrivatePools is IPools, Ownable {
         returns (uint128, uint256)
     {
         Datatypes.Pool memory pool = poolNames[_poolName];
-        Datatypes.TokenData memory poolTokenData = Comptroller(comptrollerContract).tokenData[pool.symbol];
+        (,address token,,,) = Comptroller(comptrollerContract).tokenData(pool.symbol);
         address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-        uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(poolTokenData.token).liquidityIndex;
-        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
+        uint128 liquidityIndex = ILendingPool(lendingPool).getReserveData(token).liquidityIndex;
+        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(token);
         
         return (liquidityIndex, reserveNormalizedIncome);
     }
