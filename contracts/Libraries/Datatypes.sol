@@ -10,7 +10,8 @@ library Datatypes {
         uint8 decimals;
     }
 
-    struct Pool {
+    struct PrivatePool 
+    {
         string poolName;
         string symbol;
         bool active;
@@ -23,4 +24,18 @@ library Datatypes {
         mapping(bytes => bool) signatures;
         mapping(address => uint256) userScaledDeposits;
     }
+
+    struct PublicPool 
+    {
+        string poolName;
+        string symbol;
+        bool active;
+        address owner;
+        address accountAddress;
+        uint256 targetPrice;
+        uint256 poolScaledAmount;
+        uint256 rewardScaledAmount;
+        mapping(address => uint256) userScaledDeposits;
+    }
+
 }

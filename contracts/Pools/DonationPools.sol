@@ -4,7 +4,6 @@ pragma solidity >=0.6.0;
 import '@openzeppelin/contracts/access/Ownable.sol';
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import '../Interfaces/IPools.sol';
-import { Datatypes } from '../Libraries/Datatypes.sol';
 import './Comptroller.sol';
 /***
  * Donation pool for charities/NGOs to withdraw donations
@@ -12,7 +11,6 @@ import './Comptroller.sol';
  */
 contract DonationPools is Ownable
 {
-    using Datatypes for *;
     using SafeMath for uint256;
 
     

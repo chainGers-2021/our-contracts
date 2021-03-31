@@ -41,7 +41,7 @@ interface IPools {
         uint256 _amount,
         uint256 _timeStamp
     );
-
+    
     function createPool(
         string calldata _symbol,
         string calldata _poolName,

@@ -1,3 +1,4 @@
 {
-    "solidity.compileUsingRemoteVersion": "v0.6.2+commit.bacdbe57"
+  "solidity.compileUsingRemoteVersion": "v0.6.2+commit.bacdbe57",
+  "files.exclude": {}
 }
