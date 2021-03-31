@@ -10,7 +10,6 @@ import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/c
 import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import { Datatypes } from '../Libraries/Datatypes.sol';
-import { PoolFormulas } from '../Libraries/PoolFormulas.sol';
 import '../Pools/Comptroller.sol';
 
 /***
@@ -25,7 +24,6 @@ contract PrivatePools is IPools, Ownable {
     using ECDSA for bytes32;
     using SafeMath for uint256;
     using Datatypes for *;
-    using PoolFormulas for uint256;
 
     address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
     address comptrollerContract;

@@ -1,5 +1,6 @@
 require("dotenv").config();
-const rpc = process.env.RPC;
+
+const rpc = process.env.RPC == null ? "" : process.env.RPC;
 const privateKey = process.env.PRIVATE_KEY;
 
 const { test1 } = require("./tasks/1");
@@ -21,7 +22,7 @@ module.exports = {
     hardhat: {},
     kovan: {
       url: rpc,
-      accounts: [privateKey],
+      accounts: privateKey == null ? [] : [privateKey],
     },
   },
   solidity: {
