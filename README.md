@@ -70,3 +70,9 @@ ERC20 balance:  3041127000239174122795
 liquidityIndex now: 1.0006897143225921
 Done in 74.77s.
 ```
+
+## Testing
+```
+1) Test depositERC20, withdrawERC20, verifyAccess (Private Pools)
+
+```

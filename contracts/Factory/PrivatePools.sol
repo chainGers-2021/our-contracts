@@ -23,14 +23,13 @@ import '../Interfaces/IPools.sol';
  * 1) Store index instead of the address of the token in a pool
  * 2) Use try/catch for deposit and withdraw functions.
  */
-
-contract PrivatePools is IPools, Ownable {
+contract PrivatePools is IPools, Ownable 
+{
     using ECDSA for bytes32;
     using SafeMath for uint256;
     using Datatypes for *;
 
-    address lendingPoolAddressProvider =
-        0x88757f2f99175387aB4C6a4b3067c77A695b0349;
+    address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
     address comptrollerContract;
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
     mapping(string => Datatypes.PrivatePool) public poolNames;

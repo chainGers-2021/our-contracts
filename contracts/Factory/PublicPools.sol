@@ -24,17 +24,18 @@ import '../Interfaces/IPools.sol';
  * 2) Use try/catch for deposit and withdraw functions.
  */
 
-contract PublicPools is IPools, Ownable {
+contract PublicPools is IPools, Ownable 
+{
     using SafeMath for uint256;
     using Datatypes for *;
 
-    address lendingPoolAddressProvider =
-        0x88757f2f99175387aB4C6a4b3067c77A695b0349;
+    address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
     address comptrollerContract;
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
     mapping(string => Datatypes.PublicPool) public poolNames;
 
-    modifier checkAccess(string calldata _poolName) {
+    modifier checkAccess(string calldata _poolName) 
+    {
         Datatypes.PublicPool storage pool = poolNames[_poolName];
         (, , , address priceFeed, uint8 decimals) =
             Comptroller(comptrollerContract).tokenData(pool.symbol);
@@ -46,22 +47,21 @@ contract PublicPools is IPools, Ownable {
 
         if (
             pool.active &&
-            pool.targetPrice.mul(10**uint256(decimals)) <=
-            uint256(priceFeedData(priceFeed))
-        ) {
-            pool.active = false;
-        }
+            pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
+        ) { pool.active = false; }
 
         require(poolNames[_poolName].active, "Pool not active !");
         _;
     }
 
-    modifier onlyComptroller {
+    modifier onlyComptroller 
+    {
         require(msg.sender == comptrollerContract, "Unauthorized access");
         _;
     }
 
-    function setComptroller(address _comptroller) external onlyOwner {
+    function setComptroller(address _comptroller) external onlyOwner 
+    {
         comptrollerContract = _comptroller;
     }
 
@@ -70,42 +70,32 @@ contract PublicPools is IPools, Ownable {
         view
         returns (int256)
     {
-        (, int256 price, , , ) =
-            AggregatorV3Interface(_aggregatorAddress).latestRoundData();
+        (, int256 price, , , ) = AggregatorV3Interface(_aggregatorAddress).latestRoundData();
 
         return price;
     }
 
     function calculateWithdrawalAmount(
         string calldata _poolName,
-        uint256 _amount
-    ) internal returns (uint256) {
-        uint256 rewardScaledAmount =
-            (_amount.mul(poolNames[_poolName].rewardScaledAmount)).div(
-                poolNames[_poolName].poolScaledAmount
-            );
-        poolNames[_poolName].rewardScaledAmount = poolNames[_poolName]
-            .rewardScaledAmount
-            .sub(rewardScaledAmount);
-        poolNames[_poolName].poolScaledAmount = poolNames[_poolName]
-            .poolScaledAmount
-            .sub(_amount); // Test whether only _amount needs to be subtracted.
-        poolNames[_poolName].userScaledDeposits[msg.sender] = poolNames[
-            _poolName
-        ]
-            .userScaledDeposits[msg.sender]
-            .sub(_amount);
+        uint256 _amount,
+        address _sender
+    ) internal returns(uint256) 
+    {
+        uint256 rewardScaledAmount = (_amount.mul(poolNames[_poolName].rewardScaledAmount))
+                                        .div(poolNames[_poolName].poolScaledAmount);
+        poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount.sub(rewardScaledAmount);
+        poolNames[_poolName].poolScaledAmount = poolNames[_poolName].poolScaledAmount.sub(_amount); // Test whether only _amount needs to be subtracted.
+        poolNames[_poolName].userScaledDeposits[_sender] = poolNames[_poolName].userScaledDeposits[_sender]
+                                                            .sub(_amount);
 
-        if (poolNames[_poolName].active) {
-            uint256 withdrawalFeeAmount =
-                ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER)).div(
-                    10**4
-                );
+        if (poolNames[_poolName].active) 
+        {
+            uint256 withdrawalFeeAmount = ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER))
+                                            .div(10**4);
 
             _amount = _amount.sub(withdrawalFeeAmount);
-            poolNames[_poolName].rewardScaledAmount = poolNames[_poolName]
-                .rewardScaledAmount
-                .add(withdrawalFeeAmount);
+            poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount
+                                                        .add(withdrawalFeeAmount);
         }
 
         return _amount;
@@ -163,18 +153,16 @@ contract PublicPools is IPools, Ownable {
         uint256 _scaledAmount,
         string calldata _tokenSymbol,
         address _sender
-    ) external override checkAccess(_poolName) {
+    ) external override checkAccess(_poolName) 
+    {
         Datatypes.PublicPool storage pool = poolNames[_poolName];
 
         require(
-            keccak256(abi.encode(_tokenSymbol)) ==
-                keccak256(abi.encode(pool.symbol)),
+            keccak256(abi.encode(_tokenSymbol)) == keccak256(abi.encode(pool.symbol)),
             "Deposit token doesn't match pool token !"
         );
 
-        pool.userScaledDeposits[_sender] = pool.userScaledDeposits[_sender].add(
-            _scaledAmount
-        );
+        pool.userScaledDeposits[_sender] = pool.userScaledDeposits[_sender].add(_scaledAmount);
         pool.poolScaledAmount = pool.poolScaledAmount.add(_scaledAmount);
 
         emit newDeposit(_poolName, _sender, _scaledAmount, block.timestamp);
@@ -206,19 +194,11 @@ contract PublicPools is IPools, Ownable {
 
         // Scoping out the variables to avoid stack too deep errors
         {
-            (, address token, , , ) =
-                Comptroller(comptrollerContract).tokenData(
-                    poolNames[_poolName].symbol
-                );
-            address lendingPool =
-                ILendingPoolAddressesProvider(lendingPoolAddressProvider)
-                    .getLendingPool();
-            reserveNormalizedIncome = ILendingPool(lendingPool)
-                .getReserveNormalizedIncome(token);
+            (, address token, , , ) = Comptroller(comptrollerContract).tokenData(poolNames[_poolName].symbol);
+            address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
+            reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(token);
             _amount = (_amount.mul(10**27)).div(reserveNormalizedIncome);
-            (_amount == 0)
-                ? _amount = poolNames[_poolName].userScaledDeposits[_sender]
-                : _amount;
+            (_amount == 0)? _amount = poolNames[_poolName].userScaledDeposits[_sender]: _amount;
         }
 
         require(
@@ -234,12 +214,17 @@ contract PublicPools is IPools, Ownable {
          * nominalFee = withdrawalFeeAmount - poolReward
          */
 
-        _amount = calculateWithdrawalAmount(_poolName, _amount);
+        _amount = calculateWithdrawalAmount(_poolName, _amount, _sender);
 
         emit newWithdrawal(
             _poolName,
             _sender,
             (_amount.mul(reserveNormalizedIncome)).div(10**27),
+            block.timestamp
+        );
+        emit totalPoolDeposit(
+            _poolName,
+            (_amount.mul(reserveNormalizedIncome)).div(10**27), 
             block.timestamp
         );
         emit totalUserScaledDeposit(

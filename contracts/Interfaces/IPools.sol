@@ -11,18 +11,23 @@ interface IPools {
         address indexed _owner,
         string symbol,
         uint256 _targetPrice,
-        uint256 _timeStamp
+        uint256 _timestamp
     );
     event verified(
         string indexed _poolName,
         address _sender,
-        uint256 _timeStamp
+        uint256 _timestamp
     );
     event newDeposit(
         string indexed _poolName,
         address indexed _sender,
         uint256 _amount,
-        uint256 _timeStamp
+        uint256 _timestamp
+    );
+    event totalPoolDeposit(
+        string indexed _poolName,
+        uint256 _amount,
+        uint256 _timestamp
     );
     event totalUserScaledDeposit(
         string indexed _poolName,
@@ -39,7 +44,7 @@ interface IPools {
         string indexed _poolName,
         address indexed _sender,
         uint256 _amount,
-        uint256 _timeStamp
+        uint256 _timestamp
     );
 
     function createPool(
