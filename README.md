@@ -71,18 +71,8 @@ liquidityIndex now: 1.0006897143225921
 Done in 74.77s.
 ```
 
-## Testing
-```
-1) Test depositERC20, withdrawERC20, verifyAccess (Private Pools)
-
-```
-
-## Something
-
- - ganache-cli --fork https://eth-mainnet.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA -i 22
-
-kovan: https://kovan.infura.io/v3/19b85f951b5a4440923fa8f61eb27245
-mainnet: https://mainnet.infura.io/v3/19b85f951b5a4440923fa8f61eb27245
-
-### alchemy:
-mainnet: https://eth-mainnet.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA
+## Instructions for mainnet forking
+  - `ganache-cli --fork https://eth-mainnet.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA -i 22`
+  - Paste seed phrase in `.env` file
+  - In another terminal:
+  - `truffle migrate --reset --network fork`

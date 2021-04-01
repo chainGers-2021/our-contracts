@@ -43,8 +43,9 @@ module.exports = {
    *
    * $ truffle test --network <network-name>
    */
-  contracts_build_directory: "./truffle-build/",
+  contracts_build_directory: "truffle-build/",
   migrations_directory: "truffle-migrations/",
+  test_directory: "truffle-test/",
   networks: {
 
     // Useful for testing. The `development` name is special - truffle uses it by default
@@ -54,18 +55,26 @@ module.exports = {
     // options below to some value.
     //
     fork: {
-      provider: () => {
-        return new HDWalletProvider(f_mnemonic, f_url);
-      },
+      provider: () =>
+        new HDWalletProvider({
+          mnemonic: {
+            phrase: f_mnemonic
+          },
+          providerOrUrl: f_url
+        }),
       network_id: 22, // Any network (default: none)
     },
-    // kovan: {
-    //   provider: () => {
-    //     return new HDWalletProvider(k_mnemonic, k_url)
-    //   },
-    //   network_id: '42',
-    //   skipDryRun: true
-    // },
+    kovan: {
+      provider: () =>
+        new HDWalletProvider({
+          mnemonic: {
+            phrase: k_mnemonic
+          },
+          providerOrUrl: k_url
+        }),
+      network_id: 42, // Any network (default: none)
+    },
+    
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port
