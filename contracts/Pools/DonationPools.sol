@@ -47,13 +47,21 @@ contract DonationPools is Ownable {
     );
 
     modifier onlyComptroller {
-        require(msg.sender == comptrollerContract, "Unauthorized access");
+        require(
+            msg.sender == comptrollerContract, 
+            "Unauthorized access"
+        );
         _;
     }
 
-    function setComptroller(address _comptrollerAddress) external onlyOwner {
-        comptrollerContract = _comptrollerAddress;
+    constructor(address _comptrollerContract) public
+    {
+        comptrollerContract = _comptrollerContract;
     }
+
+    // function setComptroller(address _comptrollerAddress) external onlyOwner {
+    //     comptrollerContract = _comptrollerAddress;
+    // }
 
     function addRecipient(address _recipient, string calldata _organisationName)
         external

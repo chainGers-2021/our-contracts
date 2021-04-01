@@ -63,11 +63,14 @@ contract PrivatePools is IPools, Ownable
         _;
     }
 
-    function setComptroller(address _comptroller) external onlyOwner {
-        comptrollerContract = _comptroller;
-    }
+    // function setComptroller(address _comptroller) external onlyOwner {
+    //     comptrollerContract = _comptroller;
+    // }
 
-    
+    constructor(address _comptrollerContract) public
+    {
+        comptrollerContract = _comptrollerContract;
+    }
 
     function createPool(
         string calldata _symbol,

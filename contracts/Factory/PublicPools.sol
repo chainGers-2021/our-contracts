@@ -60,32 +60,13 @@ contract PublicPools is IPools, Ownable
         _;
     }
 
-    
-
-    function calculateWithdrawalAmount(
-        string calldata _poolName,
-        uint256 _amount,
-        address _sender
-    ) internal returns(uint256) 
+    // function setComptroller(address _comptroller) external onlyOwner 
+    // {
+    //     comptrollerContract = _comptroller;
+    // }
+    constructor(address _comptrollerContract) public
     {
-        uint256 rewardScaledAmount = (_amount.mul(poolNames[_poolName].rewardScaledAmount))
-                                        .div(poolNames[_poolName].poolScaledAmount);
-        poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount.sub(rewardScaledAmount);
-        poolNames[_poolName].poolScaledAmount = poolNames[_poolName].poolScaledAmount.sub(_amount); // Test whether only _amount needs to be subtracted.
-        poolNames[_poolName].userScaledDeposits[_sender] = poolNames[_poolName].userScaledDeposits[_sender]
-                                                            .sub(_amount);
-
-        if (poolNames[_poolName].active) 
-        {
-            uint256 withdrawalFeeAmount = ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER))
-                                            .div(10**4);
-
-            _amount = _amount.sub(withdrawalFeeAmount);
-            poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount
-                                                        .add(withdrawalFeeAmount);
-        }
-
-        return _amount;
+        comptrollerContract = _comptrollerContract;
     }
 
     function createPool(
@@ -229,9 +210,30 @@ contract PublicPools is IPools, Ownable
         return (_amount);
     }
 
-    function setComptroller(address _comptroller) external onlyOwner 
+    function calculateWithdrawalAmount(
+        string calldata _poolName,
+        uint256 _amount,
+        address _sender
+    ) internal returns(uint256) 
     {
-        comptrollerContract = _comptroller;
+        uint256 rewardScaledAmount = (_amount.mul(poolNames[_poolName].rewardScaledAmount))
+                                        .div(poolNames[_poolName].poolScaledAmount);
+        poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount.sub(rewardScaledAmount);
+        poolNames[_poolName].poolScaledAmount = poolNames[_poolName].poolScaledAmount.sub(_amount); // Test whether only _amount needs to be subtracted.
+        poolNames[_poolName].userScaledDeposits[_sender] = poolNames[_poolName].userScaledDeposits[_sender]
+                                                            .sub(_amount);
+
+        if (poolNames[_poolName].active) 
+        {
+            uint256 withdrawalFeeAmount = ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER))
+                                            .div(10**4);
+
+            _amount = _amount.sub(withdrawalFeeAmount);
+            poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount
+                                                        .add(withdrawalFeeAmount);
+        }
+
+        return _amount;
     }
 
     function priceFeedData(address _aggregatorAddress)

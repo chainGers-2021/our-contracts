@@ -17,7 +17,7 @@ contract Comptroller is Ownable
 	using Datatypes for *;
 	using SafeMath for uint256;
 
-	address public donationPoolContract;
+	address public donationPoolsContract;
 	address public privatePoolsContract;
     address public publicPoolsContract;
 	address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
@@ -25,15 +25,25 @@ contract Comptroller is Ownable
 
     event newTokenAdded(string _symbol, address _token, address _aToken);
 
-    constructor(
-        address _donationPoolContract, 
-        address _privatePoolsContract,
-        address _publicPoolsContract
-    ) public
+    // constructor(
+    //     address _donationPoolsContract, 
+    //     address _privatePoolsContract,
+    //     address _publicPoolsContract
+    // ) public
+    // {
+    //     donationPoolsContract = _donationPoolsContract;
+    //     privatePoolsContract = _privatePoolsContract;
+    //     publicPoolsContract = _publicPoolsContract;
+    // }
+    constructor() public
     {
-        donationPoolContract = _donationPoolContract;
-        privatePoolsContract = _privatePoolsContract;
-        publicPoolsContract = _publicPoolsContract;
+        PrivatePools newPrivatePools = new PrivatePools(address(this));
+        PublicPools newPublicPools = new PublicPools(address(this));
+        DonationPools newDonationPools = new DonationPools(address(this));
+
+        privatePoolsContract = address(newPrivatePools);
+        publicPoolsContract = address(newPublicPools);
+        donationPoolsContract = address(newDonationPools);
     }
 
     function addTokenData(
@@ -94,7 +104,7 @@ contract Comptroller is Ownable
         uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
 		uint256 newScaledDeposit = (_amount.mul(10**27)).div(reserveNormalizedIncome);
 
-		uint256 donationAmount = DonationPools(donationPoolContract).donate(
+		uint256 donationAmount = DonationPools(donationPoolsContract).donate(
 			newScaledDeposit,
 			_tokenSymbol
 		);
@@ -155,7 +165,7 @@ contract Comptroller is Ownable
 		// If target price of the pool wasn't achieved, take out the donation amount too.
 		if(penalty)
 		{
-			uint256 donationAmount = DonationPools(donationPoolContract).donate(
+			uint256 donationAmount = DonationPools(donationPoolsContract).donate(
 				withdrawalAmount,
 				tokenSymbol
 			);
@@ -184,7 +194,7 @@ contract Comptroller is Ownable
 	{
 		Datatypes.TokenData memory poolTokenData = tokenData[_tokenSymbol];
 		address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-		uint256 withdrawalAmount = DonationPools(donationPoolContract).withdraw(msg.sender, _tokenSymbol);
+		uint256 withdrawalAmount = DonationPools(donationPoolsContract).withdraw(msg.sender, _tokenSymbol);
 		uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
 	
 		withdrawalAmount = (withdrawalAmount.mul(reserveNormalizedIncome)).div(
