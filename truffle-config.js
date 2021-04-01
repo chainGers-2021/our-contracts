@@ -43,8 +43,10 @@ module.exports = {
    *
    * $ truffle test --network <network-name>
    */
-
+  contracts_build_directory: "./truffle-build/",
+  migrations_directory: "truffle-migrations/",
   networks: {
+
     // Useful for testing. The `development` name is special - truffle uses it by default
     // if it's defined here and no other network is specified at the command line.
     // You should run a client (like ganache-cli, geth or parity) in a separate terminal
@@ -56,15 +58,14 @@ module.exports = {
         return new HDWalletProvider(f_mnemonic, f_url);
       },
       network_id: 22, // Any network (default: none)
-      skipDryRun: true,
     },
-    kovan: {
-      provider: () => {
-        return new HDWalletProvider(k_mnemonic, k_url)
-      },
-      network_id: '42',
-      skipDryRun: true
-    },
+    // kovan: {
+    //   provider: () => {
+    //     return new HDWalletProvider(k_mnemonic, k_url)
+    //   },
+    //   network_id: '42',
+    //   skipDryRun: true
+    // },
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port
