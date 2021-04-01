@@ -6,17 +6,11 @@
 ## How to run?
 ## Installation
  - `yarn`
-## Custom shorthands:
- - `yarn c`: compile
- - `yarn t`: test on default network
- - `yarn l`: test on local hardhat node
- - `yarn k`: test on kovan network
- - `yarn 1`: task 1 on kovan network
-## hh shorthands:
- - `hh compile`: compile 
- - `hh test`: test on default network
- - `hh test --network kovan`
- - `hh test --network hardhat`
+## Commands:
+ - `yarn compile`
+ - `yarn test`
+ - `yarn test`
+ - `yarn verify`
 
 ## Description
  - Deposit process(test)

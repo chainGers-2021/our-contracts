@@ -5,7 +5,8 @@
   "scripts": {
     "compile": "truffle compile",
     "test": "truffle test",
-    "migrate": "truffle migrate --reset --network fork"
+    "migrate": "truffle migrate --reset --network fork",
+    "verify": "truffle run verify Mushroom --network kovan --license MIT"
   },
   "repository": {
     "type": "git",
