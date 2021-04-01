@@ -3,26 +3,30 @@ pragma solidity >=0.6.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
-import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
-import '@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol';
-import { Datatypes } from '../Libraries/Datatypes.sol';
-import './DonationPools.sol';
-import '../Factory/PrivatePools.sol';
+import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
+import {
+    ILendingPool,
+    ILendingPoolAddressesProvider
+} from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
+import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
+import {Datatypes} from "../Libraries/Datatypes.sol";
+import "./DonationPools.sol";
+import "../Factory/PrivatePools.sol";
 
-contract Comptroller is Ownable
-{
-	using Datatypes for *;
-	using SafeMath for uint256;
+contract Comptroller is Ownable {
+    using Datatypes for *;
+    using SafeMath for uint256;
 
-	address public donationPoolContract;
-	address public privatePoolsContract;
-	address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
-	mapping(string => Datatypes.TokenData) public tokenData;
+    address public donationPoolContract;
+    address public privatePoolsContract;
+    address lendingPoolAddressProvider =
+        0x88757f2f99175387aB4C6a4b3067c77A695b0349;
+    mapping(string => Datatypes.TokenData) public tokenData;
 
     event newTokenAdded(string _symbol, address _token, address _aToken);
 
-    constructor(address _donationPoolContract, address _privatePoolsContract) public
+    constructor(address _donationPoolContract, address _privatePoolsContract)
+        public
     {
         donationPoolContract = _donationPoolContract;
         privatePoolsContract = _privatePoolsContract;
@@ -53,31 +57,29 @@ contract Comptroller is Ownable
         emit newTokenAdded(_symbol, _token, _aToken);
     }
 
-	function depositERC20(
-		string calldata _poolName, 
-		uint256 _amount, 
-		string calldata _tokenSymbol
-	) external 
-	{
-		Datatypes.TokenData memory poolTokenData = tokenData[_tokenSymbol];
-		IERC20 token = IERC20(poolTokenData.token);
-		address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
+    function depositERC20(
+        string calldata _poolName,
+        uint256 _amount,
+        string calldata _tokenSymbol
+    ) external {
+        Datatypes.TokenData memory poolTokenData = tokenData[_tokenSymbol];
+        IERC20 token = IERC20(poolTokenData.token);
+        address lendingPool =
+            ILendingPoolAddressesProvider(lendingPoolAddressProvider)
+                .getLendingPool();
 
-		// Checking if user has allowed this contract to spend
-		require(
+        // Checking if user has allowed this contract to spend
+        require(
             _amount <= token.allowance(msg.sender, address(this)),
             "Amount exceeds allowance limit !"
         );
-		// Transfering tokens into this account
-		require(
+        // Transfering tokens into this account
+        require(
             token.transferFrom(msg.sender, address(this), _amount),
             "Unable to transfer tokens to comptroller !"
         );
-		// Transfering into Lending Pool
-		require(
-            token.approve(lendingPool, _amount), 
-            "Approval failed !"
-        );
+        // Transfering into Lending Pool
+        require(token.approve(lendingPool, _amount), "Approval failed !");
 
         ILendingPool(lendingPool).deposit(
             poolTokenData.token,
@@ -86,54 +88,65 @@ contract Comptroller is Ownable
             0
         );
 
-        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
-		uint256 newScaledDeposit = (_amount.mul(10**27)).div(reserveNormalizedIncome);
+        uint256 reserveNormalizedIncome =
+            ILendingPool(lendingPool).getReserveNormalizedIncome(
+                poolTokenData.token
+            );
+        uint256 newScaledDeposit =
+            (_amount.mul(10**27)).div(reserveNormalizedIncome);
 
-		uint256 donationAmount = DonationPools(donationPoolContract).donate(
-			newScaledDeposit,
-			_tokenSymbol
-		);
+        uint256 donationAmount =
+            DonationPools(donationPoolContract).donate(
+                newScaledDeposit,
+                _tokenSymbol
+            );
 
-		PrivatePools(privatePoolsContract).deposit(
-			_poolName,
-			newScaledDeposit.sub(donationAmount),
-			_tokenSymbol,
-			msg.sender
-		);
-	}
+        PrivatePools(privatePoolsContract).deposit(
+            _poolName,
+            newScaledDeposit.sub(donationAmount),
+            _tokenSymbol,
+            msg.sender
+        );
+    }
 
-	function withdrawERC20(
-		string calldata _poolName, 
-		uint256 _amount
-	) external
-	{
+    function withdrawERC20(string calldata _poolName, uint256 _amount)
+        external
+    {
+        uint256 withdrawalAmount =
+            PrivatePools(privatePoolsContract).withdraw(
+                _poolName,
+                _amount,
+                msg.sender
+            );
 
-		uint256 withdrawalAmount = PrivatePools(privatePoolsContract).withdraw(
-			_poolName, 
-			_amount,
-			msg.sender
-		);
-
-		(,string memory tokenSymbol,bool penalty,,,,,) = PrivatePools(privatePoolsContract).poolNames(_poolName);
+        (, string memory tokenSymbol, bool penalty, , , , , ) =
+            PrivatePools(privatePoolsContract).poolNames(_poolName);
         Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
-		address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
-		
-		// If target price of the pool wasn't achieved, take out the donation amount too.
-		if(penalty)
-		{
-			uint256 donationAmount = DonationPools(donationPoolContract).donate(
-				withdrawalAmount,
-				tokenSymbol
-			);
+        address lendingPool =
+            ILendingPoolAddressesProvider(lendingPoolAddressProvider)
+                .getLendingPool();
+        uint256 reserveNormalizedIncome =
+            ILendingPool(lendingPool).getReserveNormalizedIncome(
+                poolTokenData.token
+            );
 
-			withdrawalAmount = withdrawalAmount.sub(donationAmount);
-		}
-		
-		// Till now withdrawalAmount was scaled down.
-		withdrawalAmount = (withdrawalAmount.mul(reserveNormalizedIncome)).div(10**27);
+        // If target price of the pool wasn't achieved, take out the donation amount too.
+        if (penalty) {
+            uint256 donationAmount =
+                DonationPools(donationPoolContract).donate(
+                    withdrawalAmount,
+                    tokenSymbol
+                );
 
-		// Approving aToken pool
+            withdrawalAmount = withdrawalAmount.sub(donationAmount);
+        }
+
+        // Till now withdrawalAmount was scaled down.
+        withdrawalAmount = (withdrawalAmount.mul(reserveNormalizedIncome)).div(
+            10**27
+        );
+
+        // Approving aToken pool
         require(
             IERC20(poolTokenData.aToken).approve(lendingPool, withdrawalAmount),
             "aToken approval failed !"
@@ -141,34 +154,41 @@ contract Comptroller is Ownable
 
         // Redeeming the aTokens
         ILendingPool(lendingPool).withdraw(
-            poolTokenData.token, 
+            poolTokenData.token,
             withdrawalAmount,
             msg.sender
         );
-	}
+    }
 
-	function withdraw(
-		string calldata _tokenSymbol
-	) external
-	{
-		Datatypes.TokenData memory poolTokenData = tokenData[_tokenSymbol];
-		address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-		uint256 withdrawalAmount = DonationPools(donationPoolContract).withdraw(msg.sender, _tokenSymbol);
-		uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
+    function withdraw(string calldata _tokenSymbol) external {
+        Datatypes.TokenData memory poolTokenData = tokenData[_tokenSymbol];
+        address lendingPool =
+            ILendingPoolAddressesProvider(lendingPoolAddressProvider)
+                .getLendingPool();
+        uint256 withdrawalAmount =
+            DonationPools(donationPoolContract).withdraw(
+                msg.sender,
+                _tokenSymbol
+            );
+        uint256 reserveNormalizedIncome =
+            ILendingPool(lendingPool).getReserveNormalizedIncome(
+                poolTokenData.token
+            );
 
-		withdrawalAmount = (withdrawalAmount.mul(reserveNormalizedIncome)).div(10**27);
+        withdrawalAmount = (withdrawalAmount.mul(reserveNormalizedIncome)).div(
+            10**27
+        );
 
-		require(
+        require(
             IERC20(poolTokenData.aToken).approve(lendingPool, withdrawalAmount),
             "aToken approval failed !"
         );
 
-		// Redeeming the aTokens
+        // Redeeming the aTokens
         ILendingPool(lendingPool).withdraw(
-            poolTokenData.token, 
-            withdrawalAmount, 
+            poolTokenData.token,
+            withdrawalAmount,
             msg.sender
         );
-	}
-	
+    }
 }
