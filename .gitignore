@@ -1,7 +1,8 @@
 *artifacts*
-cache/
-*.txt
-truffle-build
+*cache*
+build
+.env
+.vscode
 
 # Created by .ignore support plugin (hsz.mobi)
 ### VisualStudioCode template
