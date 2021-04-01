@@ -1,8 +1,5 @@
 require("dotenv").config();
 
-const rpc = process.env.RPC == null ? "" : process.env.RPC;
-const privateKey = process.env.PRIVATE_KEY;
-
 const { test1 } = require("./tasks/1");
 const { test2 } = require("./tasks/2");
 const { test4 } = require("./tasks/4");
@@ -21,17 +18,11 @@ task("task4", "runs alchemy forked thing.").setAction(async () => {
   await test4();
 });
 
-
-
 // Configurations
 module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      forking: {
-        url: process.env.ALCHEMY_KEY,
-        blockNumber: 12143770
-      }
     }
   },
   solidity: {
