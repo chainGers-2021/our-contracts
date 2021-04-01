@@ -10,4 +10,6 @@ module.exports = async function (deployer) {
   await deployer.deploy(PrivatePools, await comp.address);
   await deployer.deploy(PublicPools, await comp.address);
   await deployer.deploy(DonationPools, await comp.address);
+
+  console.log("2 finished.");
 };

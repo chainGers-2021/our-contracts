@@ -4,17 +4,13 @@ const PublicPools = artifacts.require("PublicPools");
 const DonationPools = artifacts.require("DonationPools");
 const assert = require("assert");
 
-module.exports = async callback=> {
+module.exports = async (callback) => {
   const comp = await Comptroller.deployed();
   const pvt = await PrivatePools.deployed();
   const pub = await PublicPools.deployed();
   const don = await DonationPools.deployed();
 
-  await comp.setPoolAddresses(
-    pvt.address,
-    pub.address,
-    don.address
-  );
+  await comp.setPoolAddresses(pvt.address, pub.address, don.address);
 
   assert.strictEqual(await comp.donationPoolsContract(), don.address);
   assert.strictEqual(await comp.privatePoolsContract(), pvt.address);

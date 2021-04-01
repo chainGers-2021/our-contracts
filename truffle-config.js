@@ -24,6 +24,15 @@
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+require("dotenv").config();
+
+const k_mnemonic = process.env.k_MNEMONIC;
+const k_url = process.env.k_RPC_URL;
+
+const f_mnemonic = process.env.f_MNEMONIC;
+const f_url = process.env.f_RPC_URL;
+
 module.exports = {
   /**
    * Networks define how you connect to your ethereum client and let you set the
@@ -34,9 +43,6 @@ module.exports = {
    *
    * $ truffle test --network <network-name>
    */
-  
-  contracts_build_directory: "truffle-build",
-  migrations_directory: "truffle-migrations",
 
   networks: {
     // Useful for testing. The `development` name is special - truffle uses it by default
@@ -44,10 +50,26 @@ module.exports = {
     // You should run a client (like ganache-cli, geth or parity) in a separate terminal
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
+    //
+    fork: {
+      provider: () => {
+        return new HDWalletProvider(f_mnemonic, f_url);
+      },
+      network_id: 22, // Any network (default: none)
+      skipDryRun: true,
+    },
+    kovan: {
+      provider: () => {
+        return new HDWalletProvider(k_mnemonic, k_url)
+      },
+      network_id: '42',
+      skipDryRun: true
+    },
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port
     // network_id: 1342,       // Custom network
+    // gas: 8500000,           // Gas sent with each transaction (default: ~6700000)
     // gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
     // from: <address>,        // Account to send txs from (default: accounts[0])
     // websocket: true        // Enable EventEmitter interface for web3 (default: false)
@@ -78,7 +100,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.6.12",    // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.6.12", // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
       // settings: {          // See the solidity docs for advice about optimization and evmVersion
       //  optimizer: {
@@ -87,7 +109,7 @@ module.exports = {
       //  },
       //  evmVersion: "byzantium"
       // }
-    }
+    },
   },
 
   // Truffle DB is currently disabled by default; to enable it, change enabled: false to enabled: true
@@ -97,6 +119,6 @@ module.exports = {
   // $ truffle migrate --reset --compile-all
 
   db: {
-    enabled: false
-  }
+    enabled: false,
+  },
 };
