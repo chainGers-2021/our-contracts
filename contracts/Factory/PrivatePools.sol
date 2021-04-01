@@ -76,7 +76,7 @@ contract PrivatePools is IPools, Ownable
         string calldata _symbol,
         string calldata _poolName,
         uint256 _targetPrice,
-        address _accountAddress
+        address _poolAccountAddress // For invitation purpose
     ) external override 
     {
         (, , , address priceFeed, uint8 decimals) =
@@ -106,7 +106,7 @@ contract PrivatePools is IPools, Ownable
         newPool.poolName = _poolName;
         newPool.owner = msg.sender;
         newPool.symbol = _symbol;
-        newPool.accountAddress = _accountAddress;
+        newPool.accountAddress = _poolAccountAddress;
         newPool.targetPrice = _targetPrice;
         newPool.active = true;
         newPool.poolScaledAmount = 0;

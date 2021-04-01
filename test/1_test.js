@@ -11,10 +11,15 @@ const aLinkTokenAddress = kovan[6].aTokenAddress;
 const Token = require("@aave/protocol-v2/artifacts/@openzeppelin/contracts/token/ERC20/IERC20.sol/IERC20.json");
 const tokenABI = Token.abi;
 const inWei = 10 ** 18;
-const lendingPoolAddressProvider = "0x88757f2f99175387ab4c6a4b3067c77a695b0349";
-const pool = "0xE0fBa4Fc209b4948668006B2bE61711b7f465bAe";
+
+
+const lendingPoolAddressProvider = "0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5";
+const poolAddress = "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9";
+
+
 const compiledILendingPool = require("@aave/protocol-v2/artifacts/contracts/interfaces/ILendingPool.sol/ILendingPool.json");
 const compiledIScaledBalanceToken = require("@aave/protocol-v2/artifacts/contracts/interfaces/IScaledBalanceToken.sol/IScaledBalanceToken.json");
+
 
 beforeEach(async () => {
   accounts = await web3.eth.getAccounts();
@@ -42,7 +47,6 @@ beforeEach(async () => {
       currentBalance = res;
     });
 
-  // process.exit(0);
 
   // Deploying Factory
   compiledFactoryV2 = await hre.artifacts.readArtifact("PrivatePools");

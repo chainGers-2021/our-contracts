@@ -25,25 +25,15 @@ contract Comptroller is Ownable
 
     event newTokenAdded(string _symbol, address _token, address _aToken);
 
-    // constructor(
-    //     address _donationPoolsContract, 
-    //     address _privatePoolsContract,
-    //     address _publicPoolsContract
-    // ) public
-    // {
-    //     donationPoolsContract = _donationPoolsContract;
-    //     privatePoolsContract = _privatePoolsContract;
-    //     publicPoolsContract = _publicPoolsContract;
-    // }
-    constructor() public
+    function setPoolAddresses(
+        address _privatePoolsContract,
+        address _publicPoolsContract,
+        address _donationPoolsContract
+    ) external onlyOwner 
     {
-        PrivatePools newPrivatePools = new PrivatePools(address(this));
-        PublicPools newPublicPools = new PublicPools(address(this));
-        DonationPools newDonationPools = new DonationPools(address(this));
-
-        privatePoolsContract = address(newPrivatePools);
-        publicPoolsContract = address(newPublicPools);
-        donationPoolsContract = address(newDonationPools);
+        privatePoolsContract = _privatePoolsContract;
+        publicPoolsContract = _publicPoolsContract;
+        donationPoolsContract = _donationPoolsContract;
     }
 
     function addTokenData(
