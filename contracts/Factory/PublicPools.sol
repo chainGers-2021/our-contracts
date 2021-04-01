@@ -60,20 +60,7 @@ contract PublicPools is IPools, Ownable
         _;
     }
 
-    function setComptroller(address _comptroller) external onlyOwner 
-    {
-        comptrollerContract = _comptroller;
-    }
-
-    function priceFeedData(address _aggregatorAddress)
-        internal
-        view
-        returns (int256)
-    {
-        (, int256 price, , , ) = AggregatorV3Interface(_aggregatorAddress).latestRoundData();
-
-        return price;
-    }
+    
 
     function calculateWithdrawalAmount(
         string calldata _poolName,
@@ -242,6 +229,21 @@ contract PublicPools is IPools, Ownable
         return (_amount);
     }
 
+    function setComptroller(address _comptroller) external onlyOwner 
+    {
+        comptrollerContract = _comptroller;
+    }
+
+    function priceFeedData(address _aggregatorAddress)
+        internal
+        view
+        returns (int256)
+    {
+        (, int256 price, , , ) = AggregatorV3Interface(_aggregatorAddress).latestRoundData();
+
+        return price;
+    }
+    
     // Functions for testing
     function checkOwner() external view returns (address) {
         return owner();

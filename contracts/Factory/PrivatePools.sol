@@ -6,10 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/cryptography/ECDSA.sol";
-import {
-    ILendingPool,
-    ILendingPoolAddressesProvider
-} from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
+import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
 import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import { Datatypes } from '../Libraries/Datatypes.sol';
@@ -34,7 +31,8 @@ contract PrivatePools is IPools, Ownable
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
     mapping(string => Datatypes.PrivatePool) public poolNames;
 
-    modifier checkAccess(string calldata _poolName) {
+    modifier checkAccess(string calldata _poolName) 
+    {
         Datatypes.PrivatePool storage pool = poolNames[_poolName];
         (, , , address priceFeed, uint8 decimals) =
             Comptroller(comptrollerContract).tokenData(pool.symbol);
@@ -69,58 +67,15 @@ contract PrivatePools is IPools, Ownable
         comptrollerContract = _comptroller;
     }
 
-    function priceFeedData(address _aggregatorAddress)
-        internal
-        view
-        returns (int256)
-    {
-        (, int256 price, , , ) =
-            AggregatorV3Interface(_aggregatorAddress).latestRoundData();
-
-        return price;
-    }
-
-    function calculateWithdrawalAmount(
-        string calldata _poolName,
-        uint256 _amount
-    ) internal returns (uint256) {
-        uint256 rewardScaledAmount =
-            (_amount.mul(poolNames[_poolName].rewardScaledAmount)).div(
-                poolNames[_poolName].poolScaledAmount
-            );
-        poolNames[_poolName].rewardScaledAmount = poolNames[_poolName]
-            .rewardScaledAmount
-            .sub(rewardScaledAmount);
-        poolNames[_poolName].poolScaledAmount = poolNames[_poolName]
-            .poolScaledAmount
-            .sub(_amount); // Test whether only _amount needs to be subtracted.
-        poolNames[_poolName].userScaledDeposits[msg.sender] = poolNames[
-            _poolName
-        ]
-            .userScaledDeposits[msg.sender]
-            .sub(_amount);
-
-        if (poolNames[_poolName].active) {
-            uint256 withdrawalFeeAmount =
-                ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER)).div(
-                    10**4
-                );
-
-            _amount = _amount.sub(withdrawalFeeAmount);
-            poolNames[_poolName].rewardScaledAmount = poolNames[_poolName]
-                .rewardScaledAmount
-                .add(withdrawalFeeAmount);
-        }
-
-        return _amount;
-    }
+    
 
     function createPool(
-        string memory _symbol,
-        string memory _poolName,
+        string calldata _symbol,
+        string calldata _poolName,
         uint256 _targetPrice,
         address _accountAddress
-    ) external override {
+    ) external override 
+    {
         (, , , address priceFeed, uint8 decimals) =
             Comptroller(comptrollerContract).tokenData(_symbol);
 
@@ -167,7 +122,8 @@ contract PrivatePools is IPools, Ownable
         string calldata _poolName,
         bytes32 _messageHash,
         bytes calldata _signature
-    ) external {
+    ) external 
+    {
         Datatypes.PrivatePool storage pool = poolNames[_poolName];
 
         require(
@@ -193,7 +149,8 @@ contract PrivatePools is IPools, Ownable
         uint256 _scaledAmount,
         string calldata _tokenSymbol,
         address _sender
-    ) external override checkAccess(_poolName) {
+    ) external override checkAccess(_poolName) 
+    {
         Datatypes.PrivatePool storage pool = poolNames[_poolName];
 
         require(
@@ -286,6 +243,53 @@ contract PrivatePools is IPools, Ownable
         );
 
         return (_amount);
+    }
+
+    function priceFeedData(address _aggregatorAddress)
+        internal
+        view
+        returns (int256)
+    {
+        (, int256 price, , , ) =
+            AggregatorV3Interface(_aggregatorAddress).latestRoundData();
+
+        return price;
+    }
+
+    function calculateWithdrawalAmount(
+        string calldata _poolName,
+        uint256 _amount
+    ) internal returns (uint256) 
+    {
+        uint256 rewardScaledAmount =
+            (_amount.mul(poolNames[_poolName].rewardScaledAmount)).div(
+                poolNames[_poolName].poolScaledAmount
+            );
+        poolNames[_poolName].rewardScaledAmount = poolNames[_poolName]
+            .rewardScaledAmount
+            .sub(rewardScaledAmount);
+        poolNames[_poolName].poolScaledAmount = poolNames[_poolName]
+            .poolScaledAmount
+            .sub(_amount); // Test whether only _amount needs to be subtracted.
+        poolNames[_poolName].userScaledDeposits[msg.sender] = poolNames[
+            _poolName
+        ]
+            .userScaledDeposits[msg.sender]
+            .sub(_amount);
+
+        if (poolNames[_poolName].active) {
+            uint256 withdrawalFeeAmount =
+                ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER)).div(
+                    10**4
+                );
+
+            _amount = _amount.sub(withdrawalFeeAmount);
+            poolNames[_poolName].rewardScaledAmount = poolNames[_poolName]
+                .rewardScaledAmount
+                .add(withdrawalFeeAmount);
+        }
+
+        return _amount;
     }
 
     // Functions for testing
