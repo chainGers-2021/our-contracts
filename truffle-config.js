@@ -62,7 +62,7 @@ module.exports = {
           },
           providerOrUrl: f_url
         }),
-      network_id: 22, // Any network (default: none)
+      network_id: 1,
     },
     kovan: {
       provider: () =>

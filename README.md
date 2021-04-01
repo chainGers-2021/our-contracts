@@ -72,7 +72,7 @@ Done in 74.77s.
 ```
 
 ## Instructions for mainnet forking
-  - `ganache-cli --fork https://eth-mainnet.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA -i 22`
+  - `ganache-cli --fork https://eth-mainnet.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA -d`
   - Paste seed phrase in `.env` file
   - In another terminal:
   - `truffle migrate --reset --network fork`
