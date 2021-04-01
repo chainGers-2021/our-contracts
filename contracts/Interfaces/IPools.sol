@@ -2,7 +2,7 @@
 pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
-import { Datatypes } from '../Libraries/Datatypes.sol';
+import {Datatypes} from "../Libraries/Datatypes.sol";
 
 interface IPools {
     event newTokenAdded(string _symbol, address _token, address _aToken);
@@ -41,7 +41,7 @@ interface IPools {
         uint256 _amount,
         uint256 _timeStamp
     );
-    
+
     function createPool(
         string calldata _symbol,
         string calldata _poolName,
@@ -57,7 +57,8 @@ interface IPools {
     ) external;
 
     function withdraw(
-        string calldata _poolName, 
-        uint256 _amount, 
-        address _sender) external returns(uint256);
+        string calldata _poolName,
+        uint256 _amount,
+        address _sender
+    ) external returns (uint256);
 }
