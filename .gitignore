@@ -1,6 +1,6 @@
 *artifacts*
 *cache*
-build
+*build*
 .env
 .vscode
 

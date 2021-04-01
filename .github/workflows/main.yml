@@ -13,5 +13,4 @@ jobs:
         with:
           node-version: "12.x"
       - run: npm i
-      - run: npx hardhat compile
       - run: npx truffle compile
