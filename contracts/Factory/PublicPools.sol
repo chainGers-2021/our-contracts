@@ -11,6 +11,7 @@ import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import { Datatypes } from '../Libraries/Datatypes.sol';
 import '../Pools/Comptroller.sol';
+import '../Interfaces/IPools.sol';
 
 /***
  * Factory Contract for creating private pools

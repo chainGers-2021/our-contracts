@@ -9,6 +9,8 @@ import '@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol';
 import { Datatypes } from '../Libraries/Datatypes.sol';
 import './DonationPools.sol';
 import '../Factory/PrivatePools.sol';
+import '../Factory/PublicPools.sol';
+
 
 contract Comptroller is Ownable
 {
@@ -104,17 +106,33 @@ contract Comptroller is Ownable
 
 	function withdrawERC20(
 		string calldata _poolName, 
-		uint256 _amount
+		uint256 _amount,
+		bool _typePrivate // If false => PublicPool and if true => PrivatePool
 	) external
 	{
+		string memory tokenSymbol;
+		bool penalty;
+		uint256 withdrawalAmount;
 
-		uint256 withdrawalAmount = PrivatePools(privatePoolsContract).withdraw(
-			_poolName, 
-			_amount,
-			msg.sender
-		);
-
-		(,string memory tokenSymbol,bool penalty,,,,,) = PrivatePools(privatePoolsContract).poolNames(_poolName);
+		if(_typePrivate)
+		{
+			withdrawalAmount = PrivatePools(privatePoolsContract).withdraw(
+				_poolName, 
+				_amount,
+				msg.sender
+			);
+			(,tokenSymbol,penalty,,,,,) = PrivatePools(privatePoolsContract).poolNames(_poolName);
+		}
+		else
+		{
+			withdrawalAmount = PublicPools(privatePoolsContract).withdraw(
+				_poolName, 
+				_amount,
+				msg.sender
+			);
+			(,tokenSymbol,penalty,,,,,) = PublicPools(privatePoolsContract).poolNames(_poolName);
+		}
+		
         Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
 		address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
         uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
@@ -126,7 +144,6 @@ contract Comptroller is Ownable
 				withdrawalAmount,
 				tokenSymbol
 			);
-
 			withdrawalAmount = withdrawalAmount.sub(donationAmount);
 		}
 		
@@ -147,7 +164,8 @@ contract Comptroller is Ownable
         );
 	}
 
-	function withdraw(
+	// This function is for the Recipients (NGOs)
+	function withdrawDonation(
 		string calldata _tokenSymbol
 	) external
 	{
