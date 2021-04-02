@@ -77,7 +77,7 @@ contract PrivatePools is IPools, Ownable
         string calldata _poolName,
         uint256 _targetPrice,
         address _poolAccountAddress // For invitation purpose
-    ) external override 
+    ) external
     {
         (, , , address priceFeed, uint8 decimals) =
             Comptroller(comptrollerContract).tokenData(_symbol);
@@ -95,11 +95,12 @@ contract PrivatePools is IPools, Ownable
                 keccak256(abi.encode(_poolName)),
             "Pool name already taken !"
         );
-        require(
-            _targetPrice >
-                uint256(priceFeedData(priceFeed)).div(10**uint256(decimals)),
-            "Target price is lesser than current price"
-        );
+        // Disabled for testing
+        // require(
+        //     _targetPrice >
+        //         uint256(priceFeedData(priceFeed)).div(10**uint256(decimals)),
+        //     "Target price is lesser than current price"
+        // );
 
         Datatypes.PrivatePool storage newPool = poolNames[_poolName];
 

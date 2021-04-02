@@ -47,12 +47,12 @@ interface IPools {
         uint256 _timestamp
     );
 
-    function createPool(
-        string calldata _symbol,
-        string calldata _poolName,
-        uint256 _targetPrice,
-        address _accountAddress
-    ) external;
+    // function createPool(
+    //     string calldata _symbol,
+    //     string calldata _poolName,
+    //     uint256 _targetPrice,
+    //     address _poolAccountAddress
+    // ) external;
 
     function deposit(
         string calldata _poolName,

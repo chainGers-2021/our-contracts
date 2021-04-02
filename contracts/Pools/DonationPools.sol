@@ -35,6 +35,11 @@ contract DonationPools is Ownable {
         string indexed _organisationName,
         uint256 _timestamp
     );
+    event recipientReactivated(
+        address indexed _recipient,
+        string indexed _organisationName,
+        uint256 _timestamp
+    );
     event recipientDeactivated(
         address indexed _recipient,
         string indexed _organisationName,
@@ -59,10 +64,6 @@ contract DonationPools is Ownable {
         comptrollerContract = _comptrollerContract;
     }
 
-    // function setComptroller(address _comptrollerAddress) external onlyOwner {
-    //     comptrollerContract = _comptrollerAddress;
-    // }
-
     function addRecipient(address _recipient, string calldata _organisationName)
         external
         onlyOwner
@@ -70,17 +71,40 @@ contract DonationPools is Ownable {
         Recipient storage newRecipient = recipients[_recipient];
 
         newRecipient.organisationName = _organisationName;
-        newRecipient.active = false;
+        newRecipient.active = true;
+        ++numRecipients;
 
         emit newRecipientAdded(
-            msg.sender,
+            _recipient,
             newRecipient.organisationName,
             block.timestamp
         );
     }
 
+    function reActivateRecipient(address _recipient) external onlyOwner {
+        require(
+            recipients[_recipient].active == false,
+            "Recipient already activated"
+        );
+
+        recipients[_recipient].active = true;
+        ++numRecipients;
+
+        emit recipientReactivated(
+            _recipient, 
+            recipients[_recipient].organisationName, 
+            block.timestamp
+        );
+    }
+
     function deactivateRecipient(address _recipient) external onlyOwner {
+        require(
+            recipients[_recipient].active == true,
+            "Recipient already deactivated"
+        );
+
         recipients[_recipient].active = false;
+        --numRecipients;
 
         emit recipientDeactivated(
             _recipient,
@@ -130,5 +154,11 @@ contract DonationPools is Ownable {
         );
 
         return withdrawalScaledAmount;
+    }
+
+    // Functions for testin
+    function isOwner(address _admin) external view returns(bool)
+    {
+        return owner() == _admin;
     }
 }

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity >=0.6.0;
 
+
 contract Verification {
     address public accountAddress;
     mapping(bytes32 => bool) public signs;

@@ -72,9 +72,8 @@ contract PublicPools is IPools, Ownable
     function createPool(
         string memory _symbol,
         string memory _poolName,
-        uint256 _targetPrice,
-        address _accountAddress
-    ) external override onlyOwner {
+        uint256 _targetPrice
+    ) external onlyOwner {
         (, , , address priceFeed, uint8 decimals) =
             Comptroller(comptrollerContract).tokenData(_symbol);
 
@@ -91,18 +90,18 @@ contract PublicPools is IPools, Ownable
                 keccak256(abi.encode(_poolName)),
             "Pool name already taken !"
         );
-        require(
-            _targetPrice >
-                uint256(priceFeedData(priceFeed)).div(10**uint256(decimals)),
-            "Target price is lesser than current price"
-        );
+        // Disabled for testing
+        // require(
+        //     _targetPrice >
+        //         uint256(priceFeedData(priceFeed)).div(10**uint256(decimals)),
+        //     "Target price is lesser than current price"
+        // );
 
         Datatypes.PublicPool storage newPool = poolNames[_poolName];
 
         newPool.poolName = _poolName;
         newPool.owner = msg.sender;
         newPool.symbol = _symbol;
-        newPool.accountAddress = _accountAddress;
         newPool.targetPrice = _targetPrice;
         newPool.active = true;
         newPool.poolScaledAmount = 0;

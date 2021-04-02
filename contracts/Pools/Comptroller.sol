@@ -48,14 +48,13 @@ contract Comptroller is Ownable
             "Token data already present !"
         );
 
-        Datatypes.TokenData memory newTokenData;
+        Datatypes.TokenData storage newTokenData = tokenData[_symbol];
 
         newTokenData.symbol = _symbol;
         newTokenData.token = _token;
         newTokenData.aToken = _aToken;
         newTokenData.priceFeed = _priceFeed;
         newTokenData.decimals = _decimals;
-        tokenData[_symbol] = newTokenData;
 
         emit newTokenAdded(_symbol, _token, _aToken);
     }
@@ -64,7 +63,7 @@ contract Comptroller is Ownable
         string calldata _poolName,
         uint256 _amount,
         string calldata _tokenSymbol,
-        bool _typePrivate
+        bool _typePrivate // If false => PublicPool
     ) external 
     {
         Datatypes.TokenData memory poolTokenData = tokenData[_tokenSymbol];
