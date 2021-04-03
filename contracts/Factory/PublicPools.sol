@@ -69,6 +69,10 @@ contract PublicPools is IPools, Ownable
         comptrollerContract = _comptrollerContract;
     }
 
+    function getComptrollerContractAddress() public view returns(address){
+        return comptrollerContract;
+    }
+
     function createPool(
         string memory _symbol,
         string memory _poolName,
@@ -120,7 +124,7 @@ contract PublicPools is IPools, Ownable
         uint256 _scaledAmount,
         string calldata _tokenSymbol,
         address _sender
-    ) external override checkAccess(_poolName) 
+    ) external override onlyComptroller checkAccess (_poolName) 
     {
         Datatypes.PublicPool storage pool = poolNames[_poolName];
 
