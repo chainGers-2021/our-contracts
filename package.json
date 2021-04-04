@@ -9,7 +9,7 @@
     "verify": "truffle run verify Mushroom --network kovan --license MIT",
     "ganache": "ganache-cli --unlock -d -v -f https://eth-kovan.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA",
     "script2": "truffle exec scripts/2_task_CreatePools.js --network fork",
-    "adv": "concurrently \"yarn ganache\" \"yarn test && yarn kill\"",
+    "adv": "concurrently \"yarn ganache>/dev/null\" \"yarn test && yarn kill\"",
     "kill": "kill $(lsof -t -i:8545)"
   },
   "repository": {
