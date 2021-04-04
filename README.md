@@ -78,3 +78,8 @@ Done in 74.77s.
   - `Let all the 10 users withdraw their tokens`
   - `Check their scaled balances after withdrawing`
   - `Check if the final returned amount is greater than initial deposit amount`
+
+Comp: https://kovan.etherscan.io/address/0x8D9bc3b6Ee6b7BfeAA323c1d11715e852F7767d5
+pvt: https://kovan.etherscan.io/address/0xe991d6184DC0195b45DFfe3dAAead91f399D5c9F
+pub: https://kovan.etherscan.io/address/0xBF2214621AE6F123B801D22ba1C59bCA33bA299F
+don: https://kovan.etherscan.io/address/0xC9420621CC14BdA1B5E502584f7302bd98ff0D62

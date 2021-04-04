@@ -174,12 +174,12 @@ contract Comptroller is Ownable
             "aToken approval failed !"
         );
 
-        // Redeeming the aTokens
-        ILendingPool(lendingPool).withdraw(
-            poolTokenData.token,
-            withdrawalAmount,
-            msg.sender
-        );
+    //     // Redeeming the aTokens
+    //     ILendingPool(lendingPool).withdraw(
+    //         poolTokenData.token,
+    //         withdrawalAmount,
+    //         msg.sender
+    //     );
 	}
 
 	// This function is for the Recipients (NGOs)
@@ -206,4 +206,7 @@ contract Comptroller is Ownable
             msg.sender
         );
 	}
+
+    // Functions for testing
+    
 }

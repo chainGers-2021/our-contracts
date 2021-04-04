@@ -60,16 +60,16 @@ module.exports = {
         }),
       network_id: 42,
     },
-    kovan: {
-      provider: () =>
-        new HDWalletProvider({
-          mnemonic: {
-            phrase: k_mnemonic,
-          },
-          providerOrUrl: k_url,
-        }),
-      network_id: 42, // Any network (default: none)
-    },
+    // kovan: {
+    //   provider: () =>
+    //     new HDWalletProvider({
+    //       mnemonic: {
+    //         phrase: k_mnemonic,
+    //       },
+    //       providerOrUrl: k_url,
+    //     }),
+    //   network_id: 42, // Any network (default: none)
+    // },
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port

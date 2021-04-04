@@ -13,6 +13,7 @@ import { Datatypes } from '../Libraries/Datatypes.sol';
 import '../Pools/Comptroller.sol';
 import '../Interfaces/IPools.sol';
 
+
 /***
  * Factory Contract for creating private pools
  * @author Chinmay Vemuri
@@ -31,43 +32,51 @@ contract PublicPools is IPools, Ownable
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
     mapping(string => Datatypes.PublicPool) public poolNames;
 
-    uint256 constant CURR_PRICE = 100; // For testing
+    uint256 constant CURR_PRICE = 1; // For testing
 
-    modifier changeStatus(string calldata _poolName)
+    modifier checkPoolName(string calldata _poolName)
     {
-        Datatypes.PublicPool storage pool = poolNames[_poolName];
-        (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
-
-        // Disabled for testing
-        /*if (
-            pool.active &&
-            pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
-        ) { pool.active = false; }*/
-
-        // Only for testing
-        if (
-            pool.active &&
-            pool.targetPrice <= CURR_PRICE
-        ) { pool.active = false; }
-        _;
-    }
-
-    modifier checkAccess(string calldata _poolName) 
-    {
-        Datatypes.PublicPool storage pool = poolNames[_poolName];
-        (, , , address priceFeed, uint8 decimals) =
-            Comptroller(comptrollerContract).tokenData(pool.symbol);
-
         require(
-            keccak256(abi.encode(_poolName)) != keccak256(" "),
+            keccak256(abi.encode(_poolName)) != keccak256(""),
             "Pool name can't be empty !"
         );
-        require(
-            poolNames[_poolName].active, 
-            "Pool not active !"
-        );
         _;
     }
+    // modifier changeStatus(string calldata _poolName)
+    // {
+    //     Datatypes.PublicPool storage pool = poolNames[_poolName];
+    //     (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
+
+    //     // Disabled for testing
+    //     /*if (
+    //         pool.active &&
+    //         pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
+    //     ) { pool.active = false; }*/
+
+    //     // Only for testing
+    //     if (
+    //         pool.active &&
+    //         pool.targetPrice <= CURR_PRICE
+    //     ) { pool.active = false; }
+    //     _;
+    // }
+
+    // modifier checkAccess(string calldata _poolName) 
+    // {
+    //     Datatypes.PublicPool storage pool = poolNames[_poolName];
+    //     (, , , address priceFeed, uint8 decimals) =
+    //         Comptroller(comptrollerContract).tokenData(pool.symbol);
+
+    //     require(
+    //         keccak256(abi.encode(_poolName)) != keccak256(" "),
+    //         "Pool name can't be empty !"
+    //     );
+    //     require(
+    //         poolNames[_poolName].active, 
+    //         "Pool not active !"
+    //     );
+    //     _;
+    // }
 
     modifier onlyComptroller 
     {
@@ -82,20 +91,20 @@ contract PublicPools is IPools, Ownable
     }
 
     function createPool(
-        string memory _symbol,
-        string memory _poolName,
+        string calldata _symbol,
+        string calldata _poolName,
         uint256 _targetPrice
-    ) external onlyOwner {
+    ) 
+        external
+        checkPoolName(_poolName) 
+        onlyOwner 
+    {
         (, , , address priceFeed, uint8 decimals) =
             Comptroller(comptrollerContract).tokenData(_symbol);
 
         require(
             keccak256(abi.encode(_symbol)) != keccak256(""),
             "Token symbol can't be empty !"
-        );
-        require(
-            keccak256(abi.encode(_poolName)) != keccak256(""),
-            "Pool name can't be empty !"
         );
         require(
             keccak256(abi.encode(poolNames[_poolName].poolName)) !=
@@ -127,6 +136,8 @@ contract PublicPools is IPools, Ownable
         );
     }
 
+    
+
     function deposit(
         string calldata _poolName,
         uint256 _scaledAmount,
@@ -135,12 +146,18 @@ contract PublicPools is IPools, Ownable
     ) 
         external 
         override 
+        checkPoolName(_poolName)
         onlyComptroller 
-        // changeStatus(_poolName) 
-        checkAccess (_poolName) 
     {
         Datatypes.PublicPool storage pool = poolNames[_poolName];
 
+        if(pool.active)
+            checkPoolBreak(_poolName);
+
+        require(
+            poolNames[_poolName].active, 
+            "Pool not active !"
+        );
         require(
             keccak256(abi.encode(_tokenSymbol)) == keccak256(abi.encode(pool.symbol)),
             "Deposit token doesn't match pool token !"
@@ -149,7 +166,12 @@ contract PublicPools is IPools, Ownable
         pool.userScaledDeposits[_sender] = pool.userScaledDeposits[_sender].add(_scaledAmount);
         pool.poolScaledAmount = pool.poolScaledAmount.add(_scaledAmount);
 
-        emit newDeposit(_poolName, _sender, _scaledAmount, block.timestamp);
+        emit newDeposit(
+            _poolName, 
+            _sender, 
+            _scaledAmount, 
+            block.timestamp
+        );
         emit totalUserScaledDeposit(
             _poolName,
             _sender,
@@ -171,14 +193,14 @@ contract PublicPools is IPools, Ownable
         external
         override
         onlyComptroller
-        changeStatus(_poolName)
+        checkPoolName(_poolName)
         returns (uint256)
     {
         uint256 reserveNormalizedIncome;
-        require(
-            keccak256(abi.encode(_poolName)) != keccak256(""),
-            "Pool name can't be empty !"
-        );
+
+        if(poolNames[_poolName].active)
+            checkPoolBreak(_poolName);
+
         // Scoping out the variables to avoid stack too deep errors
         {
             (, address token, , , ) = Comptroller(comptrollerContract).tokenData(poolNames[_poolName].symbol);
@@ -229,10 +251,10 @@ contract PublicPools is IPools, Ownable
         return (_amount);
     }
 
-    function changeStatus(string calldata _poolName) external returns(bool)
+    function checkPoolBreak(string calldata _poolName) internal
     {
         Datatypes.PublicPool storage pool = poolNames[_poolName];
-        (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
+        // (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
 
         // Disabled for testing
         /*if (
@@ -253,14 +275,12 @@ contract PublicPools is IPools, Ownable
         address _sender
     ) internal returns(uint256) 
     {
-        uint256 rewardScaledAmount = (_amount.mul(poolNames[_poolName].rewardScaledAmount))
-                                        .div(poolNames[_poolName].poolScaledAmount);
+        uint256 rewardScaledAmount = (_amount.mul(poolNames[_poolName].rewardScaledAmount)).div(poolNames[_poolName].poolScaledAmount);
         poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount.sub(rewardScaledAmount);
         poolNames[_poolName].poolScaledAmount = poolNames[_poolName].poolScaledAmount.sub(_amount); // Test whether only _amount needs to be subtracted.
-        poolNames[_poolName].userScaledDeposits[_sender] = poolNames[_poolName].userScaledDeposits[_sender]
-                                                            .sub(_amount);
+        poolNames[_poolName].userScaledDeposits[_sender] = poolNames[_poolName].userScaledDeposits[_sender].sub(_amount);
 
-        if (poolNames[_poolName].active) 
+        if(poolNames[_poolName].active) 
         {
             uint256 withdrawalFeeAmount = ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER))
                                             .div(10**4);
@@ -284,9 +304,8 @@ contract PublicPools is IPools, Ownable
     }
     
     // Functions for testing
-    function changePoolBreak(string calldata _poolName) external onlyOwner {
-        Datatypes.PublicPool storage pool = poolNames[_poolName];
-        pool.targetPrice = 0;
+    function breakPool(string calldata _poolName) external onlyOwner {
+        poolNames[_poolName].targetPrice = 0;
     }
 
     function checkOwner() external view returns (address) {
