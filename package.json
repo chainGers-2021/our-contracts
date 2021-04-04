@@ -7,8 +7,10 @@
     "test": "truffle test",
     "migrate": "truffle migrate --reset --network fork",
     "verify": "truffle run verify Mushroom --network kovan --license MIT",
-    "ganache": "ganache-cli -d -v -f https://eth-kovan.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA",
-    "script2": "truffle exec scripts/2_task_CreatePools.js --network fork"
+    "ganache": "ganache-cli --unlock -d -v -f https://eth-kovan.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA",
+    "script2": "truffle exec scripts/2_task_CreatePools.js --network fork",
+    "adv": "concurrently \"yarn ganache\" \"yarn test && yarn kill\"",
+    "kill": "kill $(lsof -t -i:8545)"
   },
   "repository": {
     "type": "git",
@@ -25,6 +27,7 @@
     "@chainlink/contracts": "^0.1.6",
     "@openzeppelin/contracts": "^3.4.1",
     "@truffle/hdwallet-provider": "^1.2.6",
+    "concurrently": "^6.0.0",
     "dotenv": "^8.2.0",
     "erc1155-nft-token-and-holder": "https://github.com/chainGers-2021/ERC1155-holder-distributor.git",
     "ganache-cli": "^6.12.2",
