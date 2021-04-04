@@ -45,10 +45,11 @@ contract PublicPools is IPools, Ownable
             "Pool name can't be empty !"
         );
 
-        if (
+        // Disabled for testing
+        /*if (
             pool.active &&
             pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
-        ) { pool.active = false; }
+        ) { pool.active = false; }*/
 
         require(poolNames[_poolName].active, "Pool not active !");
         _;

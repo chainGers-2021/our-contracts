@@ -50,7 +50,7 @@ module.exports = {
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
     //
-    fork:{
+    development:{
       provider: () =>
         new HDWalletProvider({
           mnemonic: {

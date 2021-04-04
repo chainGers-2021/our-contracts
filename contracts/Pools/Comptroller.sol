@@ -81,7 +81,10 @@ contract Comptroller is Ownable
             "Unable to transfer tokens to comptroller !"
         );
         // Transfering into Lending Pool
-        require(token.approve(lendingPool, _amount), "Approval failed !");
+        require(
+            token.approve(lendingPool, _amount), 
+            "Approval failed !"
+        );
 
         ILendingPool(lendingPool).deposit(
             poolTokenData.token,
