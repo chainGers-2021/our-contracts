@@ -39,6 +39,10 @@ contract("~our-contracts~", async (accounts) => {
       "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c",
       8
     );
+
+    for(i=1;i<10;i++){
+      await link.transfer(accounts[i], toWei(10));
+    }
   });
   
   it("user1 Deposited 1 LINK", async () => {
@@ -52,5 +56,8 @@ contract("~our-contracts~", async (accounts) => {
     tx2 = await comp.depositERC20("Test1", toWei(1), "LINK", false, { from: admin });
 
     console.log("User scaled amount: ", (await pub.getPoolScaledAmount("Test1")).toString());
+
+
   });
+
 });
