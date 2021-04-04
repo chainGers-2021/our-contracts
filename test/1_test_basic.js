@@ -40,24 +40,45 @@ contract("~our-contracts~", async (accounts) => {
       8
     );
 
-    for(i=1;i<10;i++){
-      await link.transfer(accounts[i], toWei(10));
-    }
-  });
-  
-  it("user1 Deposited 1 LINK", async () => {
-    // creating pool
+    // Creating public pool
     await pub.createPool("LINK", "Test1", 45, {
       from: admin,
     });
-    
+
+    for(i=1;i<5;i++){
+      await link.transfer(accounts[i], toWei(10));
+      await web3.eth.sendTransaction({to:accounts[i], from:admin, value:toWei("0.5")})
+
+    }
+  });
+  
+  it("allows users to deposit 1 LINK", async () => {
+
     // depositing into a pool
-    tx1 = await link.approve(comp.address, toWei(1), { from: admin });
-    tx2 = await comp.depositERC20("Test1", toWei(1), "LINK", false, { from: admin });
+    for(i=1;i<5;i++){
+      await link.approve(comp.address, toWei(1), { from: accounts[i] });
+      await comp.depositERC20("Test1", toWei(1), "LINK", false, { from: accounts[i] });
+      console.log("User scaled amount: ", (await pub.getUserScaledDeposit("Test1", {from: accounts[i]})).toString());
+    }
 
-    console.log("User scaled amount: ", (await pub.getPoolScaledAmount("Test1")).toString());
+  });
 
+  it("Users should able to withdraw their stake", async() => {
+    // state change
+    await pub.changePoolBreak("Test1", {from: admin});
 
+    // try {
+    //   await link.approve(comp.address, toWei(1), { from: accounts[0] });
+    //   await comp.depositERC20("Test1", toWei(1), "LINK", false, { from: accounts[0] });
+    //   assert(false);
+    // } catch (error) {
+      
+    // }
+    
+    for(i = 1; i<5; ++i){
+      await comp.withdrawERC20("Test1", 0, false, {from: accounts[i]});
+      console.log("User scaled amount: ", (await pub.getUserScaledDeposit("Test1", {from: accounts[i]})).toString());
+    }
   });
 
 });

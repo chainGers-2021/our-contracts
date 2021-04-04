@@ -6,10 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/cryptography/ECDSA.sol";
-import {
-    ILendingPool,
-    ILendingPoolAddressesProvider
-} from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
+import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
 import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import { Datatypes } from '../Libraries/Datatypes.sol';
@@ -34,6 +31,27 @@ contract PublicPools is IPools, Ownable
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
     mapping(string => Datatypes.PublicPool) public poolNames;
 
+    uint256 constant CURR_PRICE = 100; // For testing
+
+    modifier changeStatus(string calldata _poolName)
+    {
+        Datatypes.PublicPool storage pool = poolNames[_poolName];
+        (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
+
+        // Disabled for testing
+        /*if (
+            pool.active &&
+            pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
+        ) { pool.active = false; }*/
+
+        // Only for testing
+        if (
+            pool.active &&
+            pool.targetPrice <= CURR_PRICE
+        ) { pool.active = false; }
+        _;
+    }
+
     modifier checkAccess(string calldata _poolName) 
     {
         Datatypes.PublicPool storage pool = poolNames[_poolName];
@@ -44,14 +62,10 @@ contract PublicPools is IPools, Ownable
             keccak256(abi.encode(_poolName)) != keccak256(" "),
             "Pool name can't be empty !"
         );
-
-        // Disabled for testing
-        /*if (
-            pool.active &&
-            pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
-        ) { pool.active = false; }*/
-
-        require(poolNames[_poolName].active, "Pool not active !");
+        require(
+            poolNames[_poolName].active, 
+            "Pool not active !"
+        );
         _;
     }
 
@@ -61,17 +75,10 @@ contract PublicPools is IPools, Ownable
         _;
     }
 
-    // function setComptroller(address _comptroller) external onlyOwner 
-    // {
-    //     comptrollerContract = _comptroller;
-    // }
+
     constructor(address _comptrollerContract) public
     {
         comptrollerContract = _comptrollerContract;
-    }
-
-    function getComptrollerContractAddress() public view returns(address){
-        return comptrollerContract;
     }
 
     function createPool(
@@ -125,7 +132,12 @@ contract PublicPools is IPools, Ownable
         uint256 _scaledAmount,
         string calldata _tokenSymbol,
         address _sender
-    ) external override onlyComptroller checkAccess (_poolName) 
+    ) 
+        external 
+        override 
+        onlyComptroller 
+        // changeStatus(_poolName) 
+        checkAccess (_poolName) 
     {
         Datatypes.PublicPool storage pool = poolNames[_poolName];
 
@@ -159,11 +171,14 @@ contract PublicPools is IPools, Ownable
         external
         override
         onlyComptroller
-        checkAccess(_poolName)
+        changeStatus(_poolName)
         returns (uint256)
     {
         uint256 reserveNormalizedIncome;
-
+        require(
+            keccak256(abi.encode(_poolName)) != keccak256(""),
+            "Pool name can't be empty !"
+        );
         // Scoping out the variables to avoid stack too deep errors
         {
             (, address token, , , ) = Comptroller(comptrollerContract).tokenData(poolNames[_poolName].symbol);
@@ -214,6 +229,24 @@ contract PublicPools is IPools, Ownable
         return (_amount);
     }
 
+    function changeStatus(string calldata _poolName) external returns(bool)
+    {
+        Datatypes.PublicPool storage pool = poolNames[_poolName];
+        (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
+
+        // Disabled for testing
+        /*if (
+            pool.active &&
+            pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
+        ) { pool.active = false; }*/
+
+        // Only for testing
+        if (
+            pool.active &&
+            pool.targetPrice <= CURR_PRICE
+        ) { pool.active = false; }
+    }
+
     function calculateWithdrawalAmount(
         string calldata _poolName,
         uint256 _amount,
@@ -251,6 +284,11 @@ contract PublicPools is IPools, Ownable
     }
     
     // Functions for testing
+    function changePoolBreak(string calldata _poolName) external onlyOwner {
+        Datatypes.PublicPool storage pool = poolNames[_poolName];
+        pool.targetPrice = 0;
+    }
+
     function checkOwner() external view returns (address) {
         return owner();
     }

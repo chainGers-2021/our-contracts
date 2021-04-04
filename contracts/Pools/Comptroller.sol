@@ -42,7 +42,8 @@ contract Comptroller is Ownable
         address _aToken,
         address _priceFeed,
         uint8 _decimals
-    ) external onlyOwner {
+    ) external onlyOwner 
+    {
         require(
             keccak256(abi.encode(tokenData[_symbol].symbol)) != keccak256(abi.encode(_symbol)),
             "Token data already present !"

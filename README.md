@@ -68,3 +68,13 @@ Done in 74.77s.
 ## Instructions for mainnet forking
  - `yarn ganache`
  - `yarn test` in another terminal
+
+## Instructions for Testing
+# Test for depositERC20 in comptroller
+ - `Create 10 users and deposit 1 link token by all of them`
+ - `Check the scaled balance of all the 10 users`
+
+# Test for withdrawERC20 in comptroller
+  - `Let all the 10 users withdraw their tokens`
+  - `Check their scaled balances after withdrawing`
+  - `Check if the final returned amount is greater than initial deposit amount`
