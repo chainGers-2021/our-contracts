@@ -11,5 +11,5 @@ module.exports = async function (deployer) {
   await deployer.deploy(PublicPools, await comp.address);
   await deployer.deploy(DonationPools, await comp.address);
 
-  console.log("Script 2 finished.");
+  console.log("Migrations 2 finished.");
 };
