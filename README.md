@@ -1,16 +1,16 @@
 # our-contracts
-## Deployment Details
- - `Network`: Kovan
- - `Address`: 0x53B9f3A0FF843Ef20ad81a334A0905221654a90F
 
 ## How to run?
-## Installation
- - `yarn`
-## Commands:
- - `yarn compile`
- - `yarn test`
- - `yarn test`
- - `yarn verify`
+ - `yarn`: Installation
+ - `yarn compile`: Compilation
+ - `yarn test`: Testing on local dev(as specified in `development` network in `truffle.config.js`)
+ - `yarn test:fork`: **Testing on forked blockchain**
+ - `yarn migrate`: Migrating on `Kovan`
+
+### Extra note:
+For manual testing on fork:
+ - `yarn ganache`: Starting the forked blockchain
+ - `yarn test in another terminal`: Testing on local dev(as specified in `development` network in `truffle.config.js`)
 
 ## Description
  - Deposit process(test)
@@ -65,10 +65,6 @@ liquidityIndex now: 1.0006897143225921
 Done in 74.77s.
 ```
 
-## Instructions for mainnet forking
- - `yarn ganache`
- - `yarn test` in another terminal
-
 ## Instructions for Testing
 # Test for depositERC20 in comptroller
  - `Create 10 users and deposit 1 link token by all of them`
@@ -79,6 +75,8 @@ Done in 74.77s.
   - `Check their scaled balances after withdrawing`
   - `Check if the final returned amount is greater than initial deposit amount`
 
+
+# Kovan deployment
 Comp: https://kovan.etherscan.io/address/0x8D9bc3b6Ee6b7BfeAA323c1d11715e852F7767d5
 pvt: https://kovan.etherscan.io/address/0xe991d6184DC0195b45DFfe3dAAead91f399D5c9F
 pub: https://kovan.etherscan.io/address/0xBF2214621AE6F123B801D22ba1C59bCA33bA299F

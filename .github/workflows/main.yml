@@ -13,4 +13,4 @@ jobs:
         with:
           node-version: "12.x"
       - run: npx yarn
-      - run: npx yarn adv
+      - run: npx yarn compile

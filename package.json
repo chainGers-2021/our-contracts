@@ -5,11 +5,10 @@
   "scripts": {
     "compile": "truffle compile",
     "test": "truffle test --debug",
-    "migrate": "truffle migrate --reset --network fork",
+    "migrate": "truffle migrate --reset --network kovan",
     "verify": "truffle run verify Comptroller PrivatePools PublicPools DonationPools --network development --license MIT",
     "ganache": "ganache-cli -d -v -f https://eth-kovan.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA",
-    "script2": "truffle exec scripts/2_task_CreatePools.js --network fork",
-    "adv": "concurrently \"yarn ganache>/dev/null\" \"yarn test && yarn kill\"",
+    "test:fork": "concurrently \"yarn ganache>/dev/null\" \"yarn test && yarn kill\"",
     "kill": "kill $(lsof -t -i:8545)"
   },
   "repository": {
