@@ -7,41 +7,37 @@ const ERC20 = artifacts.require("IERC20");
 const linkAddress = '0xad5ce863ae3e4e9394ab43d4ba0d80f419f61789';
 const aLinkAddress = '0xa06bc25b5805d5f8d82847d191cb4af5a3e873e0';
 
+
+
 contract("Everything", async (accounts) => {
     const admin = accounts[0]; 
-    const user1 = accounts[1];
+    const User1 = accounts[1];
+    console.log("Aave Rules!");
 
-    // before(async () => {
-    //     comp = await Comptroller.new();
-    //     privatepool = await PrivatePools.new(comp.address);
-    //     publicpools = await PublicPools.new(comp.address);
-    //     donationpools = await DonationPools.new(comp.address);
+    // try {
+            //let link = ERC20.at(linkAddress);
+            // console.log(parseInt(link.balanceOf(admin)));
+    //     } catch (error) {
+    //         console.log(error);
+    // }
 
-    // });
-        try {
-                const link = await ERC20.at(linkAddress);
-                console.log(parseInt(await link.balanceOf(admin)));
-            } catch (error) {
-                console.log(error);
-            }
-
-        before(async() => {
+    before(async() => {
 
         comp = await Comptroller.new();
         privatepool = await PrivatePools.new(comp.address);
         publicpools = await PublicPools.new(comp.address);
         donationpools = await DonationPools.new(comp.address);
 
-            await comp.addTokenData(
-                "LINK",
-                "0xad5ce863ae3e4e9394ab43d4ba0d80f419f61789",
-                "0xa06bc25b5805d5f8d82847d191cb4af5a3e873e0",
-                "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c",
-                8
-            );
+        comp.addTokenData(
+            "LINK",
+            "0xad5ce863ae3e4e9394ab43d4ba0d80f419f61789",
+            "0xa06bc25b5805d5f8d82847d191cb4af5a3e873e0",
+            "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c",
+            8
+        );
                 
-            console.log("Token data: ", await comp.tokenData("LINK"));
-        });
+        console.log("Token data: ", await comp.tokenData("LINK"));
+    });
 
 
     describe('#Create Pool', () => {
@@ -54,11 +50,16 @@ contract("Everything", async (accounts) => {
     describe('#Deposit', () => {
         it("User1 Deposited 1 LINK", async () => {    
             //allowance
-            
-            link.approve(comp.address, 1*10**18,{from: User1});
+            let link = await ERC20.at(linkAddress);
+            console.log(parseInt(link.balanceOf(admin)));
 
-            const deposit = await comp.depositERC20("Test1", 1*10**18, "LINK", false, {from: User1, gas: 10**7});
-            console.log(deposit);
+            link.approve(comp.address, 1,{from: User1, gas: 700000});
+
+            const d = await comp.depositERC20("Test1", 1, "LINK", false, {from: User1, gas: 700000});
+            console.log(d);
+
+            const depositAmount = await publicpools.getUserScaledDeposit("Test1",{from: User1});
+            console.log(depositAmount.toNumber());
         });
     });
 
