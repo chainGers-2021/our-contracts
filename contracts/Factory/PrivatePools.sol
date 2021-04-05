@@ -42,10 +42,10 @@ contract PrivatePools is IPools, Ownable
         _;
     }
 
-    modifier onlyVerified(string calldata _poolName) 
+    modifier onlyVerified(string calldata _poolName, address _sender) 
     {
         require(
-            poolNames[_poolName].verified[msg.sender],
+            poolNames[_poolName].verified[_sender],
             "User not verified by the pool"
         );
         _;
@@ -143,7 +143,7 @@ contract PrivatePools is IPools, Ownable
     ) 
         external 
         override 
-        onlyVerified(_poolName) 
+        onlyVerified(_poolName, _sender) 
         checkPoolName(_poolName) 
     {
         Datatypes.PrivatePool storage pool = poolNames[_poolName];
@@ -189,7 +189,7 @@ contract PrivatePools is IPools, Ownable
         external
         override
         onlyComptroller
-        onlyVerified(_poolName)
+        onlyVerified(_poolName, _sender)
         checkPoolName(_poolName)
         returns(uint256)
     {
@@ -220,7 +220,7 @@ contract PrivatePools is IPools, Ownable
          * nominalFee = withdrawalFeeAmount - poolReward
          */
 
-        _amount = calculateWithdrawalAmount(_poolName, _amount);
+        _amount = calculateWithdrawalAmount(_poolName, _amount, _sender);
 
         emit newWithdrawal(
             _poolName,
@@ -275,35 +275,23 @@ contract PrivatePools is IPools, Ownable
 
     function calculateWithdrawalAmount(
         string calldata _poolName,
-        uint256 _amount
-    ) internal returns (uint256) 
+        uint256 _amount,
+        address _sender
+    ) internal returns(uint256) 
     {
-        uint256 rewardScaledAmount =
-            (_amount.mul(poolNames[_poolName].rewardScaledAmount)).div(
-                poolNames[_poolName].poolScaledAmount
-            );
-        poolNames[_poolName].rewardScaledAmount = poolNames[_poolName]
-            .rewardScaledAmount
-            .sub(rewardScaledAmount);
-        poolNames[_poolName].poolScaledAmount = poolNames[_poolName]
-            .poolScaledAmount
-            .sub(_amount); // Test whether only _amount needs to be subtracted.
-        poolNames[_poolName].userScaledDeposits[msg.sender] = poolNames[
-            _poolName
-        ]
-            .userScaledDeposits[msg.sender]
-            .sub(_amount);
+        uint256 rewardScaledAmount = (_amount.mul(poolNames[_poolName].rewardScaledAmount)).div(poolNames[_poolName].poolScaledAmount);
+        poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount.sub(rewardScaledAmount);
+        poolNames[_poolName].poolScaledAmount = poolNames[_poolName].poolScaledAmount.sub(_amount); // Test whether only _amount needs to be subtracted.
+        poolNames[_poolName].userScaledDeposits[_sender] = poolNames[_poolName].userScaledDeposits[_sender].sub(_amount);
 
-        if (poolNames[_poolName].active) {
-            uint256 withdrawalFeeAmount =
-                ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER)).div(
-                    10**4
-                );
+        if(poolNames[_poolName].active) 
+        {
+            uint256 withdrawalFeeAmount = ((_amount.add(rewardScaledAmount)).mul(REWARD_FEE_PER))
+                                            .div(10**4);
 
             _amount = _amount.sub(withdrawalFeeAmount);
-            poolNames[_poolName].rewardScaledAmount = poolNames[_poolName]
-                .rewardScaledAmount
-                .add(withdrawalFeeAmount);
+            poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount
+                                                        .add(withdrawalFeeAmount);
         }
 
         return _amount;
