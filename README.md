@@ -75,6 +75,14 @@ Done in 74.77s.
   - `Check their scaled balances after withdrawing`
   - `Check if the final returned amount is greater than initial deposit amount`
 
+Note: All the above said tests are to be done using PublicPools in mind. Now below instructions will tell you how 
+to do the same tests for the PrivatePools.
+
+# Create a PrivatePool
+  - `Create a PrivatePool, this can be done by anyone but for testing purpose use admin account`
+  - `Create an account using web3 (create method). This will return an account object containing the address and private key`
+  - `Let 5 users join this pool using the private key. To do this, you have to sign a random hex string (can be generated using web3) and call the verification function in the PrivatePools contract.`
+  - `Do the above given tests`
 
 # Kovan deployment
 Comp: https://kovan.etherscan.io/address/0x8D9bc3b6Ee6b7BfeAA323c1d11715e852F7767d5

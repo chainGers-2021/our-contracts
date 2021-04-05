@@ -42,41 +42,6 @@ contract PublicPools is IPools, Ownable
         );
         _;
     }
-    // modifier changeStatus(string calldata _poolName)
-    // {
-    //     Datatypes.PublicPool storage pool = poolNames[_poolName];
-    //     (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
-
-    //     // Disabled for testing
-    //     /*if (
-    //         pool.active &&
-    //         pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
-    //     ) { pool.active = false; }*/
-
-    //     // Only for testing
-    //     if (
-    //         pool.active &&
-    //         pool.targetPrice <= CURR_PRICE
-    //     ) { pool.active = false; }
-    //     _;
-    // }
-
-    // modifier checkAccess(string calldata _poolName) 
-    // {
-    //     Datatypes.PublicPool storage pool = poolNames[_poolName];
-    //     (, , , address priceFeed, uint8 decimals) =
-    //         Comptroller(comptrollerContract).tokenData(pool.symbol);
-
-    //     require(
-    //         keccak256(abi.encode(_poolName)) != keccak256(" "),
-    //         "Pool name can't be empty !"
-    //     );
-    //     require(
-    //         poolNames[_poolName].active, 
-    //         "Pool not active !"
-    //     );
-    //     _;
-    // }
 
     modifier onlyComptroller 
     {
