@@ -58,7 +58,7 @@ module.exports = async function (deployer) {
     // Transferring tokens to other accounts from admin account
     for (i = 1; i < 5; i++) {
         console.log(await link.transfer(accounts[i], toWei(10)));
-        console.log(await web3.eth.sendTransaction({ to: accounts[i], from: admin, value: toWei("0.5") }))
+        console.log(await web3.eth.sendTransaction({ to: accounts[i], from: admin, value: toWei("0.1") }))
     }
 
     // depositing into a pool

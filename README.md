@@ -85,7 +85,14 @@ to do the same tests for the PrivatePools.
   - `Do the above given tests`
 
 # Kovan deployment
-Comp: https://kovan.etherscan.io/address/0x8D9bc3b6Ee6b7BfeAA323c1d11715e852F7767d5
-pvt: https://kovan.etherscan.io/address/0xe991d6184DC0195b45DFfe3dAAead91f399D5c9F
-pub: https://kovan.etherscan.io/address/0xBF2214621AE6F123B801D22ba1C59bCA33bA299F
-don: https://kovan.etherscan.io/address/0xC9420621CC14BdA1B5E502584f7302bd98ff0D62
+Comptroller
+Pass - Verified: https://kovan.etherscan.io/address/0x7Ca34A16A5Cc596Ae904c0e037f1c19104E89059#contracts
+
+PrivatePools
+Pass - Verified: https://kovan.etherscan.io/address/0x2F416f6A1d76Ab9dd50b61058E5eA2de379BcD8c#contracts
+
+PublicPools
+Pass - Verified: https://kovan.etherscan.io/address/0x4aEbD27e8f9c90aF79ccFcf0Da9a607f04f43df1#contracts
+
+DonationPools
+Pass - Verified: https://kovan.etherscan.io/address/0x12F7953e925DDae5d799004614863740e217F5F9#contracts
