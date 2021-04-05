@@ -18,18 +18,11 @@
  *
  */
 
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
-// const infuraKey = "fj4jll3k.....";
-//
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
-
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 require("dotenv").config();
 
 const k_mnemonic = process.env.k_MNEMONIC;
 const k_url = process.env.k_RPC_URL;
-
 const f_mnemonic = process.env.f_MNEMONIC;
 const f_url = process.env.f_RPC_URL;
 
@@ -60,16 +53,16 @@ module.exports = {
         }),
       network_id: 42,
     },
-    // kovan: {
-    //   provider: () =>
-    //     new HDWalletProvider({
-    //       mnemonic: {
-    //         phrase: k_mnemonic,
-    //       },
-    //       providerOrUrl: k_url,
-    //     }),
-    //   network_id: 42, // Any network (default: none)
-    // },
+    kovan: {
+      provider: () =>
+        new HDWalletProvider({
+          mnemonic: {
+            phrase: k_mnemonic,
+          },
+          providerOrUrl: k_url,
+        }),
+      network_id: 42, // Any network (default: none)
+    },
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port
