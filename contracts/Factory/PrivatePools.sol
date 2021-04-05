@@ -144,6 +144,7 @@ contract PrivatePools is IPools, Ownable
         external 
         override 
         onlyVerified(_poolName, _sender) 
+        onlyComptroller
         checkPoolName(_poolName) 
     {
         Datatypes.PrivatePool storage pool = poolNames[_poolName];

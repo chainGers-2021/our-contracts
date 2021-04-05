@@ -52,6 +52,7 @@ module.exports = {
           providerOrUrl: f_url,
         }),
       network_id: 42,
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
     },
     kovan: {
       provider: () =>
@@ -62,6 +63,7 @@ module.exports = {
           providerOrUrl: k_url,
         }),
       network_id: 42, // Any network (default: none)
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
     },
     // Another network with more advanced options...
     // advanced: {
