@@ -5,8 +5,6 @@ const DonationPools = artifacts.require("DonationPools");
 const ERC20 = artifacts.require("IERC20");
 const IScaledBalanceToken = artifacts.require("IScaledBalanceToken");
 
-
-
 const linkAddress = "0xad5ce863ae3e4e9394ab43d4ba0d80f419f61789";
 const aLinkAddress = "0xeD9044cA8F7caCe8eACcD40367cF2bee39eD1b04";
 
@@ -134,10 +132,7 @@ contract("--PrivatePools Testing--", async (accounts) => {
     );
 
     // Adding a recipient of the donation amounts
-    await don.addRecipient(
-      admin,
-      "DEV"
-    );
+    await don.addRecipient(admin, "DEV");
 
     newPoolAccount = await web3.eth.accounts.create();
 
@@ -175,7 +170,6 @@ contract("--PrivatePools Testing--", async (accounts) => {
       console.log("User scaled amount: ", (await pvt.getUserScaledDeposit("Test1", { from: accounts[i] })).toString());
       console.log("LINK balance of ", i, " : ", parseInt(await link.balanceOf(accounts[i])));
     }
-
   });
 
   it("allows users to withdraw their stake(LINK)", async () => {
