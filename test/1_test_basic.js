@@ -49,6 +49,12 @@ contract("~our-contracts~", async (accounts) => {
       8
     ));
 
+    // Adding a recipient of the donation amounts
+    await don.addRecipient(
+      admin,
+      "DEV"
+    );
+
     // Creating public pool
     console.log(await pub.createPool("LINK", "Test1", 45, {
       from: admin,
@@ -87,10 +93,17 @@ contract("~our-contracts~", async (accounts) => {
       console.log("User scaled amount: ", (await pub.getUserScaledDeposit("Test1", {from: accounts[i]})).toString());
       console.log("LINK balance of ", i, " : ", parseInt(await link.balanceOf(accounts[i])));
     }
-    
-    
+    console.log("LINK balance of admin: ", parseInt(await link.balanceOf(admin)));
+
     iscal = await IScaledBalanceToken.at(aLinkAddress);
     console.log("Pool scaled balance: ", 	parseInt(await iscal.scaledBalanceOf(comp.address)));
+  });
+
+  it("Allows recipients of donation pools to withdraw their stake", async() => {
+      await comp.withdrawDonation("LINK");
+      console.log("Donation withdrawal successfull");
+      console.log("LINK balance of admin: ", parseInt(await link.balanceOf(admin)));
+      console.log("Pool scaled balance: ", 	parseInt(await iscal.scaledBalanceOf(comp.address)));
   });
 
 });

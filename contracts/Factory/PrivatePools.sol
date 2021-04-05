@@ -31,6 +31,8 @@ contract PrivatePools is IPools, Ownable
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
     mapping(string => Datatypes.PrivatePool) public poolNames;
 
+    uint256 constant CURR_PRICE = 1; // For testing
+
     modifier checkPoolName(string calldata _poolName)
     {
         require(
@@ -193,7 +195,7 @@ contract PrivatePools is IPools, Ownable
     {
         uint256 reserveNormalizedIncome;
 
-        if(pool.active)
+        if(poolNames[_poolName].active)
             checkPoolBreak(_poolName);
 
         // Scoping out the variables to avoid stack too deep errors
@@ -243,7 +245,7 @@ contract PrivatePools is IPools, Ownable
 
     function checkPoolBreak(string calldata _poolName) internal
     {
-        Datatypes.PublicPool storage pool = poolNames[_poolName];
+        Datatypes.PrivatePool storage pool = poolNames[_poolName];
         /* Disabled for testing
         (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
 
