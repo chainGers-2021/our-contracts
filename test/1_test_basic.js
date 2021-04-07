@@ -1,3 +1,5 @@
+const assert = require('assert');
+const truffleAssert = require('truffle-assertions');
 const Comptroller = artifacts.require("Comptroller");
 const PrivatePools = artifacts.require("PrivatePools");
 const PublicPools = artifacts.require("PublicPools");
@@ -109,18 +111,24 @@ contract("--PublicPools testing--", async (accounts) => {
   //-------------------TO DO------------------
   //Error is not logged after creating a pool as such below
   //Need to write code to do that
-  it("Cannot create Pool with same name but different token symbol", async () => {
-    try {
-      console.log("Creating Duplicate Pool with ETH token...");
-      createDuplicatePool = await pub.createPool("ETH", "Test1", 45, {
-      from: admin,
-      });
-      console.log(createDuplicatePool);
-    } 
-    catch (err) {
-      assert.exists(err);
-      console.log(err+ "As duplicate pool with different token cannot be created");
-      }
+  it.only("Cannot create Pool with same name but different token symbol", async () => {
+    // try {
+    //   console.log("Creating Duplicate Pool with ETH token...");
+    //   createDuplicatePool = await pub.createPool("ETH", "Test1", 45, {
+    //   from: admin,
+    //   });
+    //   console.log(createDuplicatePool);
+    // } 
+    // catch (err) {
+    //   assert.exists(err);
+    //   console.log(err+ "As duplicate pool with different token cannot be created");
+    //   }
+    await truffleAssert.reverts(
+      pub.createPool("ETH", "Test1", 45, {
+        from: admin,
+      }),
+        "Pool name already taken !"
+    );
   });
 
   it("Allows users to deposit LINK", async () => {
