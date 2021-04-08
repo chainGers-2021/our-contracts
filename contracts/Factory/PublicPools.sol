@@ -190,10 +190,11 @@ contract PublicPools is IPools, Ownable
 
         _amount = calculateWithdrawalAmount(_poolName, _amount, _sender);
 
+        // TODO: Change the _amount emitted in newWithdrawal to scaledAmount
         emit newWithdrawal(
             _poolName,
             _sender,
-            (_amount.mul(reserveNormalizedIncome)).div(10**27),
+            _amount,
             block.timestamp
         );
         emit totalPoolDeposit(

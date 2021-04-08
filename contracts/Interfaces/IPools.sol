@@ -5,7 +5,6 @@ pragma experimental ABIEncoderV2;
 import {Datatypes} from "../Libraries/Datatypes.sol";
 
 interface IPools {
-    event newTokenAdded(string _symbol, address _token, address _aToken);
     event newPoolCreated(
         string indexed _poolName,
         address indexed _owner,

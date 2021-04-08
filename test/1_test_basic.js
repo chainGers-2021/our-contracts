@@ -111,7 +111,7 @@ contract("--PublicPools testing--", async (accounts) => {
   //-------------------TO DO------------------
   //Error is not logged after creating a pool as such below
   //Need to write code to do that
-  it.only("Cannot create Pool with same name but different token symbol", async () => {
+  it("Cannot create Pool with same name but different token symbol", async () => {
     // try {
     //   console.log("Creating Duplicate Pool with ETH token...");
     //   createDuplicatePool = await pub.createPool("ETH", "Test1", 45, {
