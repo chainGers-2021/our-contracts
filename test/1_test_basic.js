@@ -52,10 +52,10 @@ contract("--PublicPools testing--", async (accounts) => {
     );
 
     // Creating public pool
-    const createPool = await pub.createPool("LINK", "Test1", 45, {
+    await pub.createPool("LINK", "Test1", 45, {
       from: admin,
     });
-    console.log(createPool.logs);
+    console.log("Test1 created");
 
     for (i = 1; i < 5; i++) {
       const transferLink = await link.transfer(accounts[i], toWei(10));
@@ -70,10 +70,14 @@ contract("--PublicPools testing--", async (accounts) => {
   });
 
   it("Cannot create Pool with no name", async () => {
-    const createNamelessPool = await pub.createPool("LINK", "", 45, {
-      from: admin,
-    });
-    assert.equal(pub.poolNames[""],undefined,"No pool with blank name exists");
+    await truffleAssert.reverts(
+      pub.createPool("LINK", "", 45, {
+        from: admin,
+      }),
+      "Pool name can't be empty !"
+    );
+    // const createNamelessPool = 
+    // assert.equal(pub.poolNames[""],undefined,"No pool with blank name exists");
   });
 
   it("Only owner can create the Pool", async () => {
@@ -81,21 +85,24 @@ contract("--PublicPools testing--", async (accounts) => {
       pub.createPool("LINK", "Test2", 45, {
       from: user1,
       }), 
-      "Ownable: caller is not the owner");
+      "Ownable: caller is not the owner"
+    );
   });
 
-  it("Cannot create Pool with no token symbol", async () => {
-    await pub.createPool("", "Test3", 45, {
-      from: admin,
-    });
-    assert.equal(pub.poolNames["Test3"], undefined,"Pool with blank symbol not exists");
+  it.only("Cannot create Pool with no token symbol", async () => {
+    await truffleAssert.reverts(
+      pub.createPool("", "Test3", 45, {
+        from: admin,
+      }),
+      "Token symbol can't be empty !"
+    );
   });
 
   it("Cannot create Pool with same name", async () => {
-      console.log("Creating Duplicate Pool...");
+      // console.log("Creating Duplicate Pool...");
       await truffleAssert.reverts(
         pub.createPool("LINK", "Test1", 45, {
-        from: admin,
+          from: admin,
         }),
         "Pool name already taken !"
       );
@@ -116,7 +123,7 @@ contract("--PublicPools testing--", async (accounts) => {
     console.log("Balances after Deposit: ")
     for (i = 1; i < 5; i++) {
       const linkApprove = await link.approve(comp.address, toWei(1), { from: accounts[i] });
-      const depositERC20 = await comp.depositERC20("Test1", toWei(1), "LINK", false, { from: accounts[i] });
+      const depositERC20 = await comp.depositERC20("Test1", toWei(1), false, { from: accounts[i] });
       const userScaledAmount =  (await pub.getUserScaledDeposit("Test1", { from: accounts[i] })).toString();
       console.log("User scaled Amount: ", userScaledAmount);
       console.log("LINK balance of ", i, " : ", parseInt(await link.balanceOf(accounts[i])));

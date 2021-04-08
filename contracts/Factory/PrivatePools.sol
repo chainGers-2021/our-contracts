@@ -36,7 +36,7 @@ contract PrivatePools is IPools, Ownable
     modifier checkPoolName(string calldata _poolName)
     {
         require(
-            keccak256(abi.encode(_poolName)) != keccak256(""),
+            keccak256(abi.encode(_poolName)) != keccak256(abi.encode('')),
             "Pool name can't be empty !"
         );
         _;
@@ -75,12 +75,15 @@ contract PrivatePools is IPools, Ownable
         (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(_symbol);
 
         require(
-            keccak256(abi.encode(_symbol)) != keccak256(""),
+            priceFeed != address(0),
+            "Token/pricefeed doesn't exist"
+        );
+        require(
+            keccak256(abi.encode(_symbol)) != keccak256(abi.encode('')),
             "Token symbol can't be empty !"
         );
         require(
-            keccak256(abi.encode(poolNames[_poolName].poolName)) !=
-                keccak256(abi.encode(_poolName)),
+            keccak256(abi.encode(poolNames[_poolName].poolName)) != keccak256(abi.encode(_poolName)),
             "Pool name already taken !"
         );
         // Disabled for testing
