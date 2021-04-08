@@ -43,17 +43,17 @@ module.exports = {
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
     //
-    // development:{
-    //   provider: () =>
-    //     new HDWalletProvider({
-    //       mnemonic: {
-    //         phrase: f_mnemonic,
-    //       },
-    //       providerOrUrl: f_url,
-    //     }),
-    //   network_id: 42,
-    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    // },
+    development:{
+      provider: () =>
+        new HDWalletProvider({
+          mnemonic: {
+            phrase: f_mnemonic,
+          },
+          providerOrUrl: f_url,
+        }),
+      network_id: "*",
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    },
     // kovan: {
     //   provider: () =>
     //     new HDWalletProvider({
