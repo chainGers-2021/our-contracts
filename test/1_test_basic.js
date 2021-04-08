@@ -1,5 +1,5 @@
-const assert = require('assert');
 const truffleAssert = require('truffle-assertions');
+const assert = require('assert');
 const Comptroller = artifacts.require("Comptroller");
 const PrivatePools = artifacts.require("PrivatePools");
 const PublicPools = artifacts.require("PublicPools");
@@ -73,56 +73,36 @@ contract("--PublicPools testing--", async (accounts) => {
     const createNamelessPool = await pub.createPool("LINK", "", 45, {
       from: admin,
     });
-    //console.log(createNamelessPool.logs);
-    assert.isUndefined(pub.poolNames[""],"No pool with blank name exists");
+    assert.equal(pub.poolNames[""],undefined,"No pool with blank name exists");
   });
 
-  // it("Only owner can create the Pool", async () => {
-  //     try {
-  //       await pub.createPool("LINK", "Test2", 45, {
-  //         from: user1,
-  //         });
-  //     } 
-  //     catch (err) {
-  //       assert.exists(err.message);
-  //     }
-  // });
+  it("Only owner can create the Pool", async () => {
+    await truffleAssert.reverts(
+      pub.createPool("LINK", "Test2", 45, {
+      from: user1,
+      }), 
+      "Ownable: caller is not the owner");
+  });
 
   it("Cannot create Pool with no token symbol", async () => {
     await pub.createPool("", "Test3", 45, {
       from: admin,
     });
-    assert.isUndefined(pub.poolNames["Test3"],"Pool with blank symbol not exists");
+    assert.equal(pub.poolNames["Test3"], undefined,"Pool with blank symbol not exists");
   });
 
   it("Cannot create Pool with same name", async () => {
-    try {
       console.log("Creating Duplicate Pool...");
-      await pub.createPool("LINK", "Test1", 45, {
-      from: admin,
-      });
-    } 
-    catch (err) {
-      assert.exists(err);
-      console.log(err+ "As duplicate pool cannot be created");
-      }
+      await truffleAssert.reverts(
+        pub.createPool("LINK", "Test1", 45, {
+        from: admin,
+        }),
+        "Pool name already taken !"
+      );
+
   });
 
-  //-------------------TO DO------------------
-  //Error is not logged after creating a pool as such below
-  //Need to write code to do that
   it("Cannot create Pool with same name but different token symbol", async () => {
-    // try {
-    //   console.log("Creating Duplicate Pool with ETH token...");
-    //   createDuplicatePool = await pub.createPool("ETH", "Test1", 45, {
-    //   from: admin,
-    //   });
-    //   console.log(createDuplicatePool);
-    // } 
-    // catch (err) {
-    //   assert.exists(err);
-    //   console.log(err+ "As duplicate pool with different token cannot be created");
-    //   }
     await truffleAssert.reverts(
       pub.createPool("ETH", "Test1", 45, {
         from: admin,
