@@ -43,28 +43,28 @@ module.exports = {
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
     //
-    development:{
-      provider: () =>
-        new HDWalletProvider({
-          mnemonic: {
-            phrase: f_mnemonic,
-          },
-          providerOrUrl: f_url,
-        }),
-      network_id: 42,
-      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    },
-    kovan: {
-      provider: () =>
-        new HDWalletProvider({
-          mnemonic: {
-            phrase: k_mnemonic,
-          },
-          providerOrUrl: k_url,
-        }),
-      network_id: 42, // Any network (default: none)
-      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    },
+    // development:{
+    //   provider: () =>
+    //     new HDWalletProvider({
+    //       mnemonic: {
+    //         phrase: f_mnemonic,
+    //       },
+    //       providerOrUrl: f_url,
+    //     }),
+    //   network_id: 42,
+    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    // },
+    // kovan: {
+    //   provider: () =>
+    //     new HDWalletProvider({
+    //       mnemonic: {
+    //         phrase: k_mnemonic,
+    //       },
+    //       providerOrUrl: k_url,
+    //     }),
+    //   network_id: 42, // Any network (default: none)
+    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    // },
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port

@@ -42,13 +42,18 @@ contract("--PublicPools testing--", async (accounts) => {
     });
   });
 
+
+
+
   it("Cannot create Pool with no name", async () => {
     console.log("Test1");
     try {
       await pub.createPool("LINK", "", 45, {
         from: admin,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   it("Only owner can create the Pool", async () => {
@@ -57,7 +62,9 @@ contract("--PublicPools testing--", async (accounts) => {
       await pub.createPool("LINK", "Test2", 45, {
         from: user1,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   it("Cannot create Pool with no token symbol", async () => {
@@ -66,7 +73,9 @@ contract("--PublicPools testing--", async (accounts) => {
       pub.createPool("", "Test3", 45, {
         from: admin,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   it("Cannot create Pool with same name", async () => {
@@ -75,7 +84,9 @@ contract("--PublicPools testing--", async (accounts) => {
       await pub.createPool("LINK", "Test1", 45, {
         from: admin,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   it("Cannot create Pool with same name but different token symbol", async () => {
@@ -84,7 +95,9 @@ contract("--PublicPools testing--", async (accounts) => {
       await pub.createPool("ETH", "Test1", 45, {
         from: admin,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   });
   console.log("--End of PublicPools Testing");
 });
