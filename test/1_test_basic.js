@@ -25,8 +25,15 @@ contract("--PublicPools testing--", async (accounts) => {
       don.address
     );
 
-    const addTokenData = await comp.addTokenData(
+    await comp.addTokenData(
       "LINK",
+      "0xad5ce863ae3e4e9394ab43d4ba0d80f419f61789",
+      "0xeD9044cA8F7caCe8eACcD40367cF2bee39eD1b04",
+      "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c",
+      8
+    );
+    await comp.addTokenData(
+      "WBTC",
       "0xad5ce863ae3e4e9394ab43d4ba0d80f419f61789",
       "0xeD9044cA8F7caCe8eACcD40367cF2bee39eD1b04",
       "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c",
@@ -42,62 +49,54 @@ contract("--PublicPools testing--", async (accounts) => {
     });
   });
 
-
-
-
   it("Cannot create Pool with no name", async () => {
     console.log("Test1");
-    try {
-      await pub.createPool("LINK", "", 45, {
+    await truffleAssert.reverts(
+      pub.createPool("LINK", "", 45, {
         from: admin,
-      });
-    } catch (error) {
-      console.log(error);
-    }
+      }),
+      "Pool name can't be empty !"
+    );
   });
 
   it("Only owner can create the Pool", async () => {
     console.log("Test2");
-    try {
-      await pub.createPool("LINK", "Test2", 45, {
+    await truffleAssert.reverts(
+      pub.createPool("LINK", "Test2", 45, {
         from: user1,
-      });
-    } catch (error) {
-      console.log(error);
-    }
+      }),
+      "Ownable: caller is not the owner"
+    );
   });
 
   it("Cannot create Pool with no token symbol", async () => {
     console.log("Test3");
-    try {
+    await truffleAssert.reverts(
       pub.createPool("", "Test3", 45, {
         from: admin,
-      });
-    } catch (error) {
-      console.log(error);
-    }
+      }),
+      "Token symbol can't be empty !"
+    );
   });
 
   it("Cannot create Pool with same name", async () => {
     console.log("Test4");
-    try {
-      await pub.createPool("LINK", "Test1", 45, {
+    await truffleAssert.reverts(
+      pub.createPool("LINK", "Test1", 45, {
         from: admin,
-      });
-    } catch (error) {
-      console.log(error);
-    }
+      }),
+      "Pool name already taken !"
+    );
   });
 
   it("Cannot create Pool with same name but different token symbol", async () => {
     console.log("Test5");
-    try {
-      await pub.createPool("ETH", "Test1", 45, {
+    await truffleAssert.reverts(
+      pub.createPool("WBTC", "Test1", 45, {
         from: admin,
-      });
-    } catch (error) {
-      console.log(error);
-    }
+      }),
+      "Pool name already taken !"
+    );
   });
   console.log("--End of PublicPools Testing");
 });
