@@ -242,7 +242,7 @@ module.exports = async function (deployer) {
 
     //Creating a few private pools
     await createPool(LINK.Symbol, "LPRIVATE", 35, true, user1);
-    await createPool(UNI.Symbol, "UPRIVATE", 35, true, user2);
+    // await createPool(UNI.Symbol, "UPRIVATE", 35, true, user2);
     await createPool(YFI.Symbol, "YPRIVATE", 50000, true, user3);
 
     console.log("\nPopulating public pools\n");
@@ -255,7 +255,7 @@ module.exports = async function (deployer) {
 
     await populatePool("LPRIVATE", LINK, 10, true);
     await populatePool("YPRIVATE", YFI, 0.1, true);
-    await populatePool("UPRIVATE", UNI, 10, true);
+    // await populatePool("UPRIVATE", UNI, 10, true);
 
     console.log("\n--Pool creation successfull--\n");
 
