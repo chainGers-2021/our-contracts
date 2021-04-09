@@ -254,7 +254,7 @@ async function withdrawByUser(poolName, amount, Token, typePrivate, user) {
 }
 
 let accounts;
-module.exports = async function (deployer) {
+module.exports = async function (callback) {
   accounts = await web3.eth.getAccounts();
   [admin, user1, user2, user3, _] = accounts;
 
@@ -316,4 +316,6 @@ module.exports = async function (deployer) {
   await populatePool("LPRIVATE", LINK, 10, true);
   await populatePool("YPRIVATE", YFI, 0.1, true);
   // await populatePool("UPRIVATE", UNI, 10, true);
+
+  callback("Completed");
 };

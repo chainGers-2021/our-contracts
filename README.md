@@ -6,7 +6,10 @@
  - `yarn test`: Testing on local dev(as specified in `development` network in `truffle.config.js`)
  - `yarn test:revert`: **Testing on truffle**
  - `yarn test:fork`: **Testing on forked blockchain**
- - `yarn migrate`: Migrating on `Kovan`
+
+## **Migrating on kovan/fork**
+ - `truffle migrate --network [fork/kovan]`
+ - `truffle exec scripts/3_pool_creation.js --network [fork/kovan]`
 
 ### Extra note:
 For manual testing on fork:
