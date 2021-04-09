@@ -5,8 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
-import '@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol';
 import { Datatypes } from '../Libraries/Datatypes.sol';
+import { ScaledMath } from '../Libraries/ScaledMath.sol';
 import './DonationPools.sol';
 import '../Factory/PrivatePools.sol';
 import '../Factory/PublicPools.sol';
@@ -16,6 +16,7 @@ contract Comptroller is Ownable
 {
 	using Datatypes for *;
 	using SafeMath for uint256;
+    using ScaledMath for uint256;
 
 	address public donationPoolsContract;
 	address public privatePoolsContract;
@@ -100,8 +101,7 @@ contract Comptroller is Ownable
             0
         );
 
-        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
-		uint256 newScaledDeposit = (_amount.mul(10**27)).div(reserveNormalizedIncome);
+		uint256 newScaledDeposit = _amount.realToScaled(getReserveIncome(tokenSymbol));
 
 		uint256 donationAmount = DonationPools(donationPoolsContract).donate(
 			newScaledDeposit,
@@ -113,7 +113,6 @@ contract Comptroller is Ownable
             PrivatePools(privatePoolsContract).deposit(
                 _poolName,
                 newScaledDeposit.sub(donationAmount),
-                tokenSymbol,
                 msg.sender
             );
         }
@@ -122,7 +121,6 @@ contract Comptroller is Ownable
             PublicPools(publicPoolsContract).deposit(
                 _poolName,
                 newScaledDeposit.sub(donationAmount),
-                tokenSymbol,
                 msg.sender
             );
         }
@@ -136,9 +134,10 @@ contract Comptroller is Ownable
 	{
 		string memory tokenSymbol;
 		bool penalty;
-		uint256 withdrawalAmount;
-
-		if(_typePrivate)
+        uint256 withdrawalAmount;
+        
+		
+        if(_typePrivate)
 		{
 			withdrawalAmount = PrivatePools(privatePoolsContract).withdraw(
 				_poolName, 
@@ -159,8 +158,7 @@ contract Comptroller is Ownable
 		
         Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
 		address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-        uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
-		
+        
 		// If target price of the pool wasn't achieved, take out the donation amount too.
 		if(penalty)
 		{
@@ -172,7 +170,7 @@ contract Comptroller is Ownable
 		}
 		
 		// Till now withdrawalAmount was scaled down.
-		withdrawalAmount = (withdrawalAmount.mul(reserveNormalizedIncome)).div(10**27);
+        withdrawalAmount = withdrawalAmount.scaledToReal(getReserveIncome(tokenSymbol));
 
 		// Approving aToken pool
         require(
@@ -194,11 +192,8 @@ contract Comptroller is Ownable
 		Datatypes.TokenData memory poolTokenData = tokenData[_tokenSymbol];
 		address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
 		uint256 withdrawalAmount = DonationPools(donationPoolsContract).withdraw(msg.sender, _tokenSymbol);
-		uint256 reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(poolTokenData.token);
 	
-		withdrawalAmount = (withdrawalAmount.mul(reserveNormalizedIncome)).div(
-            10**27
-        );
+		withdrawalAmount = withdrawalAmount.scaledToReal(getReserveIncome(_tokenSymbol));
 
         require(
             IERC20(poolTokenData.aToken).approve(lendingPool, withdrawalAmount),
@@ -212,4 +207,11 @@ contract Comptroller is Ownable
             msg.sender
         );
 	}
+
+    function getReserveIncome(string memory _symbol) public view returns(uint256)
+    {
+        address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
+
+        return ILendingPool(lendingPool).getReserveNormalizedIncome(tokenData[_symbol].token);
+    }
 }

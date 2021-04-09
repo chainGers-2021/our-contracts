@@ -9,35 +9,35 @@ const LINK = {
   Symbol: "LINK",
   TokenAddr: "0xad5ce863ae3e4e9394ab43d4ba0d80f419f61789",
   aTokenAddr: "0xeD9044cA8F7caCe8eACcD40367cF2bee39eD1b04",
-  Pricefeed: "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c",
+  Pricefeed: "0x396c5E36DD0a0F5a5D33dae44368D4193f69a1F0",
   Decimals: 8,
 };
+const BAT = {
+  Symbol: "BAT",
+  TokenAddr: "0x2d12186Fbb9f9a8C28B3FfdD4c42920f8539D738",
+  aTokenAddr: "0x28f92b4c8Bdab37AF6C4422927158560b4bB446e",
+  Pricefeed: "0x8e67A0CFfbbF6A346ce87DFe06daE2dc782b3219",
+  Decimals: 8,
+}
 const UNI = {
   Symbol: "UNI",
   TokenAddr: "0x075a36ba8846c6b6f53644fdd3bf17e5151789dc",
   aTokenAddr: "0x601FFc9b7309bdb0132a02a569FBd57d6D1740f2",
-  Pricefeed: "0x553303d460EE0afB37EdFf9bE42922D8FF63220e",
+  Pricefeed: "0xDA5904BdBfB4EF12a3955aEcA103F51dc87c7C39",
   Decimals: 8,
 };
-const YFI = {
-  Symbol: "YFI",
-  TokenAddr: "0xb7c325266ec274feb1354021d27fa3e3379d840d",
-  aTokenAddr: "0xF6c7282943Beac96f6C70252EF35501a6c1148Fe",
-  Pricefeed: "0xA027702dbb89fbd58938e4324ac03B58d812b0E1",
-  Decimals: 8,
-};
-const KNC = {
-  Symbol: "KNC",
-  TokenAddr: "0x3f80c39c0b96a0945f9f0e9f55d8a8891c5671a8",
-  aTokenAddr: "0xdDdEC78e29f3b579402C42ca1fd633DE00D23940",
-  Pricefeed: "0xf8fF43E991A81e6eC886a3D281A2C6cC19aE70Fc",
+const ZRX = {
+  Symbol: "ZRX",
+  TokenAddr: "0xd0d76886cf8d952ca26177eb7cfdf83bad08c00c",
+  aTokenAddr: "0xf02D7C23948c9178C68f5294748EB778Ab5e5D9c",
+  Pricefeed: "0x24D6B177CF20166cd8F55CaaFe1c745B44F6c203",
   Decimals: 8,
 };
 const SNX = {
   Symbol: "SNX",
   TokenAddr: "0x7fdb81b0b8a010dd4ffc57c3fecbf145ba8bd947",
   aTokenAddr: "0xAA74AdA92dE4AbC0371b75eeA7b1bd790a69C9e1",
-  Pricefeed: "0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699",
+  Pricefeed: "0x31f93DA9823d737b7E44bdee0DF389Fe62Fd1AcD",
   Decimals: 8,
 };
 
@@ -134,7 +134,7 @@ async function fundAccountsETH() {
     await web3.eth.sendTransaction({
       to: accounts[i],
       from: admin,
-      value: toWei("0.5"),
+      value: toWei("0.1"),
     });
   }
   console.log("\nSuccessfull!\n");
@@ -263,31 +263,31 @@ module.exports = async function (callback) {
   pub = await PublicPools.deployed();
   don = await DonationPools.deployed();
   link = await ERC20.at(LINK.TokenAddr);
-  uni = await ERC20.at(UNI.TokenAddr);
-  yfi = await ERC20.at(YFI.TokenAddr);
-  knc = await ERC20.at(KNC.TokenAddr);
+  // uni = await ERC20.at(UNI.TokenAddr);
+  bat = await ERC20.at(BAT.TokenAddr);
+  zrx = await ERC20.at(ZRX.TokenAddr);
   snx = await ERC20.at(SNX.TokenAddr);
 
   console.log("\n--Starting up the migrations--\n");
   console.log("Admin ETH balance: ", await web3.eth.getBalance(admin));
   console.log("Admin LINK balance: ", parseInt(await link.balanceOf(admin)));
-  console.log("Admin UNI balance: ", parseInt(await uni.balanceOf(admin)));
-  console.log("Admin YFI balance: ", parseInt(await yfi.balanceOf(admin)));
-  console.log("Admin KNC balance: ", parseInt(await knc.balanceOf(admin)));
+  // console.log("Admin UNI balance: ", parseInt(await uni.balanceOf(admin)));
+  console.log("Admin BAT balance: ", parseInt(await bat.balanceOf(admin)));
+  console.log("Admin ZRX balance: ", parseInt(await zrx.balanceOf(admin)));
   console.log("Admin SNX balance: ", parseInt(await snx.balanceOf(admin)));
 
   await fundAccountsETH();
   await fundAccountsERC20(LINK, 50);
-  await fundAccountsERC20(UNI, 50);
-  await fundAccountsERC20(YFI, 0.1);
-  await fundAccountsERC20(KNC, 100);
+  // await fundAccountsERC20(UNI, 50);
+  await fundAccountsERC20(BAT, 100);
+  await fundAccountsERC20(ZRX, 100);
   await fundAccountsERC20(SNX, 1);
 
   // Adding token data to the comptroller contract
   await addToken(LINK);
-  await addToken(UNI);
-  await addToken(YFI);
-  await addToken(KNC);
+  // await addToken(UNI);
+  await addToken(BAT);
+  await addToken(ZRX);
   await addToken(SNX);
 
   // Adding recipients to the Donation pool contract
@@ -297,25 +297,35 @@ module.exports = async function (callback) {
   await createPool(LINK.Symbol, "LPUBLIC", 35, false);
   // await createPool(UNI.Symbol, "UPUBLIC", 35, false);
   // await createPool(YFI.Symbol, "YPUBLIC", 50000, false);
-  await createPool(KNC.Symbol, "KPUBLIC", 5, false);
+  await createPool(BAT.Symbol, "BPUBLIC", 2, false);
   await createPool(SNX.Symbol, "SPUBLIC", 25, false);
 
   //Creating a few private pools
   await createPool(LINK.Symbol, "LPRIVATE", 35, true, user1);
   // await createPool(UNI.Symbol, "UPRIVATE", 35, true, user2);
-  await createPool(YFI.Symbol, "YPRIVATE", 50000, true, user3);
+  await createPool(ZRX.Symbol, "ZPRIVATE", 3, true, user3);
 
   console.log("\nPopulating public pools\n");
 
   await populatePool("LPUBLIC", LINK, 10, false);
-  await populatePool("KPUBLIC", KNC, 100, false);
+  await populatePool("BPUBLIC", BAT, 100, false);
   await populatePool("SPUBLIC", SNX, 1, false);
 
   console.log("\nPopulating private pools\n");
 
   await populatePool("LPRIVATE", LINK, 10, true);
-  await populatePool("YPRIVATE", YFI, 0.1, true);
+  await populatePool("ZPRIVATE", ZRX, 100, true);
   // await populatePool("UPRIVATE", UNI, 10, true);
 
-  callback("Completed");
+  console.log("\nDe-populating private pools\n");
+  await dePopulatePool("LPRIVATE", LINK, true);
+  await dePopulatePool("ZPRIVATE", ZRX, true);
+
+  console.log("\nDe-populating public pools\n");
+  await dePopulatePool("LPUBLIC", LINK, false);
+  await dePopulatePool("BPUBLIC", BAT, false);
+  await dePopulatePool("SPUBLIC", SNX, false);
+
+  console.log("\n--Pools simulation complete--\n");
+  // callback("Completed");
 };

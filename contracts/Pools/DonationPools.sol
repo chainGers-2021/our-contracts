@@ -142,10 +142,8 @@ contract DonationPools is Ownable {
             "Donation share already redeemed"
         );
 
-        uint256 withdrawalScaledAmount =
-            donationAmount[_tokenSymbol].div(numRecipients);
-        recipients[_recipient].latestWithdrawalTimestamp[_tokenSymbol] = block
-            .timestamp;
+        uint256 withdrawalScaledAmount = donationAmount[_tokenSymbol].div(numRecipients);
+        recipients[_recipient].latestWithdrawalTimestamp[_tokenSymbol] = block.timestamp;
 
         emit newDonationWithdrawal(
             msg.sender,
@@ -154,11 +152,5 @@ contract DonationPools is Ownable {
         );
 
         return withdrawalScaledAmount;
-    }
-
-    // Functions for testin
-    function isOwner(address _admin) external view returns(bool)
-    {
-        return owner() == _admin;
     }
 }

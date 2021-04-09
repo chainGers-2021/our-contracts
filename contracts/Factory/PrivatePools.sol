@@ -10,20 +10,19 @@ import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/c
 import "@aave/protocol-v2/contracts/interfaces/IScaledBalanceToken.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import { Datatypes } from '../Libraries/Datatypes.sol';
+import { ScaledMath } from '../Libraries/ScaledMath.sol';
 import '../Pools/Comptroller.sol';
 import '../Interfaces/IPools.sol';
 
 /***
- * Factory Contract for creating private pools
+ * @notice Private pools creation and functions related to private pools.
  * @author Chinmay Vemuri
- * Optimizations to be done:
- * 1) Store index instead of the address of the token in a pool
- * 2) Use try/catch for deposit and withdraw functions.
  */
 contract PrivatePools is IPools, Ownable 
 {
     using ECDSA for bytes32;
     using SafeMath for uint256;
+    using ScaledMath for uint256;
     using Datatypes for *;
 
     address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
@@ -31,7 +30,6 @@ contract PrivatePools is IPools, Ownable
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
     mapping(string => Datatypes.PrivatePool) public poolNames;
 
-    uint256 constant CURR_PRICE = 1; // For testing
 
     modifier checkPoolName(string calldata _poolName)
     {
@@ -77,7 +75,7 @@ contract PrivatePools is IPools, Ownable
         require(
             priceFeed != address(0),
             "Token/pricefeed doesn't exist"
-        );
+        );  
         require(
             keccak256(abi.encode(_symbol)) != keccak256(abi.encode('')),
             "Token symbol can't be empty !"
@@ -86,7 +84,6 @@ contract PrivatePools is IPools, Ownable
             keccak256(abi.encode(poolNames[_poolName].poolName)) != keccak256(abi.encode(_poolName)),
             "Pool name already taken !"
         );
-        // Disabled for testing
         // require(
         //     _targetPrice >
         //         uint256(priceFeedData(priceFeed)).div(10**uint256(decimals)),
@@ -143,11 +140,10 @@ contract PrivatePools is IPools, Ownable
     function deposit(
         string calldata _poolName,
         uint256 _scaledAmount,
-        string calldata _tokenSymbol,
         address _sender
     ) 
         external 
-        override 
+        override
         onlyVerified(_poolName, _sender) 
         onlyComptroller
         checkPoolName(_poolName) 
@@ -161,21 +157,21 @@ contract PrivatePools is IPools, Ownable
             pool.active,
             "Pool not active !"
         );
-        require(
-            keccak256(abi.encode(_tokenSymbol)) ==
-                keccak256(abi.encode(pool.symbol)),
-            "Deposit token doesn't match pool token !"
-        );
 
-        pool.userScaledDeposits[_sender] = pool.userScaledDeposits[_sender].add(
-            _scaledAmount
-        );
+        pool.userScaledDeposits[_sender] = pool.userScaledDeposits[_sender].add(_scaledAmount);
         pool.poolScaledAmount = pool.poolScaledAmount.add(_scaledAmount);
 
         emit newDeposit(
             _poolName, 
             _sender, 
             _scaledAmount, 
+            block.timestamp
+        );
+        emit totalPoolDeposit(
+            _poolName,
+            pool.poolScaledAmount.scaledToReal(
+                Comptroller(comptrollerContract).getReserveIncome(pool.symbol)
+            ),
             block.timestamp
         );
         emit totalUserScaledDeposit(
@@ -191,7 +187,6 @@ contract PrivatePools is IPools, Ownable
         );
     }
 
-    /// @dev Implement this function for partial amount withdrawal.
     function withdraw(
         string calldata _poolName,
         uint256 _amount,
@@ -231,7 +226,6 @@ contract PrivatePools is IPools, Ownable
          * nominalFee = withdrawalFeeAmount - poolReward
          */
 
-
         _amount = calculateWithdrawalAmount(_poolName, _amount, _sender);
 
         emit newWithdrawal(
@@ -257,21 +251,14 @@ contract PrivatePools is IPools, Ownable
 
     function checkPoolBreak(string calldata _poolName) internal
     {
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
-        /* Disabled for testing
-        (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
+        // Datatypes.PrivatePool storage pool = poolNames[_poolName];
+        // (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
 
         
-        if (
-            pool.active &&
-            pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
-        ) { pool.active = false; }*/
-
-        // Only for testing
-        if (
-            pool.active &&
-            pool.targetPrice <= CURR_PRICE
-        ) { pool.active = false; }
+        // if (
+        //     pool.active &&
+        //     pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
+        // ) { pool.active = false; }
     }
 
     function priceFeedData(address _aggregatorAddress)
@@ -279,15 +266,14 @@ contract PrivatePools is IPools, Ownable
         view
         returns (int256)
     {
-        (, int256 price, , , ) =
-            AggregatorV3Interface(_aggregatorAddress).latestRoundData();
+        (, int256 price, , , ) = AggregatorV3Interface(_aggregatorAddress).latestRoundData();
 
         return price;
     }
 
     function calculateWithdrawalAmount(
         string calldata _poolName,
-        uint256 _amount,
+        uint256 _amount, // This is scaled amount
         address _sender
     ) internal returns(uint256) 
     {
@@ -307,115 +293,5 @@ contract PrivatePools is IPools, Ownable
         }
 
         return _amount;
-    }
-
-    // Functions for testing
-    function breakPool(string calldata _poolName) external onlyOwner {
-        poolNames[_poolName].targetPrice = 0;
-    }
-
-    function getVerifiedStatus(string calldata _poolName)
-        external
-        view
-        returns (bool)
-    {
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
-        return pool.verified[msg.sender];
-    }
-
-    function checkOwner() external view returns (address) {
-        return owner();
-    }
-
-    function isPoolEmpty(string calldata _poolName)
-        external
-        view
-        returns (string memory)
-    {
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
-        return pool.poolName;
-    }
-
-    function verifyPool(string calldata _poolName)
-        external
-        view
-        returns (bool)
-    {
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
-        if (
-            keccak256(abi.encode(pool.poolName)) ==
-            keccak256(abi.encode(_poolName))
-        ) return true;
-        else return false;
-    }
-
-    function getUserScaledDeposit(string calldata _poolName)
-        external
-        view
-        returns (uint256)
-    {
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
-        return pool.userScaledDeposits[msg.sender];
-    }
-
-    function getUserScaledBalance(string calldata _poolName)
-        external
-        view
-        returns (uint256)
-    {
-        address lendingPool =
-            ILendingPoolAddressesProvider(lendingPoolAddressProvider)
-                .getLendingPool();
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
-        (, address token, , , ) =
-            Comptroller(comptrollerContract).tokenData(pool.symbol);
-        uint256 reserveNormalizedIncome =
-            ILendingPool(lendingPool).getReserveNormalizedIncome(token);
-
-        return
-            (pool.userScaledDeposits[msg.sender].mul(reserveNormalizedIncome))
-                .div(10**27);
-    }
-
-    function getPoolScaledAmount(string calldata _poolName)
-        external
-        view
-        returns (uint256)
-    {
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
-        return pool.poolScaledAmount;
-    }
-
-    function getLiquidityIndex(string calldata _poolName)
-        external
-        view
-        returns (uint128)
-    {
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
-        (, address token, , , ) =
-            Comptroller(comptrollerContract).tokenData(pool.symbol);
-        address lendingPool =
-            ILendingPoolAddressesProvider(lendingPoolAddressProvider)
-                .getLendingPool();
-        return ILendingPool(lendingPool).getReserveData(token).liquidityIndex;
-    }
-
-    function getReserveData(string calldata _poolName)
-        external
-        view
-        returns (uint128, uint256)
-    {
-        Datatypes.PrivatePool memory pool = poolNames[_poolName];
-        (, address token, , , ) =
-            Comptroller(comptrollerContract).tokenData(pool.symbol);
-        address lendingPool =
-            ILendingPoolAddressesProvider(lendingPoolAddressProvider)
-                .getLendingPool();
-        uint128 liquidityIndex =
-            ILendingPool(lendingPool).getReserveData(token).liquidityIndex;
-        uint256 reserveNormalizedIncome =
-            ILendingPool(lendingPool).getReserveNormalizedIncome(token);
-
-        return (liquidityIndex, reserveNormalizedIncome);
     }
 }

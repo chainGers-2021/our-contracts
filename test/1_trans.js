@@ -86,10 +86,6 @@ contract("--PublicPools testing--", async (accounts) => {
       const depositERC20 = await comp.depositERC20("Test1", toWei(1), false, {
         from: accounts[i],
       });
-      const userScaledAmount = (
-        await pub.getUserScaledDeposit("Test1", { from: accounts[i] })
-      ).toString();
-      console.log("User scaled Amount: ", userScaledAmount);
       console.log(
         "LINK balance of ",
         i,
@@ -107,10 +103,6 @@ contract("--PublicPools testing--", async (accounts) => {
       await comp.withdrawERC20("Test1", toWei(0.5), false, {
         from: accounts[i],
       });
-      const userScaledAmount = (
-        await pub.getUserScaledDeposit("Test1", { from: accounts[i] })
-      ).toString();
-      console.log("User Scaled Amount: ", userScaledAmount);
       console.log(
         "LINK balance of ",
         i,

@@ -9,7 +9,7 @@
     "verify": "truffle run verify Comptroller PrivatePools PublicPools DonationPools --network kovan --license MIT",
     "ganache": "ganache-cli -d -v -f https://eth-kovan.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA",
     "test:revert": "truffle test test/2_reverts.js",
-    "test:fork": "concurrently \"yarn ganache>/dev/null\" \"truffle test test/1_trans.js --network fork && yarn kill\"",
+    "test:fork": "concurrently \"yarn ganache>/dev/null\" \"truffle test test/1_trans.js --debug --network fork && yarn kill\"",
     "kill": "kill $(lsof -t -i:8545)"
   },
   "repository": {
