@@ -35,20 +35,46 @@ module.exports = async function (deployer) {
         don.address
     ));
 
-    console.log(await comp.addTokenData(
+    async function addTokenData(_symbol, _linkAddress, _aLinkAddress, _pricefeed, _decimals){
+        await comp.addTokenData(
+        _symbol,
+        _linkAddress, 
+        _aLinkAddress, 
+        _pricefeed, 
+        _decimals)
+    };
+
+    addTokenData(
         "LINK",
         linkAddress,
         aLinkAddress,
         "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c",
         8
-    ));
+    );
 
+    // console.log(await comp.addTokenData(
+    //     "LINK",
+    //     linkAddress,
+    //     aLinkAddress,
+    //     "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c",
+    //     8
+    // ));
 
-    // Adding a recipient of the donation amounts
-    await don.addRecipient(
+    async function addRecipient(_admin, _recipientname){
+        await don.addRecipient(
         admin,
         "DEV"
-    );
+        );
+    };
+
+    addRecipient(admin,
+        "DEV");
+
+    // Adding a recipient of the donation amounts
+    // await don.addRecipient(
+    //     admin,
+    //     "DEV"
+    // );
 
     // Creating public pool
     console.log(await pub.createPool("LINK", "Test1", 45, {
