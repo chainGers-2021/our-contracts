@@ -4,8 +4,6 @@ const PublicPools = artifacts.require("PublicPools");
 const DonationPools = artifacts.require("DonationPools");
 
 module.exports = async function (deployer) {
-  console.log("\n--Deploying contracts--\n");
-
   await deployer.deploy(Comptroller);
   comp = await Comptroller.deployed();
 
@@ -17,13 +15,7 @@ module.exports = async function (deployer) {
   pub = await PublicPools.deployed();
   don = await DonationPools.deployed();
 
-  console.log("\n--Setting pool addresses in comptroller--\n")
+  console.log("\n--Setting pool addresses in comptroller--\n");
   // Setting pool addresses in comptroller contract
-  await comp.setPoolAddresses(
-    pvt.address,
-    pub.address,
-    don.address
-  );
-
-  console.log("\nSuccessfull!\n");
+  await comp.setPoolAddresses(pvt.address, pub.address, don.address);
 };
