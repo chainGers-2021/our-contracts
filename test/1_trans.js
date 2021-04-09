@@ -137,5 +137,5 @@ contract("--PublicPools testing--", async (accounts) => {
   //   console.log("Pool scaled balance: ", parseInt(await iscal.scaledBalanceOf(comp.address)));
   // });
 
-  console.log("--End of PublicPools Testing");
+  console.log("--End of PublicPools Testing--");
 });

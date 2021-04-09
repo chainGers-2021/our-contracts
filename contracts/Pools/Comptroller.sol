@@ -71,7 +71,7 @@ contract Comptroller is Ownable
         if(_typePrivate)
             (,tokenSymbol,,,,,,) = PrivatePools(privatePoolsContract).poolNames(_poolName);
         else
-            (,tokenSymbol,,,,,,) = PublicPools(privatePoolsContract).poolNames(_poolName);
+            (,tokenSymbol,,,,,,) = PublicPools(publicPoolsContract).poolNames(_poolName);
 
         Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
         IERC20 token = IERC20(poolTokenData.token);
