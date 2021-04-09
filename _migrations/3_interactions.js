@@ -90,7 +90,7 @@ module.exports = async function (deployer) {
     // depositing into a pool
     for (i = 1; i < 5; i++) {
         console.log(await link.approve(comp.address, toWei(1), { from: accounts[i] }));
-        console.log(await comp.depositERC20("Test1", toWei(1), "LINK", false, { from: accounts[i] }));
+        console.log(await comp.depositERC20("Test1", toWei(1), false, { from: accounts[i] }));
         console.log("User scaled amount: ", (await pub.getUserScaledDeposit("Test1", { from: accounts[i] })).toString());
         console.log("LINK balance of ", i, " : ", parseInt(await link.balanceOf(accounts[i])));
     }

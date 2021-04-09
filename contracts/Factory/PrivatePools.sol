@@ -36,7 +36,7 @@ contract PrivatePools is IPools, Ownable
     modifier checkPoolName(string calldata _poolName)
     {
         require(
-            keccak256(abi.encode(_poolName)) != keccak256(""),
+            keccak256(abi.encode(_poolName)) != keccak256(abi.encode('')),
             "Pool name can't be empty !"
         );
         _;
@@ -75,12 +75,15 @@ contract PrivatePools is IPools, Ownable
         (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(_symbol);
 
         require(
-            keccak256(abi.encode(_symbol)) != keccak256(""),
+            priceFeed != address(0),
+            "Token/pricefeed doesn't exist"
+        );
+        require(
+            keccak256(abi.encode(_symbol)) != keccak256(abi.encode('')),
             "Token symbol can't be empty !"
         );
         require(
-            keccak256(abi.encode(poolNames[_poolName].poolName)) !=
-                keccak256(abi.encode(_poolName)),
+            keccak256(abi.encode(poolNames[_poolName].poolName)) != keccak256(abi.encode(_poolName)),
             "Pool name already taken !"
         );
         // Disabled for testing
@@ -133,6 +136,8 @@ contract PrivatePools is IPools, Ownable
 
         pool.verified[msg.sender] = true;
         pool.signatures[_signature] = true;
+
+        emit verified(_poolName, msg.sender, block.timestamp);
     }
 
     function deposit(
@@ -167,7 +172,12 @@ contract PrivatePools is IPools, Ownable
         );
         pool.poolScaledAmount = pool.poolScaledAmount.add(_scaledAmount);
 
-        emit newDeposit(_poolName, _sender, _scaledAmount, block.timestamp);
+        emit newDeposit(
+            _poolName, 
+            _sender, 
+            _scaledAmount, 
+            block.timestamp
+        );
         emit totalUserScaledDeposit(
             _poolName,
             _sender,
@@ -221,12 +231,13 @@ contract PrivatePools is IPools, Ownable
          * nominalFee = withdrawalFeeAmount - poolReward
          */
 
+
         _amount = calculateWithdrawalAmount(_poolName, _amount, _sender);
 
         emit newWithdrawal(
             _poolName,
             _sender,
-            (_amount.mul(reserveNormalizedIncome)).div(10**27),
+            _amount,
             block.timestamp
         );
         emit totalUserScaledDeposit(
@@ -282,7 +293,7 @@ contract PrivatePools is IPools, Ownable
     {
         uint256 rewardScaledAmount = (_amount.mul(poolNames[_poolName].rewardScaledAmount)).div(poolNames[_poolName].poolScaledAmount);
         poolNames[_poolName].rewardScaledAmount = poolNames[_poolName].rewardScaledAmount.sub(rewardScaledAmount);
-        poolNames[_poolName].poolScaledAmount = poolNames[_poolName].poolScaledAmount.sub(_amount); // Test whether only _amount needs to be subtracted.
+        poolNames[_poolName].poolScaledAmount = poolNames[_poolName].poolScaledAmount.sub(_amount);
         poolNames[_poolName].userScaledDeposits[_sender] = poolNames[_poolName].userScaledDeposits[_sender].sub(_amount);
 
         if(poolNames[_poolName].active) 

@@ -63,11 +63,17 @@ contract Comptroller is Ownable
     function depositERC20(
         string calldata _poolName,
         uint256 _amount,
-        string calldata _tokenSymbol,
         bool _typePrivate // If false => PublicPool
     ) external 
     {
-        Datatypes.TokenData memory poolTokenData = tokenData[_tokenSymbol];
+        string memory tokenSymbol;
+
+        if(_typePrivate)
+            (,tokenSymbol,,,,,,) = PrivatePools(privatePoolsContract).poolNames(_poolName);
+        else
+            (,tokenSymbol,,,,,,) = PublicPools(privatePoolsContract).poolNames(_poolName);
+
+        Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
         IERC20 token = IERC20(poolTokenData.token);
         address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
 
@@ -99,7 +105,7 @@ contract Comptroller is Ownable
 
 		uint256 donationAmount = DonationPools(donationPoolsContract).donate(
 			newScaledDeposit,
-			_tokenSymbol
+			tokenSymbol
 		);
 
         if(_typePrivate)
@@ -107,7 +113,7 @@ contract Comptroller is Ownable
             PrivatePools(privatePoolsContract).deposit(
                 _poolName,
                 newScaledDeposit.sub(donationAmount),
-                _tokenSymbol,
+                tokenSymbol,
                 msg.sender
             );
         }
@@ -116,7 +122,7 @@ contract Comptroller is Ownable
             PublicPools(publicPoolsContract).deposit(
                 _poolName,
                 newScaledDeposit.sub(donationAmount),
-                _tokenSymbol,
+                tokenSymbol,
                 msg.sender
             );
         }
@@ -125,7 +131,7 @@ contract Comptroller is Ownable
 	function withdrawERC20(
 		string calldata _poolName, 
 		uint256 _amount,
-		bool _typePrivate // If false => PublicPool and if true => PrivatePool
+		bool _typePrivate // If false => PublicPool 
 	) external
 	{
 		string memory tokenSymbol;
@@ -206,7 +212,4 @@ contract Comptroller is Ownable
             msg.sender
         );
 	}
-
-    // Functions for testing
-    
 }
