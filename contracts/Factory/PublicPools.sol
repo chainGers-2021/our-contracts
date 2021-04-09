@@ -65,10 +65,10 @@ contract PublicPools is IPools, Ownable
         onlyOwner 
     {
         require(
-            keccak256(abi.encode(_symbol)) != keccak256(abi.encode('')),
+            keccak256(abi.encode(_symbol)) != keccak256(abi.encode("")),
             "Token symbol can't be empty !"
         );
-        
+
         (, , , address priceFeed, uint8 decimals) =
             Comptroller(comptrollerContract).tokenData(_symbol);
 
