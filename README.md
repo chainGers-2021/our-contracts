@@ -4,6 +4,7 @@
  - `yarn`: Installation
  - `yarn compile`: Compilation
  - `yarn test`: Testing on local dev(as specified in `development` network in `truffle.config.js`)
+ - `yarn test:revert`: **Testing on truffle**
  - `yarn test:fork`: **Testing on forked blockchain**
  - `yarn migrate`: Migrating on `Kovan`
 

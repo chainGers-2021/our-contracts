@@ -4,12 +4,12 @@
   "description": "Smart contracts repository for Chainlink hackathon",
   "scripts": {
     "compile": "truffle compile",
-    "test": "truffle test --debug",
     "migrate:dev": "truffle migrate --reset --network development",
     "migrate:kovan": "truffle migrate --reset --network kovan",
     "verify": "truffle run verify Comptroller PrivatePools PublicPools DonationPools --network kovan --license MIT",
     "ganache": "ganache-cli -d -v -f https://eth-kovan.alchemyapi.io/v2/HizICpPzb2rrsMUGqr0TwPgoTqR4t0nA",
-    "test:fork": "concurrently \"yarn ganache>/dev/null\" \"yarn test && yarn kill\"",
+    "test:revert": "truffle test test/2_reverts.js",
+    "test:fork": "concurrently \"yarn ganache>/dev/null\" \"truffle test test/1_trans.js --network fork && yarn kill\"",
     "kill": "kill $(lsof -t -i:8545)"
   },
   "repository": {
