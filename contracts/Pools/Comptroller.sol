@@ -8,8 +8,8 @@ import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/c
 import { Datatypes } from '../Libraries/Datatypes.sol';
 import { ScaledMath } from '../Libraries/ScaledMath.sol';
 import './DonationPools.sol';
-import '../Factory/PrivatePools.sol';
-import '../Factory/PublicPools.sol';
+import './PrivatePools.sol';
+import './PublicPools.sol';
 
 
 contract Comptroller is Ownable
