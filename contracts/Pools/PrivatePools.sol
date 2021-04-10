@@ -85,8 +85,7 @@ contract PrivatePools is IPools, Ownable
             "Pool name already taken !"
         );
         // require(
-        //     _targetPrice >
-        //         uint256(priceFeedData(priceFeed)).div(10**uint256(decimals)),
+        //     _targetPrice.mul(10**uint256(decimals)) > uint256(priceFeedData(priceFeed)),
         //     "Target price is lesser than current price"
         // );
 
@@ -154,7 +153,7 @@ contract PrivatePools is IPools, Ownable
             checkPoolBreak(_poolName);
 
         require(
-            pool.active,
+            poolNames[_poolName].active, 
             "Pool not active !"
         );
 
@@ -169,7 +168,7 @@ contract PrivatePools is IPools, Ownable
         );
         emit totalPoolDeposit(
             _poolName,
-            pool.poolScaledAmount.scaledToReal(
+           pool.poolScaledAmount.scaledToReal(
                 Comptroller(comptrollerContract).getReserveIncome(pool.symbol)
             ),
             block.timestamp
@@ -199,24 +198,18 @@ contract PrivatePools is IPools, Ownable
         checkPoolName(_poolName)
         returns(uint256)
     {
-        uint256 reserveNormalizedIncome;
-
         if(poolNames[_poolName].active)
             checkPoolBreak(_poolName);
 
-        // Scoping out the variables to avoid stack too deep errors
-        {
-            (, address token, , , ) = Comptroller(comptrollerContract).tokenData(poolNames[_poolName].symbol);
-            address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
-            reserveNormalizedIncome = ILendingPool(lendingPool).getReserveNormalizedIncome(token);
-            _amount = (_amount.mul(10**27)).div(reserveNormalizedIncome);
-            (_amount == 0)? _amount = poolNames[_poolName].userScaledDeposits[_sender]: _amount;
-        }
-
+        // Converting the given amount to scaled amount
+        _amount = _amount.realToScaled(Comptroller(comptrollerContract).getReserveIncome(poolNames[_poolName].symbol));
+        (_amount == 0)? _amount = poolNames[_poolName].userScaledDeposits[_sender]: _amount;
+        
         require(
             poolNames[_poolName].userScaledDeposits[_sender] >= _amount,
             "Amount exceeds user's reward amount !"
         );
+
         /**
          * Reward = UD*RA/PD
          * RA = RA - Reward
@@ -232,6 +225,21 @@ contract PrivatePools is IPools, Ownable
             _poolName,
             _sender,
             _amount,
+            block.timestamp
+        );
+
+        // Converting scaled amount to real amount
+        _amount = _amount.scaledToReal(Comptroller(comptrollerContract).getReserveIncome(poolNames[_poolName].symbol));
+
+        emit newWithdrawal(
+            _poolName,
+            _sender,
+            _amount,
+            block.timestamp
+        );
+        emit totalPoolDeposit(
+            _poolName,
+            _amount, 
             block.timestamp
         );
         emit totalUserScaledDeposit(

@@ -30,6 +30,7 @@ contract PublicPools is IPools, Ownable
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
     mapping(string => Datatypes.PublicPool) public poolNames;
 
+
     modifier checkPoolName(string calldata _poolName)
     {
         require(
@@ -76,8 +77,7 @@ contract PublicPools is IPools, Ownable
             "Pool name already taken !"
         );
         // require(
-        //     _targetPrice >
-        //         uint256(priceFeedData(priceFeed)).div(10**uint256(decimals)),
+        //     _targetPrice.mul(10**uint256(decimals)) > uint256(priceFeedData(priceFeed)),
         //     "Target price is lesser than current price"
         // );
 

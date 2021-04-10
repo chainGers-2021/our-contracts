@@ -4,7 +4,6 @@ const PublicPools = artifacts.require("PublicPools");
 const DonationPools = artifacts.require("DonationPools");
 const ERC20 = artifacts.require("IERC20");
 const IScaledBalanceToken = artifacts.require("IScaledBalanceToken");
-
 const LINK = {
   Symbol: "LINK",
   TokenAddr: "0xad5ce863ae3e4e9394ab43d4ba0d80f419f61789",
@@ -18,7 +17,7 @@ const BAT = {
   aTokenAddr: "0x28f92b4c8Bdab37AF6C4422927158560b4bB446e",
   Pricefeed: "0x8e67A0CFfbbF6A346ce87DFe06daE2dc782b3219",
   Decimals: 8,
-}
+};
 const UNI = {
   Symbol: "UNI",
   TokenAddr: "0x075a36ba8846c6b6f53644fdd3bf17e5151789dc",
@@ -48,6 +47,10 @@ const toWei = (x) => {
 const fromWei = (x) => {
   return (x / 10 ** 18).toString();
 };
+
+const ScaledBalance = async(aTokenAddr, compAddr) => {
+  return parseInt(await IScaledBalanceToken.at(aTokenAddr).scaledBalanceOf(compAddr));
+}
 
 async function addToken(Token) {
   await comp.addTokenData(
@@ -267,6 +270,10 @@ module.exports = async function (callback) {
   bat = await ERC20.at(BAT.TokenAddr);
   zrx = await ERC20.at(ZRX.TokenAddr);
   snx = await ERC20.at(SNX.TokenAddr);
+  const ScaledBalance = async(aTokenAddr) => {
+    iscal = await IScaledBalanceToken.at(aTokenAddr);
+    return parseInt(await iscal.scaledBalanceOf(comp.address));
+  }
 
   console.log("\n--Starting up the migrations--\n");
   console.log("Admin ETH balance: ", await web3.eth.getBalance(admin));
@@ -308,23 +315,33 @@ module.exports = async function (callback) {
   console.log("\nPopulating public pools\n");
 
   await populatePool("LPUBLIC", LINK, 10, false);
+  console.log("Pool scaled balance: ", await ScaledBalance(LINK.aTokenAddr));
   await populatePool("BPUBLIC", BAT, 100, false);
+  console.log("Pool scaled balance: ", await ScaledBalance(BAT.aTokenAddr));
   await populatePool("SPUBLIC", SNX, 1, false);
+  console.log("Pool scaled balance: ", await ScaledBalance(SNX.aTokenAddr));
 
   console.log("\nPopulating private pools\n");
 
   await populatePool("LPRIVATE", LINK, 10, true);
+  console.log("Pool scaled balance: ", await ScaledBalance(LINK.aTokenAddr));
   await populatePool("ZPRIVATE", ZRX, 100, true);
+  console.log("Pool scaled balance: ", await ScaledBalance(ZRX.aTokenAddr));
   // await populatePool("UPRIVATE", UNI, 10, true);
 
   console.log("\nDe-populating private pools\n");
-  await dePopulatePool("LPRIVATE", LINK, true);
+  // await dePopulatePool("LPRIVATE", LINK, true);
+  // console.log("Pool scaled balance: ", await ScaledBalance(LINK.aTokenAddr));
   await dePopulatePool("ZPRIVATE", ZRX, true);
+  console.log("Pool scaled balance: ", await ScaledBalance(ZRX.aTokenAddr));
 
   console.log("\nDe-populating public pools\n");
   await dePopulatePool("LPUBLIC", LINK, false);
+  console.log("Pool scaled balance: ", await ScaledBalance(LINK.aTokenAddr));
   await dePopulatePool("BPUBLIC", BAT, false);
+  console.log("Pool scaled balance: ", await ScaledBalance(BAT.aTokenAddr));
   await dePopulatePool("SPUBLIC", SNX, false);
+  console.log("Pool scaled balance: ", await ScaledBalance(SNX.aTokenAddr));
 
   console.log("\n--Pools simulation complete--\n");
   // callback("Completed");
