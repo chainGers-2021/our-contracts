@@ -84,10 +84,10 @@ contract PrivatePools is IPools, Ownable
             keccak256(abi.encode(poolNames[_poolName].poolName)) != keccak256(abi.encode(_poolName)),
             "Pool name already taken !"
         );
-        // require(
-        //     _targetPrice.mul(10**uint256(decimals)) > uint256(priceFeedData(priceFeed)),
-        //     "Target price is lesser than current price"
-        // );
+        require(
+            _targetPrice.mul(10**uint256(decimals)) > uint256(priceFeedData(priceFeed)),
+            "Target price is lesser than current price"
+        );
 
         Datatypes.PrivatePool storage newPool = poolNames[_poolName];
 
@@ -259,14 +259,14 @@ contract PrivatePools is IPools, Ownable
 
     function checkPoolBreak(string calldata _poolName) internal
     {
-        // Datatypes.PrivatePool storage pool = poolNames[_poolName];
-        // (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
+        Datatypes.PrivatePool storage pool = poolNames[_poolName];
+        (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
 
         
-        // if (
-        //     pool.active &&
-        //     pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
-        // ) { pool.active = false; }
+        if (
+            pool.active &&
+            pool.targetPrice.mul(10**uint256(decimals)) <= uint256(priceFeedData(priceFeed))
+        ) { pool.active = false; }
     }
 
     function priceFeedData(address _aggregatorAddress)

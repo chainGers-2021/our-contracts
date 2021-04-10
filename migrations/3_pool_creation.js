@@ -329,7 +329,7 @@ module.exports = async function (callback) {
   console.log("Pool scaled balance: ", await ScaledBalance(ZRX.aTokenAddr));
   // await populatePool("UPRIVATE", UNI, 10, true);
 
-  console.log("\nDe-populating private pools\n");
+  console.log("\nDe-populating private pools except LINK pool\n");
   // await dePopulatePool("LPRIVATE", LINK, true);
   // console.log("Pool scaled balance: ", await ScaledBalance(LINK.aTokenAddr));
   await dePopulatePool("ZPRIVATE", ZRX, true);

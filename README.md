@@ -89,14 +89,339 @@ to do the same tests for the PrivatePools.
   - `Do the above given tests`
 
 # Kovan deployment
-Comptroller
-Pass - Verified: https://kovan.etherscan.io/address/0x7Ca34A16A5Cc596Ae904c0e037f1c19104E89059#contracts
+Verifying Comptroller
+Pass - Verified: https://kovan.etherscan.io/address/0xf2Ad9aBa18d5Ab625023Cd78a2D84c7aF8A0e63d#contracts
+Verifying PrivatePools
+Pass - Verified: https://kovan.etherscan.io/address/0x15400da9b82f865A1Bf8D253AA8128ffbAec5d43#contracts
+Verifying PublicPools
+Pass - Verified: https://kovan.etherscan.io/address/0x669665F1182A57A4182e1B63bb12E530E1388f01#contracts
+Verifying DonationPools
+Pass - Verified: https://kovan.etherscan.io/address/0x41ce3B221939a0a9D09B766Fb8ea72e2dd0B3Ed0#contracts
+# Kovan Deployment Test
 
-PrivatePools
-Pass - Verified: https://kovan.etherscan.io/address/0x2F416f6A1d76Ab9dd50b61058E5eA2de379BcD8c#contracts
+Starting migrations...
+======================
+> Network name:    'kovan'
+> Network id:      42
+> Block gas limit: 12500000 (0xbebc20)
 
-PublicPools
-Pass - Verified: https://kovan.etherscan.io/address/0x4aEbD27e8f9c90aF79ccFcf0Da9a607f04f43df1#contracts
 
-DonationPools
-Pass - Verified: https://kovan.etherscan.io/address/0x12F7953e925DDae5d799004614863740e217F5F9#contracts
+1_initial_migrations.js
+=======================
+
+   Replacing 'Migrations'
+   ----------------------
+   > transaction hash:    0xb174fa4034f730e1e9e5242f710d3b111d420ee42734e13e3fed15670d5b2280
+   > Blocks: 0            Seconds: 5
+   > contract address:    0x07ed6Dd2baB815CBbaAe29F123De9DB768A29835
+   > block number:        24212881
+   > block timestamp:     1618053716
+   > account:             0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195
+   > balance:             7.517332654413667064
+   > gas used:            186963 (0x2da53)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00373926 ETH
+
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.00373926 ETH
+
+
+2_contracts.js
+==============
+
+   Replacing 'ScaledMath'
+   ----------------------
+   > transaction hash:    0xc81409f001d6d23d728aacefc9355efc367cc17df07c3856154aacd41b660c1a
+   > Blocks: 2            Seconds: 13
+   > contract address:    0xbFcEB0EfA6ee28A257fF828D992F855755A778db
+   > block number:        24212885
+   > block timestamp:     1618053748
+   > account:             0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195
+   > balance:             7.512425394413667064
+   > gas used:            203028 (0x31914)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00406056 ETH
+
+
+   Linking
+   -------
+   * Contract: Comptroller <--> Library: ScaledMath (at address: 0xbFcEB0EfA6ee28A257fF828D992F855755A778db)
+
+   Linking
+   -------
+   * Contract: PrivatePools <--> Library: ScaledMath (at address: 0xbFcEB0EfA6ee28A257fF828D992F855755A778db)
+
+   Linking
+   -------
+   * Contract: PublicPools <--> Library: ScaledMath (at address: 0xbFcEB0EfA6ee28A257fF828D992F855755A778db)
+
+   Replacing 'Comptroller'
+   -----------------------
+   > transaction hash:    0x15c39cb46b5e8eaad1966e97cf7d0bdbecb491d0fe2f3c1487ff3590ba6b084d
+   > Blocks: 1            Seconds: 9
+   > contract address:    0xf2Ad9aBa18d5Ab625023Cd78a2D84c7aF8A0e63d
+   > block number:        24212887
+   > block timestamp:     1618053764
+   > account:             0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195
+   > balance:             7.445181654413667064
+   > gas used:            3362187 (0x334d8b)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.06724374 ETH
+
+
+   Replacing 'PrivatePools'
+   ------------------------
+   > transaction hash:    0xa0fec10428da69196db175dd8f2feca2245e8aabed42d6c8ed06ed9bb87f14ec
+   > Blocks: 1            Seconds: 9
+   > contract address:    0x15400da9b82f865A1Bf8D253AA8128ffbAec5d43
+   > block number:        24212889
+   > block timestamp:     1618053780
+   > account:             0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195
+   > balance:             7.378039914413667064
+   > gas used:            3357087 (0x33399f)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.06714174 ETH
+
+
+   Replacing 'PublicPools'
+   -----------------------
+   > transaction hash:    0x49e1f3b9b49d13d6a5fc79ecbd2e17df171995e04b826ee7728bf0e07cab0bc2
+   > Blocks: 1            Seconds: 9
+   > contract address:    0x669665F1182A57A4182e1B63bb12E530E1388f01
+   > block number:        24212891
+   > block timestamp:     1618053796
+   > account:             0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195
+   > balance:             7.324887754413667064
+   > gas used:            2657608 (0x288d48)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.05315216 ETH
+
+
+   Replacing 'DonationPools'
+   -------------------------
+   > transaction hash:    0xfe8ed9ae55e02aecf55f5e35c063b23d8bf4eb38c8accc706c56aefcc6abab69
+   > Blocks: 1            Seconds: 9
+   > contract address:    0x41ce3B221939a0a9D09B766Fb8ea72e2dd0B3Ed0
+   > block number:        24212893
+   > block timestamp:     1618053812
+   > account:             0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195
+   > balance:             7.293740054413667064
+   > gas used:            1557385 (0x17c389)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.0311477 ETH
+
+
+--Setting pool addresses in comptroller--
+
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:           0.2227459 ETH
+
+
+3_pool_creation.js
+==================
+
+--Starting up the migrations--
+
+Admin ETH balance:  7291472194413667064
+Admin LINK balance:  660874001018385100000
+Admin BAT balance:  1e+23
+Admin ZRX balance:  1e+23
+Admin SNX balance:  100000000000000000000
+
+--Transferring necessary ether amount--
+
+
+Successfull!
+
+
+--Transferring necessary tokens--
+
+
+Successfull!
+
+
+--Transferring necessary tokens--
+
+
+Successfull!
+
+
+--Transferring necessary tokens--
+
+
+Successfull!
+
+
+--Transferring necessary tokens--
+
+
+Successfull!
+
+New token  LINK  added.
+New token  BAT  added.
+New token  ZRX  added.
+New token  SNX  added.
+New recipient  DEV  added.
+
+New public pool name:   LPUBLIC 
+Pool symbol:  LINK 
+Owner:  0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195 
+Target price:  35
+
+New public pool name:   BPUBLIC 
+Pool symbol:  BAT 
+Owner:  0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195 
+Target price:  2
+
+New public pool name:   SPUBLIC 
+Pool symbol:  SNX 
+Owner:  0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195 
+Target price:  25
+
+New private pool name:  LPRIVATE 
+Private key:  0x245a68da58c4bd3e3510aea2766a3a07dc596a2a7605fb905002b8926c857315 
+Pool Symbol:  LINK 
+Owner:  0xFe8364114DBDf7e8Fd05F25D1F036939f38fA26d 
+Target price:  35
+
+New private pool name:  ZPRIVATE 
+Private key:  0x3e4230906326f2319b53c104740fc68724dee052573a773db2629b81de12e2b6 
+Pool Symbol:  ZRX 
+Owner:  0x6EC9Ba821ef967c710b398c90E82fb1cce1A91Be 
+Target price:  3
+
+Populating public pools
+
+
+--Depositing tokens in a pool--
+
+LINK  balance of  1  :  58990000001405485000
+LINK  balance of  2  :  63990000001218080000
+LINK  balance of  3  :  65656666667791050000
+LINK  balance of  4  :  66490000000843284000
+
+Successfull!
+
+Pool scaled balance:  20818570622673820000
+
+--Depositing tokens in a pool--
+
+BAT  balance of  1  :  0
+BAT  balance of  2  :  50000000000000000000
+BAT  balance of  3  :  66666666666666660000
+BAT  balance of  4  :  75000000000000000000
+
+Successfull!
+
+Pool scaled balance:  199913742553961000000
+
+--Depositing tokens in a pool--
+
+SNX  balance of  1  :  0
+SNX  balance of  2  :  500000000000000000
+SNX  balance of  3  :  666666666666666800
+SNX  balance of  4  :  750000000000000000
+
+Successfull!
+
+Pool scaled balance:  2068297116612116200
+
+Populating private pools
+
+
+--Depositing tokens in a pool--
+
+LINK  balance of  1  :  48990000001405485000
+LINK  balance of  2  :  58990000001218080000
+LINK  balance of  3  :  62323333334457710000
+LINK  balance of  4  :  63990000000843284000
+
+Successfull!
+
+Pool scaled balance:  41637141186658120000
+
+--Depositing tokens in a pool--
+
+ZRX  balance of  1  :  0
+ZRX  balance of  2  :  50000000000000000000
+ZRX  balance of  3  :  66666666666666660000
+ZRX  balance of  4  :  75000000000000000000
+
+Successfull!
+
+Pool scaled balance:  207751159262677370000
+
+De-populating private pools except LINK pool
+
+
+--Withdrawing tokens from a pool--
+
+ZRX  balance of  1  :  94353264149273430000
+ZRX  balance of  2  :  97104052639518750000
+ZRX  balance of  3  :  98022779341301630000
+ZRX  balance of  4  :  98460867010089500000
+
+Successfull!
+
+Pool scaled balance:  12025338692392395000
+
+De-populating public pools
+
+
+--Withdrawing tokens from a pool--
+
+LINK  balance of  1  :  58405632117272520000
+LINK  balance of  2  :  63690573264176914000
+LINK  balance of  3  :  65452399659409480000
+LINK  balance of  4  :  66331189729469070000
+
+Successfull!
+
+Pool scaled balance:  22064559025941560000
+
+--Withdrawing tokens from a pool--
+
+BAT  balance of  1  :  98053173193924950000
+BAT  balance of  2  :  98951161057923300000
+BAT  balance of  3  :  99252360160813170000
+BAT  balance of  4  :  99380846536310620000
+
+Successfull!
+
+Pool scaled balance:  4187038256239570000
+
+--Withdrawing tokens from a pool--
+
+SNX  balance of  1  :  947736241581444100
+SNX  balance of  2  :  973139092655711500
+SNX  balance of  3  :  981624761799982300
+SNX  balance of  4  :  985653891813595000
+
+Successfull!
+
+Pool scaled balance:  111038843888007940
+
+--Pools simulation complete--
+
+
+   > Saving migration to chain.
+   -------------------------------------
+   > Total cost:                   0 ETH
+
+
+Summary
+=======
+> Total deployments:   6
+> Final cost:          0.22648516 ETH
