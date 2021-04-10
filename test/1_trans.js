@@ -6,6 +6,7 @@ const PublicPools = artifacts.require("PublicPools");
 const DonationPools = artifacts.require("DonationPools");
 const ERC20 = artifacts.require("IERC20");
 const IScaledBalanceToken = artifacts.require("IScaledBalanceToken");
+const ScaledMath = artifacts.require("ScaledMath");
 
 const linkAddress = "0xad5ce863ae3e4e9394ab43d4ba0d80f419f61789";
 const aLinkAddress = "0xeD9044cA8F7caCe8eACcD40367cF2bee39eD1b04";
@@ -26,6 +27,13 @@ contract("--PublicPools testing--", async (accounts) => {
     link = await ERC20.at(linkAddress);
     console.log("Admin ETH balance: ", await web3.eth.getBalance(admin));
     console.log("Admin LINK balance: ", parseInt(await link.balanceOf(admin)));
+
+    await deployer.deploy(ScaledMath);
+    await deployer.link(ScaledMath, Comptroller);
+    await deployer.link(ScaledMath, PrivatePools);
+    await deployer.link(ScaledMath, PublicPools);
+
+
 
     comp = await Comptroller.new();
     pvt = await PrivatePools.new(comp.address);
