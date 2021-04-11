@@ -1,7 +1,22 @@
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger) [![Website https://hodltogether.on.fleek.co/](https://img.shields.io/website-up-down-green-red/http/monip.org.svg)](https://hodltogether.on.fleek.co/) [![PyPI license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
-<img width="1000" src="./images/HodlTogether-Logo-final.png">
+[![Website shields.io](https://img.shields.io/website-up-down-green-red/http/shields.io.svg)](http://shields.io/)
+[![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://GitHub.com/Naereen/ama)
+[![made-with-Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)](http://commonmark.org)
+[![made-for-VSCode](https://img.shields.io/badge/Made%20for-VSCode-1f425f.svg)](https://code.visualstudio.com/)
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Open Source Love png2](https://badges.frapsoft.com/os/v2/open-source.png?v=103)](https://github.com/ellerbrock/open-source-badges/)
 
-# _Welcome to the COOLEST Defi+NFT Hodling Pool!_
+[![ForTheBadge built-with-swag](http://ForTheBadge.com/images/badges/built-with-swag.svg)](https://GitHub.com/Naereen/)
+[![ForTheBadge uses-git](http://ForTheBadge.com/images/badges/uses-git.svg)](https://GitHub.com/)
+[![ForTheBadge uses-js](http://ForTheBadge.com/images/badges/uses-js.svg)](http://ForTheBadge.com)
+[![ForTheBadge powered-by-electricity](http://ForTheBadge.com/images/badges/powered-by-electricity.svg)](http://ForTheBadge.com)
+
+<center>
+<p style="  font-size: 40px">
+Welcome to the COOLEST Defi+NFT Hodling Pool!
+</p>
+
+<img width="1000" src="./images/HodlTogether-Logo-final.png">
 
 <p align = center>
 <img src= "./images/built-with.png">
@@ -9,129 +24,100 @@
 <img src="./images/aave-final-trans.png">
 <img src="./images/chainlink-final-trans.png">
 </p>
+</center>
 
-# Introduction
-We introduce you to the __coolest community hodling pool__ on Ethereum- HodlTogether, which is a spicy amalgamation of the __Defi__, __NFTs__ and __NGOs__. HodlTogether uniquely incentivizes the users to Hodl their tokens which can be of any type such as LINK, ZRX, BAT, SRX, etc. for a long period of time. By doing so, they also contribute to the betterment of society and community development, as they donate a certain amount of their Hodled tokens to the NGO associated with the Hodling pool.
+## Introduction
+
+We introduce you to the **coolest community hodling pool** on _Ethereum- HodlTogether_, which is a _spicy amalgamation_ of the **Defi**, **NFTs** and **NGOs**. HodlTogether uniquely incentivizes the users to _Hodl_ their tokens which can be of any type such as _LINK_, _ZRX_, _BAT_, _SRX_, etc. for a long period of time. By doing so, they also contribute to the betterment of society and community development, as they donate a certain amount of their _Hodled tokens_ to the **NGO** associated with the _Hodling pool_.
 
 ## Aim of the Project
-The ongoing pandemic has certainly tested our resolve but it has also presented to us the world of cryptocurrencies. Number of people holding cryptocurrencies and digital assets has risen exponentially and the crypto community has benefitted from this rise as more of them want to explore the possibilities in this space. 
 
-Many *amateur traders* who just started exploring this space buy tokens and sell it as soon as there is a small rise in the prices as there always remains this fear that the market may crash anytime (emotional trading). Due to this, they lose the opportunity to truly gain from holding their tokens long term. Also, the tokens sit idle in their wallets which can actually be put to better use when invested in different protocols and projects.
+- The ongoing pandemic has certainly tested our resolve but it has also presented to us the world of cryptocurrencies. Number of people holding cryptocurrencies and digital assets has risen exponentially and the crypto community has benefitted from this rise as more of them want to explore the possibilities in this space.
 
-Our platform allows creation of pools by *anyone* wherein they can hold their tokens until a target price is reached (this is determined beforehand by the pool creator). Their idle assets collect interest using the Aave protocol. A *portion* of their earnings is given to __NGOs__ or charities vetted by the community or developers. The hodlers are __rewarded__ with __exciting NFTs__ created by these non-profit organisations.
+- Many _amateur traders_ who just started exploring this space buy tokens and sell it as soon as there is a small rise in the prices as there always remains this fear that the market may crash anytime (emotional trading). Due to this, they lose the opportunity to truly gain from holding their tokens long term. Also, the tokens sit idle in their wallets which can actually be put to better use when invested in different protocols and projects.
 
-## Incentivisation Method
+- Our platform allows creation of pools by _anyone_ wherein they can hold their tokens until a target price is reached (this is determined beforehand by the pool creator). Their idle assets collect interest using the Aave protocol. A _portion_ of their earnings is given to **NGOs** or charities vetted by the community or developers. The hodlers are **rewarded** with **exciting NFTs** created by these non-profit organisations.
 
-When a person joins a pool, they are expected to hold their tokens until the target price of the pool is achieved. If they wish to withdraw their tokens before the target price is achieved, they can do so but a percentage of their withdrawal amount is given to the pool members and the NGOs. Upon achieving the target price of the pool, there is no withdrawal fee and the amount returned includes the interest accrued in Aave protocol. The hodlers are also eligible to receive NFTs created by partner NGOs. Distribution of NFTs can be done on a lottery basis or by leaderboard rankings. This simple theory discourages emotional trading and makes hodling exciting and rewarding.
+## Incentivization Method
+
+ - When a person joins a pool, they are expected to hold their tokens until the target price of the pool is achieved. If they wish to withdraw their tokens before the target price is achieved, they can do so but a percentage of their withdrawal amount is given to the pool members and the NGOs. Upon achieving the target price of the pool, there is no withdrawal fee and the amount returned includes the interest accrued in Aave protocol. The hodlers are also eligible to receive NFTs created by partner NGOs. Distribution of NFTs can be done on a lottery basis or by leaderboard rankings. This simple theory discourages emotional trading and makes hodling exciting and rewarding.
 
 ## Pools
 
 Each pool consists of a token type and a target price. Ex: A pool for LINK token or a pool for BAT token. There are two types of a pool:
 
-1. __Public pools__
+### **1. Public pools**
+These types of pools are created by the developers and the target price is set ideally as the **all time high** value of the token that pool represents. If the mood around the token price is bearish then developers can choose to set the price lower than the ATH as necessary. There is no barrier to entry in these types of pools. A **Unique thing** about HodlTogether's Public pools is that it also awards **NFTs** to the _top 5 Hodlers_ of each Public pool. These NFTs are of **ERC-1155** standard and are different for each type of token.
 
-These types of pools are created by the developers and the target price is set ideally as the __all time high__ value of the token that pool represents. If the mood around the token price is bearish then developers can choose to set the price lower than the ATH as necessary. There is no barrier to entry in these types of pools. A __Unique thing__ about HodlTogether's Public pools is that it also awards __NFTs__ to the *top 5 Hodlers* of each Public pool. These NFTs are of __ERC-1155__ standard and are different for each type of token.
+### **2. Private pools**
 
-2. __Private pools__
+ - These types of pools can be created by _anyone_ and the target price can be set as desired beforehand. These pools can be made for any type of token that the user desires. To participate/join in these pools, one needs to have a private key/invitation which is only known to the pool creator. This key isn’t stored anywhere and is shown only once after the creation of the pool. This private key is only required once for verification purposes but otherwise, deposition and withdrawal of tokens can be done without this key.
 
-These types of pools can be created by *anyone* and the target price can be set as desired beforehand. These pools can be made for any type of token that the user desires. To participate/join in these pools, one needs to have a private key/invitation which is only known to the pool creator. This key isn’t stored anywhere and is shown only once after the creation of the pool. This private key is only required once for verification purposes but otherwise, deposition and withdrawal of tokens can be done without this key.  
+ - During deposition, each user is charged a minimal amount of fee equivalent to **1%** of the total deposition amount. This fee amount is distributed equally amongst the NGOs that are associated with the platform. A user can withdraw his/her tokens from these pools anytime, but he will need to pay a **5%** _withdrawal fee_ that will be distributed among the NGOs and the pool members. A user can avoid this withdrawal fee entirely if he/she chooses to hodl his/her tokens in the pool until the pool breaks (target price is achieved) automatically. Thus, the users are _incentivized_ to deposit and _hodl_ their tokens together.
 
-During deposition, each user is charged a minimal amount of fee equivalent to __1%__ of the total deposition amount. This fee amount is distributed equally amongst the NGOs that are associated with the platform. A user can withdraw his/her tokens from these pools anytime, but he will need to pay a __5%__ *withdrawal fee* that will be distributed among the NGOs and the pool members. A user can avoid this withdrawal fee entirely if he/she chooses to hodl his/her tokens in the pool until the pool breaks (target price is achieved) automatically. Thus, the users are *incentivized* to deposit and *hodl* their tokens together.
-
-So, the private pools gives the users the ability to create a personal pool which they can share only with the people whom they want to invite. But unlike public pools, the private pools do not have the ERC-1155 token rewards for the top hodlers of the pool.  
+ - So, the private pools gives the users the ability to create a personal pool which they can share only with the people whom they want to invite. But unlike public pools, the private pools do not have the ERC-1155 token rewards for the top hodlers of the pool.
 
 ## When does the pool break?
-The public pools break i.e. get closed when the token in the pool reaches its all time high or when it reaches its week's highest price. In case of private pools, the creator of the pool himself sets the price point of when the pool should break. So he needs to be careful in choosing the right price when he thinks the pool should break as setting this value too high can result in the  pools never breaking. The token rewards are freely distributed amongst the participants without any withdrawal fee only after the pools breaks.
+
+ - The public pools break i.e. get closed when the token in the pool reaches its all time high or when it reaches its week's highest price. In case of private pools, the creator of the pool himself sets the price point of when the pool should break. So he needs to be careful in choosing the right price when he thinks the pool should break as setting this value too high can result in the pools never breaking. The token rewards are freely distributed amongst the participants without any withdrawal fee only after the pools breaks.
 
 ## How to run?
- - `yarn`: Installation
- - `yarn compile`: Compilation
- - `yarn test`: Testing on local dev(as specified in `development` network in `truffle.config.js`)
- - `yarn test:revert`: **Testing on truffle**
- - `yarn test:fork`: **Testing on forked blockchain**
+
+- `yarn`: Installation
+- `yarn compile`: Compilation
+- `yarn test`: Testing on local dev(as specified in `development` network in `truffle.config.js`)
+- `yarn test:revert`: **Testing on truffle**
+- `yarn test:fork`: **Testing on forked blockchain**
+- Currently tests can't be run on ganache fork due to [linking library error](https://ethereum.stackexchange.com/questions/97061/how-to-make-a-deployer-in-truffle-tests).
 
 ## **Migrating on kovan/fork**
- - `truffle migrate --network [fork/kovan]`
- - `truffle exec scripts/3_pool_creation.js --network [fork/kovan]`
+
+- `truffle migrate --network [fork/kovan]`
+- `truffle exec scripts/3_pool_creation.js --network [fork/kovan]`
 
 ### Extra note:
+
 For manual testing on fork:
- - `yarn ganache`: Starting the forked blockchain
- - `yarn test in another terminal`: Testing on local dev(as specified in `development` network in `truffle.config.js`)
+
+- `yarn ganache`: Starting the forked blockchain
+- `yarn test in another terminal`: Testing on local dev(as specified in `development` network in `truffle.config.js`)
 
 ## Description
- - Deposit process(test)
-   - deposit erc20 to Comptroller
 
- - Validate user
- - Deposit ERC20 to Comptroller
- - Comptroller `deposit()` to `AAVE Lending Pool`
- - Amount quote is given to private pools
+- Deposit process(test)
 
-## Logs
-UserA = 100, pool.deposit(_factoryAddress)
-UserB = 100, pool.deposit(_factoryAddress)
-UserC = 100, pool.deposit(_factoryAddress)
+  - deposit erc20 to Comptroller
 
-aToken.balanceOf(_factoryAddress) = 389
-
-m[_user]
-
-Interest = 89
-(
-    how to distribute to users(on the basis of what?):
-    scaledBalance(m[_user])
-)
-
-(totalDeposited/currentBalance)
-
-## Experiments:
-```
-rashtrakoff@chinmay-linux:/media/rashtrakoff/CHINMAYHDD/Blockchain_Projects/Chainlink Hackathon/our-contracts$ yarn 2
-yarn run v1.22.5
-$ hh task2 --network kovan
-web3-shh package will be deprecated in version 1.3.5 and will no longer be supported.
-web3-bzz package will be deprecated in version 1.3.5 and will no longer be supported.
-Account address:  0x3D356DCBAc29e69a7fc237f45F8318E099268a0e
-Ether balance:  1311056856522194786
-liquidityIndex now: 1.0006897086865483
-ERC20 balance:  3041127000239174122795
-Approve1:  29056
-Deposit1() gas used:  182996
-Scaled balance1:  26051219820589467
-liquidityIndex now: 1.0006897136324642
-Approve2  29056
-Deposit2() gas used:  182984
-liquidityIndex now: 1.0006897139775282
-Scaled balance2:  28049841343389403
-aToken approve() gas used:  26844
-Withdraw() gas used:  195513
-Scaled balance after withdraw:  25051909060223264
-ERC20 balance:  3041127000239174122795
-liquidityIndex now: 1.0006897143225921
-Done in 74.77s.
-```
+- Validate user
+- Deposit ERC20 to Comptroller
+- Comptroller `deposit()` to `AAVE Lending Pool`
+- Amount quote is given to private pools
 
 ## Instructions for Testing
-# Test for depositERC20 in comptroller
- - `Create 10 users and deposit 1 link token by all of them`
- - `Check the scaled balance of all the 10 users`
 
-# Test for withdrawERC20 in comptroller
-  - `Let all the 10 users withdraw their tokens`
-  - `Check their scaled balances after withdrawing`
-  - `Check if the final returned amount is greater than initial deposit amount`
+### Test for depositERC20 in comptroller
 
-Note: All the above said tests are to be done using PublicPools in mind. Now below instructions will tell you how 
+- `Create 10 users and deposit 1 link token by all of them`
+- `Check the scaled balance of all the 10 users`
+
+### Test for withdrawERC20 in comptroller
+
+- `Let all the 10 users withdraw their tokens`
+- `Check their scaled balances after withdrawing`
+- `Check if the final returned amount is greater than initial deposit amount`
+
+> Note: All the above said tests are to be done using PublicPools in mind. Now below instructions will tell you how
 to do the same tests for the PrivatePools.
 
-# Create a PrivatePool
-  - `Create a PrivatePool, this can be done by anyone but for testing purpose use admin account`
-  - `Create an account using web3 (create method). This will return an account object containing the address and private key`
-  - `Let 5 users join this pool using the private key. To do this, you have to sign a random hex string (can be generated using web3) and call the verification function in the PrivatePools contract.`
-  - `Do the above given tests`
+### Create a PrivatePool
 
-# Kovan deployment
+- `Create a PrivatePool, this can be done by anyone but for testing purpose use admin account`
+- `Create an account using web3 (create method). This will return an account object containing the address and private key`
+- `Let 5 users join this pool using the private key. To do this, you have to sign a random hex string (can be generated using web3) and call the verification function in the PrivatePools contract.`
+- `Do the above given tests`
+
+## Kovan deployment
+```
 Verifying Comptroller
 Pass - Verified: https://kovan.etherscan.io/address/0xf2Ad9aBa18d5Ab625023Cd78a2D84c7aF8A0e63d#contracts
 Verifying PrivatePools
@@ -140,8 +126,11 @@ Verifying PublicPools
 Pass - Verified: https://kovan.etherscan.io/address/0x669665F1182A57A4182e1B63bb12E530E1388f01#contracts
 Verifying DonationPools
 Pass - Verified: https://kovan.etherscan.io/address/0x41ce3B221939a0a9D09B766Fb8ea72e2dd0B3Ed0#contracts
-# Kovan Deployment Test
+```
 
+## Deployment logs
+
+```
 Starting migrations...
 ======================
 > Network name:    'kovan'
@@ -318,31 +307,31 @@ New token  ZRX  added.
 New token  SNX  added.
 New recipient  DEV  added.
 
-New public pool name:   LPUBLIC 
-Pool symbol:  LINK 
-Owner:  0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195 
+New public pool name:   LPUBLIC
+Pool symbol:  LINK
+Owner:  0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195
 Target price:  35
 
-New public pool name:   BPUBLIC 
-Pool symbol:  BAT 
-Owner:  0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195 
+New public pool name:   BPUBLIC
+Pool symbol:  BAT
+Owner:  0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195
 Target price:  2
 
-New public pool name:   SPUBLIC 
-Pool symbol:  SNX 
-Owner:  0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195 
+New public pool name:   SPUBLIC
+Pool symbol:  SNX
+Owner:  0x5A0e9605a31696b24Dc12e19D3D16694Cc39D195
 Target price:  25
 
-New private pool name:  LPRIVATE 
-Private key:  0x245a68da58c4bd3e3510aea2766a3a07dc596a2a7605fb905002b8926c857315 
-Pool Symbol:  LINK 
-Owner:  0xFe8364114DBDf7e8Fd05F25D1F036939f38fA26d 
+New private pool name:  LPRIVATE
+Private key:  0x245a68da58c4bd3e3510aea2766a3a07dc596a2a7605fb905002b8926c857315
+Pool Symbol:  LINK
+Owner:  0xFe8364114DBDf7e8Fd05F25D1F036939f38fA26d
 Target price:  35
 
-New private pool name:  ZPRIVATE 
-Private key:  0x3e4230906326f2319b53c104740fc68724dee052573a773db2629b81de12e2b6 
-Pool Symbol:  ZRX 
-Owner:  0x6EC9Ba821ef967c710b398c90E82fb1cce1A91Be 
+New private pool name:  ZPRIVATE
+Private key:  0x3e4230906326f2319b53c104740fc68724dee052573a773db2629b81de12e2b6
+Pool Symbol:  ZRX
+Owner:  0x6EC9Ba821ef967c710b398c90E82fb1cce1A91Be
 Target price:  3
 
 Populating public pools
@@ -468,3 +457,46 @@ Summary
 =======
 > Total deployments:   6
 > Final cost:          0.22648516 ETH
+```
+
+## Contributors
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/rashtrakoff">
+          <img src="https://avatars2.githubusercontent.com/u/55590938" width="100;" alt="anupam"/>
+          <br />
+          <sub><b>Chinmay Sai Vemuri</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/sksuryan">
+          <img src="https://avatars.githubusercontent.com/u/42460131" width="100;" alt="anupam"/>
+          <br />
+          <sub><b>Saurabh Kumar Suryan</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/akcgjc007">
+          <img src="https://avatars2.githubusercontent.com/u/56300182" width="100;" alt="anupam"/>
+          <br />
+          <sub><b>Anupam Kumar</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/shantanhunt">
+          <img src="https://avatars.githubusercontent.com/u/63099646" width="100;" alt="anupam"/>
+          <br />
+          <sub><b>Shantanu Sontakke
+</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/pran01">
+          <img src="https://avatars.githubusercontent.com/u/55594298" width="100;" alt="anupam"/>
+          <br />
+          <sub><b>Pranav Sinha</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
