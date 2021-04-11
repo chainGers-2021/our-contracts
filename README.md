@@ -3,7 +3,7 @@
 ## _The Coolest Defi+NFT Hodling Pool_
 
 <p align = center>
-< img scr= "https://storageapi.fleek.co/chaingers2021-team-bucket/badges/built-with.png">
+< img src= "https://storageapi.fleek.co/chaingers2021-team-bucket/badges/built-with.png">
 [![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/aave-final-trans.png)](https://aave.com/) [![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/chainlink-final-trans.png)](https://chain.link/) 
 
 </p>
