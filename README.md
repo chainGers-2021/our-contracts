@@ -106,16 +106,14 @@ to do the same tests for the PrivatePools.
 - `Do the above given tests`
 
 ## Kovan deployment
-```
-Verifying Comptroller
-Pass - Verified: https://kovan.etherscan.io/address/0xf2Ad9aBa18d5Ab625023Cd78a2D84c7aF8A0e63d#contracts
-Verifying PrivatePools
-Pass - Verified: https://kovan.etherscan.io/address/0x15400da9b82f865A1Bf8D253AA8128ffbAec5d43#contracts
-Verifying PublicPools
-Pass - Verified: https://kovan.etherscan.io/address/0x669665F1182A57A4182e1B63bb12E530E1388f01#contracts
-Verifying DonationPools
-Pass - Verified: https://kovan.etherscan.io/address/0x41ce3B221939a0a9D09B766Fb8ea72e2dd0B3Ed0#contracts
-```
+### Comptroller
+ - Pass - Verified: https://kovan.etherscan.io/address/0xf2Ad9aBa18d5Ab625023Cd78a2D84c7aF8A0e63d#contracts
+### PrivatePools
+ - Pass - Verified: https://kovan.etherscan.io/address/0x15400da9b82f865A1Bf8D253AA8128ffbAec5d43#contracts
+### PublicPools
+ - Pass - Verified: https://kovan.etherscan.io/address/0x669665F1182A57A4182e1B63bb12E530E1388f01#contracts
+### DonationPools
+ - Pass - Verified: https://kovan.etherscan.io/address/0x41ce3B221939a0a9D09B766Fb8ea72e2dd0B3Ed0#contracts
 
 ## Deployment logs
 
