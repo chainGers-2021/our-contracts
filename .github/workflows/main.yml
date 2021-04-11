@@ -13,4 +13,4 @@ jobs:
         with:
           node-version: "12.x"
       - run: npx yarn
-      - run: npx yarn test:revert
+      - run: npx yarn test:fork
