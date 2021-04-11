@@ -4,6 +4,9 @@
 
 <p align = center>
 <img src= "./images/built-with.png">
+<br>
+<img src="./images/aave-final-trans.png">
+<img src="./images/chainlink-final-trans.png">
 </p>
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger) [![Website https://hodltogether.on.fleek.co/](https://img.shields.io/website-up-down-green-red/http/monip.org.svg)](https://hodltogether.on.fleek.co/) [![PyPI license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
