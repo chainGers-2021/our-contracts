@@ -1,4 +1,26 @@
-# our-contracts
+# HodlTogether
+## _The Coolest Defi+NFT Hodling Pool_
+[![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/HodlTogether-Logo-3.PNG)](https://aave.com/)
+
+[![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/built-with.png)](https://aave.com/)
+[![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/aave-final-trans.png)](https://aave.com/) [![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/chainlink-final-trans.png)](https://chain.link/) 
+
+
+[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger) [![Website https://hodltogether.on.fleek.co/](https://img.shields.io/website-up-down-green-red/http/monip.org.svg)](https://hodltogether.on.fleek.co/) [![PyPI license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
+
+# Introduction
+We introduce you to the __coolest community hodling pool__ on Ethereum- HodlTogether, which is a spicy amalgamation of the __Defi__, __NFTs__ and __NGOs__. HodlTogether uniquely incentivizes the users to Hodl their tokens which can be of any type such as LINK, ZRX, BAT, SRX, etc. for a long period of time. By doing so, they also contribute to the betterment of society and community development, as they donate a certain amount of their Hodled tokens to the NGO associated with the Hodling pool.
+## How does the tokenomics work?
+Hodltogether consists of _**two types**_ of pools- __Public pool__ and __Private pool__. Users can freely choose to deposit or Hodl their tokens in any of these two types. Each type of token has a unique Public pool which can be joined by any user. If a user decides to deposit his tokens in a Public pool, his tokens are locked into the contract and are automatically deposited into __*Aave lending pools*__, thus generating atoken rewards for him. During this deposit, each user is charged a __minimal amount__ of fee equivalent to __1%__ of the total amount. This fee amount is distributed equally amongst the NGOs that are associated with the pool when the pool breaks. The user can withdraw his tokens from these pools anytime, but he will need to pay __4%__ withdrawal fee that will be be __distributed equally__ amongst the remaining hodlers in the pool. The user can *avoid* this withdrawal fee entirely if he chooses to hodl his tokens in the pool until the pool breaks automatically. Thus, the users are incentivized to deposit and hodl their tokens together.
+
+A __*Unique thing*__ about HodlTogether's Public pools is that it also awards __NFTs__ to the __top 5__ Hodlers of each __Public pool__. These NFTs are of __ERC-1155__ standard and are different for each type of token.
+
+The Private pools are the pools that can be made by any user for a specific type of token. Unlike public pools, these private pools need the permission of the pool admin i.e. the pool creator to join. The pool admin gets a new private key which he can share with the other participants and invite them to join the pool. So, the private pools gives the users the ability to create a personal pool which they can share only with the people whom they want to invite. But unlike public pools, the private pools do not have the ERC-1155 token rewards for the top hodlers of the pool.  
+
+## When does the pool break?
+The public pools break i.e. get closed when the token in the pool reaches its all time high or when it reaches its week's highest price. In case of private pools, the creator of the pool himself sets the price point of when the pool should break. So he needs to be careful in choosing the right price when he thinks the pool should break as setting this value too high can result in the  pools never breaking. The token rewards are freely distributed amongst the participants only after the pools break
+
+
 
 ## How to run?
  - `yarn`: Installation
