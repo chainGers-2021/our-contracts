@@ -3,6 +3,7 @@
 [![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/HodlTogether-Logo-3.PNG)](https://aave.com/)
 
 [![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/built-with.png)](https://aave.com/)
+
 [![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/aave-final-trans.png)](https://aave.com/) [![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/chainlink-final-trans.png)](https://chain.link/) 
 
 
