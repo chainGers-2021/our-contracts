@@ -2,10 +2,12 @@
 
 ## _The Coolest Defi+NFT Hodling Pool_
 
+<p align = center>
 [![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/built-with.png)](https://aave.com/)
 
 [![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/aave-final-trans.png)](https://aave.com/) [![N|Solid](https://storageapi.fleek.co/chaingers2021-team-bucket/badges/chainlink-final-trans.png)](https://chain.link/) 
 
+</p>
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger) [![Website https://hodltogether.on.fleek.co/](https://img.shields.io/website-up-down-green-red/http/monip.org.svg)](https://hodltogether.on.fleek.co/) [![PyPI license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
 
