@@ -6,7 +6,9 @@
 <p align = center>
 <img src= "./images/built-with.png">
 <br>
+<a href="https://aave.com/">
 <img src="./images/aave-final-trans.png">
+<a href="https://chain.link/">
 <img src="./images/chainlink-final-trans.png">
 </p>
 
