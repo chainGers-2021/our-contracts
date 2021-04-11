@@ -18,7 +18,7 @@ The ongoing pandemic has certainly tested our resolve but it has also presented 
 
 Many *amateur traders* who just started exploring this space buy tokens and sell it as soon as there is a small rise in the prices as there always remains this fear that the market may crash anytime (emotional trading). Due to this, they lose the opportunity to truly gain from holding their tokens long term. Also, the tokens sit idle in their wallets which can actually be put to better use when invested in different protocols and projects.
 
-Our platform allows creation of pools by *anyone* wherein they can hold their tokens until a target price is reached (this is determined beforehand by the pool creator). Their idle assets collect interest using the Aave protocol. A *portion* of their earnings is given to __NGOs__ or charities vetted by the community or developers. The hodlers are *rewarded* with exciting NFTs created by these non-profit organisations.
+Our platform allows creation of pools by *anyone* wherein they can hold their tokens until a target price is reached (this is determined beforehand by the pool creator). Their idle assets collect interest using the Aave protocol. A *portion* of their earnings is given to __NGOs__ or charities vetted by the community or developers. The hodlers are __rewarded__ with __exciting NFTs__ created by these non-profit organisations.
 
 ## Incentivisation Method
 
@@ -36,7 +36,7 @@ These types of pools are created by the developers and the target price is set i
 
 These types of pools can be created by *anyone* and the target price can be set as desired beforehand. These pools can be made for any type of token that the user desires. To participate/join in these pools, one needs to have a private key/invitation which is only known to the pool creator. This key isn’t stored anywhere and is shown only once after the creation of the pool. This private key is only required once for verification purposes but otherwise, deposition and withdrawal of tokens can be done without this key.  
 
-During deposition, each user is charged a minimal amount of fee equivalent to __1%__ of the total deposition amount. This fee amount is distributed equally amongst the NGOs that are associated with the platform. A user can withdraw his/her tokens from these pools anytime, but he will need to pay a __4%__ *withdrawal fee* that will be distributed among the NGOs and the pool members. A user can avoid this withdrawal fee entirely if he/she chooses to hodl his/her tokens in the pool until the pool breaks (target price is achieved) automatically. Thus, the users are *incentivized* to deposit and *hodl* their tokens together.
+During deposition, each user is charged a minimal amount of fee equivalent to __1%__ of the total deposition amount. This fee amount is distributed equally amongst the NGOs that are associated with the platform. A user can withdraw his/her tokens from these pools anytime, but he will need to pay a __5%__ *withdrawal fee* that will be distributed among the NGOs and the pool members. A user can avoid this withdrawal fee entirely if he/she chooses to hodl his/her tokens in the pool until the pool breaks (target price is achieved) automatically. Thus, the users are *incentivized* to deposit and *hodl* their tokens together.
 
 So, the private pools gives the users the ability to create a personal pool which they can share only with the people whom they want to invite. But unlike public pools, the private pools do not have the ERC-1155 token rewards for the top hodlers of the pool.  
 
