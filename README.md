@@ -1,4 +1,4 @@
-<img width="1000" src="./images/HodlTogether-Logo-3-final.png">
+<img width="1000" src="./images/HodlTogether-Logo-final.png">
 
 ## _The Coolest Defi+NFT Hodling Pool_
 
