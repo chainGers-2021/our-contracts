@@ -12,9 +12,9 @@
 [![ForTheBadge powered-by-electricity](http://ForTheBadge.com/images/badges/powered-by-electricity.svg)](http://ForTheBadge.com)
 
 <center>
-<p style="  font-size: 40px">
+<h1 align="center">
 Welcome to the COOLEST Defi+NFT Hodling Pool!
-</p>
+</h1>
 
 <img width="1000" src="./images/HodlTogether-Logo-final.png">
 
