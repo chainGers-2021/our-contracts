@@ -82,17 +82,6 @@ For manual testing on fork:
 - `yarn ganache`: Starting the forked blockchain
 - `yarn test in another terminal`: Testing on local dev(as specified in `development` network in `truffle.config.js`)
 
-## Description
-
-- Deposit process(test)
-
-  - deposit erc20 to Comptroller
-
-- Validate user
-- Deposit ERC20 to Comptroller
-- Comptroller `deposit()` to `AAVE Lending Pool`
-- Amount quote is given to private pools
-
 ## Instructions for Testing
 
 ### Test for depositERC20 in comptroller
