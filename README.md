@@ -1,6 +1,6 @@
 <img width="1000" src="./images/HodlTogether-Logo-final.png">
 
-# _wELCOME to the Coolest Defi+NFT Hodling Pool_
+# _Welcome to the COOLEST Defi+NFT Hodling Pool!_
 
 <p align = center>
 <img src= "./images/built-with.png">
