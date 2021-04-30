@@ -18,7 +18,7 @@ import '../Interfaces/IPools.sol';
  * @notice Private pools creation and functions related to private pools.
  * @author Chinmay Vemuri
  */
-contract PrivatePools is IPools, Ownable 
+contract Pools is IPools, Ownable 
 {
     using ECDSA for bytes32;
     using SafeMath for uint256;
@@ -28,7 +28,7 @@ contract PrivatePools is IPools, Ownable
     address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
     address comptrollerContract;
     uint256 constant REWARD_FEE_PER = 400; // Fee percentage (basis points) given to Pool members.
-    mapping(string => Datatypes.PrivatePool) public poolNames;
+    mapping(string => Datatypes.Pools) public poolNames;
 
 
     modifier checkPoolName(string calldata _poolName)
@@ -42,10 +42,13 @@ contract PrivatePools is IPools, Ownable
 
     modifier onlyVerified(string calldata _poolName, address _sender) 
     {
-        require(
-            poolNames[_poolName].verified[_sender],
-            "User not verified by the pool"
-        );
+        if(poolNames[_poolName].typePrivate)
+        {
+            require(
+                poolNames[_poolName].verified[_sender],
+                "User not verified by the pool"
+            );
+        }
         _;
     }
 
@@ -67,7 +70,7 @@ contract PrivatePools is IPools, Ownable
         string calldata _symbol,
         string calldata _poolName,
         uint256 _targetPrice,
-        address _poolAccountAddress // For invitation purpose
+        address _poolAccountAddress // For private pools only, to create a public pool, set address(0)
     ) external checkPoolName(_poolName)
     {
         (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(_symbol);
@@ -89,7 +92,7 @@ contract PrivatePools is IPools, Ownable
             "Target price is lesser than current price"
         );
 
-        Datatypes.PrivatePool storage newPool = poolNames[_poolName];
+        Datatypes.Pools storage newPool = poolNames[_poolName];
 
         newPool.poolName = _poolName;
         newPool.owner = msg.sender;
@@ -97,15 +100,19 @@ contract PrivatePools is IPools, Ownable
         newPool.accountAddress = _poolAccountAddress;
         newPool.targetPrice = _targetPrice;
         newPool.active = true;
-        newPool.poolScaledAmount = 0;
+        newPool.poolScaledAmount = 0; // required ?
         newPool.verified[msg.sender] = true;
+
+        if(_poolAccountAddress != address(0))
+            newPool.typePrivate = true;
 
         emit newPoolCreated(
             _poolName,
             msg.sender,
             _symbol,
             _targetPrice,
-            block.timestamp
+            block.timestamp,
+            newPool.typePrivate
         );
     }
 
@@ -115,11 +122,15 @@ contract PrivatePools is IPools, Ownable
         bytes calldata _signature
     ) external checkPoolName(_poolName)
     {
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
+        Datatypes.Pools storage pool = poolNames[_poolName];
 
         require(
             pool.active,
             "Pool not active !"
+        );
+        require(
+            pool.typePrivate,
+            "Pool is not private"
         );
         require(
             _messageHash.recover(_signature) == poolNames[_poolName].accountAddress,
@@ -147,7 +158,7 @@ contract PrivatePools is IPools, Ownable
         onlyComptroller
         checkPoolName(_poolName) 
     {
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
+        Datatypes.Pools storage pool = poolNames[_poolName];
 
         if(pool.active)
             checkPoolBreak(_poolName);
@@ -259,7 +270,7 @@ contract PrivatePools is IPools, Ownable
 
     function checkPoolBreak(string calldata _poolName) internal
     {
-        Datatypes.PrivatePool storage pool = poolNames[_poolName];
+        Datatypes.Pools storage pool = poolNames[_poolName];
         (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(pool.symbol);
 
         

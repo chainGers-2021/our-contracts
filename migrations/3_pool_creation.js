@@ -1,6 +1,5 @@
 const Comptroller = artifacts.require("Comptroller");
-const PrivatePools = artifacts.require("PrivatePools");
-const PublicPools = artifacts.require("PublicPools");
+const Pools = artifacts.require("Pools");
 const DonationPools = artifacts.require("DonationPools");
 const ERC20 = artifacts.require("IERC20");
 const IScaledBalanceToken = artifacts.require("IScaledBalanceToken");
@@ -78,7 +77,7 @@ async function createPool(
   ownerAddr = admin
 ) {
   if (!typePrivate) {
-    await pub.createPool(symbol, poolName, targetPrice, {
+    await pools.createPool(symbol, poolName, targetPrice, '0x0000000000000000000000000000000000000000',{
       from: ownerAddr,
     });
 
@@ -94,7 +93,7 @@ async function createPool(
     );
   } else {
     newPoolAccount = await web3.eth.accounts.create();
-    await pvt.createPool(
+    await pools.createPool(
       symbol,
       poolName,
       targetPrice,
@@ -108,7 +107,7 @@ async function createPool(
         message,
         newPoolAccount.privateKey
       );
-      await pvt.verifyPoolAccess(
+      await pools.verifyPoolAccess(
         poolName,
         signObject.messageHash,
         signObject.signature,
@@ -152,54 +151,18 @@ async function fundAccountsERC20(Token, amount) {
   console.log("\nSuccessfull!\n");
 }
 
-async function populatePool(poolName, Token, maxAmount, typePrivate) {
+async function populatePool(poolName, Token, maxAmount) {
   token = await ERC20.at(Token.TokenAddr);
 
   console.log("\n--Depositing tokens in a pool--\n");
 
-  if (typePrivate) {
-    for (i = 1; i < 5; i++) {
-      await token.approve(comp.address, toWei(maxAmount / i), {
-        from: accounts[i],
-      });
-      await comp.depositERC20(poolName, toWei(maxAmount / i), typePrivate, {
-        from: accounts[i],
-      });
-      console.log(
-        Token.Symbol,
-        " balance of ",
-        i,
-        " : ",
-        parseInt(await token.balanceOf(accounts[i]))
-      );
-    }
-  } else {
-    for (i = 1; i < 5; i++) {
-      await token.approve(comp.address, toWei(maxAmount / i), {
-        from: accounts[i],
-      });
-      await comp.depositERC20(poolName, toWei(maxAmount / i), typePrivate, {
-        from: accounts[i],
-      });
-      console.log(
-        Token.Symbol,
-        " balance of ",
-        i,
-        " : ",
-        parseInt(await token.balanceOf(accounts[i]))
-      );
-    }
-  }
-
-  console.log("\nSuccessfull!\n");
-}
-
-async function dePopulatePool(poolName, Token, typePrivate) {
-  token = await ERC20.at(Token.TokenAddr);
-  console.log("\n--Withdrawing tokens from a pool--\n");
-
   for (i = 1; i < 5; i++) {
-    await comp.withdrawERC20(poolName, 0, typePrivate, { from: accounts[i] });
+    await token.approve(comp.address, toWei(maxAmount / i), {
+      from: accounts[i],
+    });
+    await comp.depositERC20(poolName, toWei(maxAmount / i), {
+      from: accounts[i],
+    });
     console.log(
       Token.Symbol,
       " balance of ",
@@ -212,7 +175,25 @@ async function dePopulatePool(poolName, Token, typePrivate) {
   console.log("\nSuccessfull!\n");
 }
 
-async function depositByUser(poolName, amount, Token, typePrivate, user) {
+async function dePopulatePool(poolName, Token) {
+  token = await ERC20.at(Token.TokenAddr);
+  console.log("\n--Withdrawing tokens from a pool--\n");
+
+  for (i = 1; i < 5; i++) {
+    await comp.withdrawERC20(poolName, 0, { from: accounts[i] });
+    console.log(
+      Token.Symbol,
+      " balance of ",
+      i,
+      " : ",
+      parseInt(await token.balanceOf(accounts[i]))
+    );
+  }
+
+  console.log("\nSuccessfull!\n");
+}
+
+async function depositByUser(poolName, amount, Token, user) {
   token = await ERC20.at(Token.TokenAddr);
 
   console.log("\n--Transferring necessary tokens--\n");
@@ -228,7 +209,7 @@ async function depositByUser(poolName, amount, Token, typePrivate, user) {
   console.log("\n--Depositing tokens in a pool--\n");
 
   await token.approve(comp.address, amount, { from: user });
-  await comp.depositERC20(poolName, amount, typePrivate, { from: user });
+  await comp.depositERC20(poolName, amount, { from: user });
   console.log(
     Token.Symbol,
     " balance of ",
@@ -240,11 +221,11 @@ async function depositByUser(poolName, amount, Token, typePrivate, user) {
   console.log("\nSuccessfull!\n");
 }
 
-async function withdrawByUser(poolName, amount, Token, typePrivate, user) {
+async function withdrawByUser(poolName, amount, Token, user) {
   token = await ERC20.at(Token.TokenAddr);
   console.log("\n--Withdrawal by ", user, " initiated--\n");
 
-  await comp.withdrawERC20(poolName, amount, typePrivate, { from: user });
+  await comp.withdrawERC20(poolName, amount, { from: user });
   console.log(
     Token.Symbol,
     " balance of ",
@@ -262,8 +243,7 @@ module.exports = async function (callback) {
   [admin, user1, user2, user3, _] = accounts;
 
   comp = await Comptroller.deployed();
-  pvt = await PrivatePools.deployed();
-  pub = await PublicPools.deployed();
+  pools = await Pools.deployed();
   don = await DonationPools.deployed();
   link = await ERC20.at(LINK.TokenAddr);
   // uni = await ERC20.at(UNI.TokenAddr);
@@ -301,14 +281,14 @@ module.exports = async function (callback) {
   await addRecipient(admin, "DEV");
 
   // Creating a few public pools
-  await createPool(LINK.Symbol, "LPUBLIC", 35, false);
+  await createPool(LINK.Symbol, "LPUBLIC", 50, false);
   // await createPool(UNI.Symbol, "UPUBLIC", 35, false);
   // await createPool(YFI.Symbol, "YPUBLIC", 50000, false);
   await createPool(BAT.Symbol, "BPUBLIC", 2, false);
   await createPool(SNX.Symbol, "SPUBLIC", 25, false);
 
   //Creating a few private pools
-  await createPool(LINK.Symbol, "LPRIVATE", 35, true, user1);
+  await createPool(LINK.Symbol, "LPRIVATE", 50, true, user1);
   // await createPool(UNI.Symbol, "UPRIVATE", 35, true, user2);
   await createPool(ZRX.Symbol, "ZPRIVATE", 3, true, user3);
 

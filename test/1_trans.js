@@ -1,7 +1,8 @@
+// The following tests won't work for the new contracts
 const truffleAssert = require("truffle-assertions");
 const assert = require("assert");
 const Comptroller = artifacts.require("Comptroller");
-const PrivatePools = artifacts.require("PrivatePools");
+const Pools = artifacts.require("Pools");
 const PublicPools = artifacts.require("PublicPools");
 const DonationPools = artifacts.require("DonationPools");
 const ERC20 = artifacts.require("IERC20");
@@ -30,8 +31,7 @@ contract("--PublicPools testing--", async (accounts) => {
 
     await deployer.deploy(ScaledMath);
     await deployer.link(ScaledMath, Comptroller);
-    await deployer.link(ScaledMath, PrivatePools);
-    await deployer.link(ScaledMath, PublicPools);
+    await deployer.link(ScaledMath, Pools);
 
 
 
@@ -84,7 +84,7 @@ contract("--PublicPools testing--", async (accounts) => {
     }
   });
 
-  it.only("Allows users to deposit LINK", async () => {
+  it("Allows users to deposit LINK", async () => {
     // depositing into a pool
     console.log("Balances after Deposit: ");
     for (i = 1; i < 5; i++) {

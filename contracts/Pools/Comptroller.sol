@@ -8,8 +8,7 @@ import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/c
 import { Datatypes } from '../Libraries/Datatypes.sol';
 import { ScaledMath } from '../Libraries/ScaledMath.sol';
 import './DonationPools.sol';
-import './PrivatePools.sol';
-import './PublicPools.sol';
+import './Pools.sol';
 
 
 contract Comptroller is Ownable
@@ -19,21 +18,18 @@ contract Comptroller is Ownable
     using ScaledMath for uint256;
 
 	address public donationPoolsContract;
-	address public privatePoolsContract;
-    address public publicPoolsContract;
+	address public poolsContract;
 	address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
 	mapping(string => Datatypes.TokenData) public tokenData;
 
     event newTokenAdded(string _symbol, address _token, address _aToken);
 
     function setPoolAddresses(
-        address _privatePoolsContract,
-        address _publicPoolsContract,
+        address _poolsContract,
         address _donationPoolsContract
     ) external onlyOwner 
     {
-        privatePoolsContract = _privatePoolsContract;
-        publicPoolsContract = _publicPoolsContract;
+        poolsContract = _poolsContract;
         donationPoolsContract = _donationPoolsContract;
     }
 
@@ -63,16 +59,12 @@ contract Comptroller is Ownable
 
     function depositERC20(
         string calldata _poolName,
-        uint256 _amount,
-        bool _typePrivate // If false => PublicPool
+        uint256 _amount
     ) external 
     {
         string memory tokenSymbol;
 
-        if(_typePrivate)
-            (,tokenSymbol,,,,,,) = PrivatePools(privatePoolsContract).poolNames(_poolName);
-        else
-            (,tokenSymbol,,,,,,) = PublicPools(publicPoolsContract).poolNames(_poolName);
+        (,tokenSymbol,,,,,,,) = Pools(poolsContract).poolNames(_poolName);
 
         Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
         IERC20 token = IERC20(poolTokenData.token);
@@ -108,28 +100,16 @@ contract Comptroller is Ownable
 			tokenSymbol
 		);
 
-        if(_typePrivate)
-        {
-            PrivatePools(privatePoolsContract).deposit(
+        Pools(poolsContract).deposit(
                 _poolName,
                 newScaledDeposit.sub(donationAmount),
                 msg.sender
-            );
-        }
-        else
-        {
-            PublicPools(publicPoolsContract).deposit(
-                _poolName,
-                newScaledDeposit.sub(donationAmount),
-                msg.sender
-            );
-        }
+        );
 	}
 
 	function withdrawERC20(
 		string calldata _poolName, 
-		uint256 _amount,
-		bool _typePrivate // If false => PublicPool 
+		uint256 _amount 
 	) external
 	{
 		string memory tokenSymbol;
@@ -137,24 +117,13 @@ contract Comptroller is Ownable
         uint256 withdrawalAmount;
         
 		
-        if(_typePrivate)
-		{
-			withdrawalAmount = PrivatePools(privatePoolsContract).withdraw(
-				_poolName, 
-				_amount,
-				msg.sender
-			);
-			(,tokenSymbol,penalty,,,,,) = PrivatePools(privatePoolsContract).poolNames(_poolName);
-		}
-		else
-		{
-			withdrawalAmount = PublicPools(publicPoolsContract).withdraw(
-				_poolName, 
-				_amount,
-				msg.sender
-			);
-			(,tokenSymbol,penalty,,,,,) = PublicPools(publicPoolsContract).poolNames(_poolName);
-		}
+        withdrawalAmount = Pools(poolsContract).withdraw(
+            _poolName, 
+            _amount,
+            msg.sender
+        );
+        (,tokenSymbol,penalty,,,,,,) = Pools(poolsContract).poolNames(_poolName);
+		
 		
         Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
 		address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();

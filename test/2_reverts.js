@@ -1,3 +1,4 @@
+// The following tests won't work for new contracts
 const truffleAssert = require("truffle-assertions");
 const Comptroller = artifacts.require("Comptroller");
 const PrivatePools = artifacts.require("PrivatePools");

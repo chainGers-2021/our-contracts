@@ -1,27 +1,24 @@
 const Comptroller = artifacts.require("Comptroller");
-const PrivatePools = artifacts.require("PrivatePools");
-const PublicPools = artifacts.require("PublicPools");
+const Pools = artifacts.require("Pools");
 const DonationPools = artifacts.require("DonationPools");
 const ScaledMath = artifacts.require("ScaledMath");
 
 module.exports = async function (deployer) {
   await deployer.deploy(ScaledMath);
   await deployer.link(ScaledMath, Comptroller);
-  await deployer.link(ScaledMath, PrivatePools);
-  await deployer.link(ScaledMath, PublicPools);
-  
+  await deployer.link(ScaledMath, Pools);
+  await deployer.link(ScaledMath, DonationPools);
+
   await deployer.deploy(Comptroller);
   comp = await Comptroller.deployed();
 
-  await deployer.deploy(PrivatePools, comp.address);
-  await deployer.deploy(PublicPools, comp.address);
+  await deployer.deploy(Pools, comp.address);
   await deployer.deploy(DonationPools, comp.address);
 
-  pvt = await PrivatePools.deployed();
-  pub = await PublicPools.deployed();
+  pools = await Pools.deployed();
   don = await DonationPools.deployed();
 
   console.log("\n--Setting pool addresses in comptroller--\n");
   // Setting pool addresses in comptroller contract
-  await comp.setPoolAddresses(pvt.address, pub.address, don.address);
+  await comp.setPoolAddresses(pools.address, don.address);
 };

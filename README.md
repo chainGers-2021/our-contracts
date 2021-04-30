@@ -95,8 +95,7 @@ For manual testing on fork:
 - `Check their scaled balances after withdrawing`
 - `Check if the final returned amount is greater than initial deposit amount`
 
-> Note: All the above said tests are to be done using PublicPools in mind. Now below instructions will tell you how
-to do the same tests for the PrivatePools.
+> Note: All the above said tests are to be done using PublicPools in mind. Now below instructions will tell you how to do the same tests for the PrivatePools.
 
 ### Create a PrivatePool
 

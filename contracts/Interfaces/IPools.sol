@@ -10,7 +10,8 @@ interface IPools {
         address indexed _owner,
         string symbol,
         uint256 _targetPrice,
-        uint256 _timestamp
+        uint256 _timestamp,
+        bool typePrivate
     );
     event verified(
         string  _poolName,
