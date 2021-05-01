@@ -73,16 +73,17 @@ contract Pools is IPools, Ownable
         address _poolAccountAddress // For private pools only, to create a public pool, set address(0)
     ) external checkPoolName(_poolName)
     {
-        (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(_symbol);
-
-        require(
-            priceFeed != address(0),
-            "Token/pricefeed doesn't exist"
-        );  
         require(
             keccak256(abi.encode(_symbol)) != keccak256(abi.encode('')),
             "Token symbol can't be empty !"
         );
+
+        (, , , address priceFeed, uint8 decimals) = Comptroller(comptrollerContract).tokenData(_symbol);
+
+        require(
+            priceFeed != address(0),
+            "Token/Pricefeed doesn't exist" 
+        );  
         require(
             keccak256(abi.encode(poolNames[_poolName].poolName)) != keccak256(abi.encode(_poolName)),
             "Pool name already taken !"
@@ -100,11 +101,12 @@ contract Pools is IPools, Ownable
         newPool.accountAddress = _poolAccountAddress;
         newPool.targetPrice = _targetPrice;
         newPool.active = true;
-        newPool.poolScaledAmount = 0; // required ?
-        newPool.verified[msg.sender] = true;
-
+        
         if(_poolAccountAddress != address(0))
-            newPool.typePrivate = true;
+        {
+            newPool.typePrivate = true; 
+            newPool.verified[msg.sender] = true;
+        } 
 
         emit newPoolCreated(
             _poolName,
