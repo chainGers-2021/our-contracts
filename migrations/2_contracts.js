@@ -1,9 +1,12 @@
+// Tests not working as expected due to network issues ?
 const Comptroller = artifacts.require("Comptroller");
 const Pools = artifacts.require("Pools");
 const DonationPools = artifacts.require("DonationPools");
 const ScaledMath = artifacts.require("ScaledMath");
 
 module.exports = async function (deployer) {
+  console.log("--Deploying the contracts--");
+
   await deployer.deploy(ScaledMath);
   await deployer.link(ScaledMath, Comptroller);
   await deployer.link(ScaledMath, Pools);
@@ -21,4 +24,6 @@ module.exports = async function (deployer) {
   console.log("\n--Setting pool addresses in comptroller--\n");
   // Setting pool addresses in comptroller contract
   await comp.setPoolAddresses(pools.address, don.address);
+
+  console.log("Sucessfull !");
 };
