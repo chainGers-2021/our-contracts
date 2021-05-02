@@ -50,6 +50,8 @@ contract("--Pools testing--", (accounts) => {
             '0x0000000000000000000000000000000000000000',
             { from: admin }
         );
+
+        aWeth = await ERC20.at(WETH.aTokenAddr);
     });
 
     it("Should be able to deposit ETH", async () => {
@@ -63,5 +65,6 @@ contract("--Pools testing--", (accounts) => {
         await comp.withdrawETH("WPUBLIC", toWei(0), { from: admin });
         console.log("Admin ETH balance after withdrawal: ", await web3.eth.getBalance(admin));
         console.log("Pool scaled balance after withdrawal: ", await ScaledBalance(WETH.aTokenAddr));
+        console.log("aWETH balance after withdrawal: ", parseInt(await aWeth.balanceOf(comp.address)));
     });
 });

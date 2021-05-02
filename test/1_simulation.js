@@ -10,35 +10,42 @@ const LINK = {
   TokenAddr: "0xad5ce863ae3e4e9394ab43d4ba0d80f419f61789",
   aTokenAddr: "0xeD9044cA8F7caCe8eACcD40367cF2bee39eD1b04",
   Pricefeed: "0x396c5E36DD0a0F5a5D33dae44368D4193f69a1F0",
-  Decimals: 8,
+  Decimals: 8
 };
 const BAT = {
   Symbol: "BAT",
   TokenAddr: "0x2d12186Fbb9f9a8C28B3FfdD4c42920f8539D738",
   aTokenAddr: "0x28f92b4c8Bdab37AF6C4422927158560b4bB446e",
   Pricefeed: "0x8e67A0CFfbbF6A346ce87DFe06daE2dc782b3219",
-  Decimals: 8,
+  Decimals: 8
 };
 const UNI = {
   Symbol: "UNI",
   TokenAddr: "0x075a36ba8846c6b6f53644fdd3bf17e5151789dc",
   aTokenAddr: "0x601FFc9b7309bdb0132a02a569FBd57d6D1740f2",
   Pricefeed: "0xDA5904BdBfB4EF12a3955aEcA103F51dc87c7C39",
-  Decimals: 8,
+  Decimals: 8
 };
 const ZRX = {
   Symbol: "ZRX",
   TokenAddr: "0xd0d76886cf8d952ca26177eb7cfdf83bad08c00c",
   aTokenAddr: "0xf02D7C23948c9178C68f5294748EB778Ab5e5D9c",
   Pricefeed: "0x24D6B177CF20166cd8F55CaaFe1c745B44F6c203",
-  Decimals: 8,
+  Decimals: 8
 };
 const SNX = {
   Symbol: "SNX",
   TokenAddr: "0x7fdb81b0b8a010dd4ffc57c3fecbf145ba8bd947",
   aTokenAddr: "0xAA74AdA92dE4AbC0371b75eeA7b1bd790a69C9e1",
   Pricefeed: "0x31f93DA9823d737b7E44bdee0DF389Fe62Fd1AcD",
-  Decimals: 8,
+  Decimals: 8
+};
+const WBTC = {
+  Symbol: "WBTC",
+  TokenAddr: "0xD1B98B6607330172f1D991521145A22BCe793277",
+  aTokenAddr: "0x62538022242513971478fcC7Fb27ae304AB5C29F",
+  Pricefeed: "0x6135b13325bfC4B00278B4abC5e20bbce2D6580e",
+  Decimals: 8
 };
 
 const toWei = (x) => {
