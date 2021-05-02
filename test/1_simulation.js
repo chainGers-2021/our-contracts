@@ -80,7 +80,7 @@ async function createPool(
 ) {
   if (!typePrivate) {
     await pools.createPool(symbol, poolName, targetPrice, '0x0000000000000000000000000000000000000000', {
-      from: ownerAddr,
+      from: ownerAddr
     });
 
     console.log(
@@ -240,7 +240,7 @@ async function withdrawByUser(poolName, amount, Token, user) {
 }
 
 describe("--Pools testing--", () => {
-  it.only("Simulation should pass", async () => {
+  it("Simulation should pass", async () => {
     accounts = await web3.eth.getAccounts();
     [admin, user1, user2, user3, _] = accounts;
 

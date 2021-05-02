@@ -15,7 +15,7 @@ import './Comptroller.sol';
 import '../Interfaces/IPools.sol';
 
 /***
- * @notice Private pools creation and functions related to private pools.
+ * @notice Pool creation and functions related to these functions.
  * @author Chinmay Vemuri
  */
 contract Pools is IPools, Ownable 
@@ -118,6 +118,7 @@ contract Pools is IPools, Ownable
         );
     }
 
+    /// @dev Only for private pool access
     function verifyPoolAccess(
         string calldata _poolName,
         bytes32 _messageHash,

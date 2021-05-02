@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { ILendingPool, ILendingPoolAddressesProvider } from "@aave/protocol-v2/contracts/interfaces/ILendingPool.sol";
+import { IWETHGateway } from "@aave/protocol-v2/contracts/misc/interfaces/IWETHGateway.sol";
 import { Datatypes } from '../Libraries/Datatypes.sol';
 import { ScaledMath } from '../Libraries/ScaledMath.sol';
 import './DonationPools.sol';
@@ -20,6 +21,7 @@ contract Comptroller is Ownable
 	address public donationPoolsContract;
 	address public poolsContract;
 	address lendingPoolAddressProvider = 0x88757f2f99175387aB4C6a4b3067c77A695b0349;
+    address WETHGatewayContractAddress = 0xf8aC10E65F2073460aAD5f28E1EABE807DC287CF;
 	mapping(string => Datatypes.TokenData) public tokenData;
 
     event newTokenAdded(string _symbol, address _token, address _aToken);
@@ -57,14 +59,35 @@ contract Comptroller is Ownable
         emit newTokenAdded(_symbol, _token, _aToken);
     }
 
+    function depositETH(
+        string calldata _poolName
+    ) external payable
+    {
+        IWETHGateway WETHGateway = IWETHGateway(payable(WETHGatewayContractAddress));
+
+        WETHGateway.depositETH{ value: msg.value }(address(this), 0); 
+
+        uint256 newScaledDeposit = (msg.value).realToScaled(getReserveIncome("WETH"));
+
+		uint256 donationAmount = DonationPools(donationPoolsContract).donate(
+			newScaledDeposit,
+			"WETH"
+		);
+
+        Pools(poolsContract).deposit(
+            _poolName,
+            newScaledDeposit.sub(donationAmount),
+            msg.sender
+        );
+    }
+
     function depositERC20(
         string calldata _poolName,
         uint256 _amount
     ) external 
     {
-        string memory tokenSymbol;
 
-        (,tokenSymbol,,,,,,,) = Pools(poolsContract).poolNames(_poolName);
+        (,string memory tokenSymbol,,,,,,,) = Pools(poolsContract).poolNames(_poolName);
 
         Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
         IERC20 token = IERC20(poolTokenData.token);
@@ -101,28 +124,65 @@ contract Comptroller is Ownable
 		);
 
         Pools(poolsContract).deposit(
-                _poolName,
-                newScaledDeposit.sub(donationAmount),
-                msg.sender
+            _poolName,
+            newScaledDeposit.sub(donationAmount),
+            msg.sender
         );
 	}
+
+    function withdrawETH(
+        string calldata _poolName,
+        uint256 _amount
+    ) external
+    {
+        uint256 withdrawalAmount;
+		IWETHGateway WETHGateway = IWETHGateway(payable(WETHGatewayContractAddress));
+
+        withdrawalAmount = Pools(poolsContract).withdraw(
+            _poolName, 
+            _amount,
+            msg.sender
+        );
+
+        (,string memory tokenSymbol, bool penalty,,,,,,) = Pools(poolsContract).poolNames(_poolName);
+		
+        Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
+        
+		// If target price of the pool wasn't achieved, take out the donation amount too.
+		if(penalty)
+		{
+			uint256 donationAmount = DonationPools(donationPoolsContract).donate(
+				withdrawalAmount,
+				tokenSymbol
+			);
+			withdrawalAmount = withdrawalAmount.sub(donationAmount);
+		}
+		
+		// Till now withdrawalAmount was scaled down. Converting this to Real amount is not necessary.
+        // withdrawalAmount = withdrawalAmount.scaledToReal(getReserveIncome(tokenSymbol));
+
+		// Approving aToken pool
+        require(
+            IERC20(poolTokenData.aToken).approve(WETHGatewayContractAddress, withdrawalAmount),
+            "aToken approval failed !"
+        );
+
+        WETHGateway.withdrawETH(withdrawalAmount, payable(msg.sender));
+    }
 
 	function withdrawERC20(
 		string calldata _poolName, 
 		uint256 _amount 
 	) external
 	{
-		string memory tokenSymbol;
-		bool penalty;
         uint256 withdrawalAmount;
-        
 		
         withdrawalAmount = Pools(poolsContract).withdraw(
             _poolName, 
             _amount,
             msg.sender
         );
-        (,tokenSymbol,penalty,,,,,,) = Pools(poolsContract).poolNames(_poolName);
+        (,string memory tokenSymbol, bool penalty,,,,,,) = Pools(poolsContract).poolNames(_poolName);
 		
 		
         Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
@@ -183,4 +243,35 @@ contract Comptroller is Ownable
 
         return ILendingPool(lendingPool).getReserveNormalizedIncome(tokenData[_symbol].token);
     }
+
+    // // Functions for testing
+    // function getWithdrawalAmount(string calldata _poolName, uint256 _amount) external view returns(uint256)
+    // {
+    //     uint256 withdrawalAmount;
+	// 	IWETHGateway WETHGateway = IWETHGateway(payable(WETHGatewayContractAddress));
+
+    //     withdrawalAmount = Pools(poolsContract).withdraw(
+    //         _poolName, 
+    //         _amount,
+    //         msg.sender
+    //     );
+
+    //     (,string memory tokenSymbol, bool penalty,,,,,,) = Pools(poolsContract).poolNames(_poolName);
+		
+    //     Datatypes.TokenData memory poolTokenData = tokenData[tokenSymbol];
+	// 	// address lendingPool = ILendingPoolAddressesProvider(lendingPoolAddressProvider).getLendingPool();
+        
+	// 	// If target price of the pool wasn't achieved, take out the donation amount too.
+	// 	if(penalty)
+	// 	{
+	// 		uint256 donationAmount = DonationPools(donationPoolsContract).donate(
+	// 			withdrawalAmount,
+	// 			tokenSymbol
+	// 		);
+	// 		withdrawalAmount = withdrawalAmount.sub(donationAmount);
+	// 	}
+		
+	// 	// Till now withdrawalAmount was scaled down.
+    //     withdrawalAmount = withdrawalAmount.scaledToReal(getReserveIncome(tokenSymbol));
+    // }
 }

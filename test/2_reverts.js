@@ -1,3 +1,4 @@
+// Error: Only first test case passes even if the order of the tests are changed, whatever is first will pass.
 const truffleAssert = require("truffle-assertions");
 const Comptroller = artifacts.require("Comptroller");
 const Pools = artifacts.require("Pools");
@@ -30,7 +31,7 @@ const fromWei = (x) => {
 
 contract("--Pools testing--", (accounts) => {
 
-  beforeEach(async () => {
+  before(async () => {
     // accounts = await web3.eth.getAccounts();
     [admin, user1, user2, user3, _] = accounts;
 
@@ -74,7 +75,7 @@ contract("--Pools testing--", (accounts) => {
   //   );
   // });
 
-  it("Cannot create Pool with no token symbol", async () => {
+  it.only("Cannot create Pool with no token symbol", async () => {
     await truffleAssert.reverts(
       pools.createPool("", "myPool45", 50, '0x0000000000000000000000000000000000000000', {
         from: admin,
@@ -84,7 +85,6 @@ contract("--Pools testing--", (accounts) => {
   });
 
   it("Cannot create Pool with same name", async () => {
-    // console.log("Creating Duplicate Pool...");
     await pools.createPool("LINK", "myPool45", 50, '0x0000000000000000000000000000000000000000', {
       from: admin,
     });
@@ -101,6 +101,7 @@ contract("--Pools testing--", (accounts) => {
     await pools.createPool("LINK", "myPool45", 50, '0x0000000000000000000000000000000000000000', {
       from: admin,
     });
+
     await truffleAssert.reverts(
       pools.createPool("BAT", "myPool45", 50, '0x0000000000000000000000000000000000000000', {
         from: admin,
