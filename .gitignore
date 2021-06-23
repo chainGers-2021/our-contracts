@@ -1,7 +1,6 @@
 *artifacts*
 *cache*
 *build*
-.env
 .vscode
 
 # Created by .ignore support plugin (hsz.mobi)
@@ -349,7 +348,6 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
